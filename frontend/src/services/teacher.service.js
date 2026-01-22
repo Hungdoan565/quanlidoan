@@ -9,32 +9,25 @@ export const teacherService = {
      */
     getTeacherDashboardStats: async (teacherId) => {
         try {
-            // Lấy số sinh viên đang hướng dẫn
+            // Lấy số sinh viên đang hướng dẫn (Unified Lecturer - chỉ có advisor)
             const { count: guidingCount } = await supabase
                 .from('topics')
                 .select('*', { count: 'exact', head: true })
                 .eq('advisor_id', teacherId)
                 .in('status', ['approved', 'in_progress', 'submitted']);
 
-            // Lấy số sinh viên đang phản biện
-            const { count: reviewingCount } = await supabase
-                .from('topics')
-                .select('*', { count: 'exact', head: true })
-                .eq('reviewer_id', teacherId)
-                .in('status', ['approved', 'in_progress', 'submitted']);
-
-            // Lấy số đề tài chờ duyệt (của sinh viên trong lớp mình phụ trách)
+            // Lấy số đề tài chờ duyệt
             const { data: pendingTopics } = await supabase
                 .from('topics')
                 .select('id')
                 .eq('advisor_id', teacherId)
                 .eq('status', 'pending');
 
-            // Lấy số báo cáo cần chấm
+            // Lấy số báo cáo cần chấm (Unified - advisor chấm tất cả)
             const { count: pendingGrades } = await supabase
                 .from('topics')
                 .select('*', { count: 'exact', head: true })
-                .or(`advisor_id.eq.${teacherId},reviewer_id.eq.${teacherId}`)
+                .eq('advisor_id', teacherId)
                 .eq('status', 'submitted');
 
             // Lấy số đề tài hoàn thành
@@ -46,7 +39,6 @@ export const teacherService = {
 
             return {
                 guidingStudents: guidingCount || 0,
-                reviewingStudents: reviewingCount || 0,
                 pendingApproval: pendingTopics?.length || 0,
                 pendingGrades: pendingGrades || 0,
                 completedTopics: completedCount || 0,
@@ -89,14 +81,14 @@ export const teacherService = {
                 });
             });
 
-            // Báo cáo cần chấm
+            // Báo cáo cần chấm (Unified - chỉ advisor)
             const { data: submittedTopics } = await supabase
                 .from('topics')
                 .select(`
                     id, title,
                     student:profiles!topics_student_id_fkey(full_name)
                 `)
-                .or(`advisor_id.eq.${teacherId},reviewer_id.eq.${teacherId}`)
+                .eq('advisor_id', teacherId)
                 .eq('status', 'submitted')
                 .limit(5);
 
@@ -199,7 +191,7 @@ export const teacherService = {
                     title
                 )
             `)
-            .or(`advisor_id.eq.${user.id},reviewer_id.eq.${user.id}`)
+            .eq('advisor_id', user.id)
             .eq('status', 'pending')
             .order('created_at', { ascending: true });
 
@@ -230,7 +222,7 @@ export const teacherService = {
                     code
                 )
             `)
-            .or(`advisor_id.eq.${user.id},reviewer_id.eq.${user.id}`)
+            .eq('advisor_id', user.id)
             .order('created_at', { ascending: false });
 
         if (status) {
@@ -274,11 +266,6 @@ export const teacherService = {
                     full_name,
                     teacher_code
                 ),
-                reviewer:reviewer_id (
-                    id,
-                    full_name,
-                    teacher_code
-                ),
                 sample_topic:sample_topic_id (
                     id,
                     title,
@@ -307,6 +294,29 @@ export const teacherService = {
             .eq('id', topicId)
             .select()
             .single();
+
+        if (error) throw error;
+        return data;
+    },
+
+    /**
+     * Bulk approve multiple topics
+     */
+    bulkApproveTopics: async (topicIds) => {
+        if (!topicIds || topicIds.length === 0) {
+            throw new Error('Không có đề tài nào được chọn');
+        }
+
+        const { data, error } = await supabase
+            .from('topics')
+            .update({
+                status: 'approved',
+                approved_at: new Date().toISOString(),
+                revision_note: null,
+                rejection_reason: null
+            })
+            .in('id', topicIds)
+            .select();
 
         if (error) throw error;
         return data;
@@ -368,7 +378,7 @@ export const teacherService = {
         const { data, error } = await supabase
             .from('topics')
             .select('status')
-            .or(`advisor_id.eq.${user.id},reviewer_id.eq.${user.id}`);
+            .eq('advisor_id', user.id);
 
         if (error) throw error;
 

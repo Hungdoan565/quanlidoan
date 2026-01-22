@@ -87,8 +87,8 @@ export function useAssignTeacherPair() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ classId, advisorId, reviewerId }) =>
-            classesService.assignTeacherPair(classId, advisorId, reviewerId),
+        mutationFn: ({ classId, advisorId }) =>
+            classesService.assignTeacherPair(classId, advisorId),
         onSuccess: (_, { classId }) => {
             queryClient.invalidateQueries({ queryKey: ['classes'] });
             queryClient.invalidateQueries({ queryKey: ['class', classId] });

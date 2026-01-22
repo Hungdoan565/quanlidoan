@@ -81,6 +81,25 @@ export function useApproveTopic() {
 }
 
 /**
+ * Mutation hook to bulk approve multiple topics
+ */
+export function useBulkApproveTopics() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (topicIds) => teacherService.bulkApproveTopics(topicIds),
+        onSuccess: (data) => {
+            toast.success(`Đã phê duyệt ${data.length} đề tài!`);
+            // Invalidate related queries
+            queryClient.invalidateQueries({ queryKey: teacherReviewKeys.all });
+        },
+        onError: (error) => {
+            toast.error(error.message || 'Có lỗi xảy ra khi phê duyệt');
+        },
+    });
+}
+
+/**
  * Mutation hook to request revision
  */
 export function useRequestRevision() {

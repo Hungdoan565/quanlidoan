@@ -3,7 +3,7 @@
  * Allows setting up criteria with weights for each session
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
     Plus,
     Edit2,
@@ -15,8 +15,6 @@ import {
 } from 'lucide-react';
 import {
     useAllGradingCriteria,
-    useCreateCriteria,
-    useUpdateCriteria,
     useDeleteCriteria,
     useCopyCriteria
 } from '../../../hooks/useGrading';
@@ -49,6 +47,7 @@ export function GradingConfigPage() {
     const [showCopyModal, setShowCopyModal] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [selectedCriteria, setSelectedCriteria] = useState(null);
+    const [defaultGraderType, setDefaultGraderType] = useState('advisor');
 
     // Fetch sessions
     const { data: sessions = [], isLoading: sessionsLoading } = useActiveSessions();
@@ -62,7 +61,7 @@ export function GradingConfigPage() {
     const deleteMutation = useDeleteCriteria();
 
     // Auto-select first session
-    useState(() => {
+    useEffect(() => {
         if (!selectedSessionId && sessions.length > 0) {
             setSelectedSessionId(sessions[0].id);
         }
@@ -73,7 +72,6 @@ export function GradingConfigPage() {
         const criteria = criteriaData?.data || [];
         const groups = {
             advisor: [],
-            reviewer: [],
             council: []
         };
         criteria.forEach(c => {
@@ -88,7 +86,6 @@ export function GradingConfigPage() {
     const weightTotals = useMemo(() => {
         return {
             advisor: groupedCriteria.advisor.reduce((sum, c) => sum + (c.weight || 0), 0),
-            reviewer: groupedCriteria.reviewer.reduce((sum, c) => sum + (c.weight || 0), 0),
             council: groupedCriteria.council.reduce((sum, c) => sum + (c.weight || 0), 0),
         };
     }, [groupedCriteria]);
@@ -115,8 +112,9 @@ export function GradingConfigPage() {
         setSelectedCriteria(null);
     };
 
-    const handleAddNew = () => {
+    const handleAddNew = (graderType = 'advisor') => {
         setSelectedCriteria(null);
+        setDefaultGraderType(graderType);
         setShowFormModal(true);
     };
 
@@ -134,10 +132,6 @@ export function GradingConfigPage() {
                     <Button variant="outline" onClick={() => setShowCopyModal(true)}>
                         <Copy size={16} />
                         <span>Copy từ đợt khác</span>
-                    </Button>
-                    <Button onClick={handleAddNew}>
-                        <Plus size={16} />
-                        <span>Thêm tiêu chí</span>
                     </Button>
                 </div>
             </div>
@@ -190,16 +184,7 @@ export function GradingConfigPage() {
                         totalWeight={weightTotals.advisor}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
-                    />
-
-                    {/* GVPB Section */}
-                    <CriteriaSection
-                        title="Tiêu chí GVPB"
-                        type="reviewer"
-                        criteria={groupedCriteria.reviewer}
-                        totalWeight={weightTotals.reviewer}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
+                        onAdd={() => handleAddNew('advisor')}
                     />
 
                     {/* Council Section */}
@@ -210,6 +195,7 @@ export function GradingConfigPage() {
                         totalWeight={weightTotals.council}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
+                        onAdd={() => handleAddNew('council')}
                     />
                 </div>
             )}
@@ -223,6 +209,7 @@ export function GradingConfigPage() {
                 }}
                 criteria={selectedCriteria}
                 sessionId={selectedSessionId}
+                defaultGraderType={defaultGraderType}
             />
 
             <CopyCriteriaModal
@@ -249,7 +236,7 @@ export function GradingConfigPage() {
 /**
  * Criteria Section Component
  */
-function CriteriaSection({ title, type, criteria, totalWeight, onEdit, onDelete }) {
+function CriteriaSection({ title, type, criteria, totalWeight, onEdit, onDelete, onAdd }) {
     const isValidWeight = Math.abs(totalWeight - 1) < 0.01; // Allow small floating point errors
 
     return (
@@ -259,19 +246,26 @@ function CriteriaSection({ title, type, criteria, totalWeight, onEdit, onDelete 
                     <div className="criteria-section-title">
                         <h3>{title}</h3>
                         <Badge variant="outline">{GRADER_TYPE_LABELS[type]}</Badge>
+                        <Badge variant="default" size="sm">{criteria.length} tiêu chí</Badge>
                     </div>
-                    <div className={`weight-indicator ${isValidWeight ? 'valid' : 'invalid'}`}>
-                        {isValidWeight ? (
-                            <CheckCircle size={16} />
-                        ) : (
-                            <AlertCircle size={16} />
-                        )}
-                        <span>Tổng: {(totalWeight * 100).toFixed(0)}%</span>
-                        {!isValidWeight && totalWeight > 0 && (
-                            <span className="weight-warning">
-                                (Cần = 100%)
-                            </span>
-                        )}
+                    <div className="criteria-section-actions">
+                        <div className={`weight-indicator ${isValidWeight ? 'valid' : 'invalid'}`}>
+                            {isValidWeight ? (
+                                <CheckCircle size={16} />
+                            ) : (
+                                <AlertCircle size={16} />
+                            )}
+                            <span>Tổng: {(totalWeight * 100).toFixed(0)}%</span>
+                            {!isValidWeight && totalWeight > 0 && (
+                                <span className="weight-warning">
+                                    (Cần = 100%)
+                                </span>
+                            )}
+                        </div>
+                        <Button size="sm" variant="outline" onClick={onAdd}>
+                            <Plus size={14} />
+                            <span>Thêm</span>
+                        </Button>
                     </div>
                 </div>
             </CardHeader>

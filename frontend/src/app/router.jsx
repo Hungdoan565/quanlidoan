@@ -27,6 +27,7 @@ import { StudentsLogbookPage } from '../pages/teacher/logbook/StudentsLogbookPag
 import { StudentLogbookDetailPage } from '../pages/teacher/logbook/StudentLogbookDetailPage';
 import { GradingPage } from '../pages/teacher/grading/GradingPage';
 import { GradingDetailPage } from '../pages/teacher/grading/GradingDetailPage';
+import { MenteesKanbanPage } from '../pages/teacher/mentees/MenteesKanbanPage';
 
 // Student Pages
 import { StudentDashboard } from '../pages/student/DashboardPage';
@@ -117,6 +118,7 @@ export const router = createBrowserRouter([
             { path: 'dashboard', element: <TeacherDashboard /> },
             { path: 'topics', element: <SampleTopicsPage /> },
             { path: 'reviews', element: <TopicReviewsPage /> },
+            { path: 'mentees', element: <MenteesKanbanPage /> },
             { path: 'logbook', element: <StudentsLogbookPage /> },
             { path: 'logbook/:topicId', element: <StudentLogbookDetailPage /> },
             { path: 'grading', element: <GradingPage /> },

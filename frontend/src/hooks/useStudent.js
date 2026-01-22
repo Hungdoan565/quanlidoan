@@ -1,6 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { studentService } from '../services/student.service';
 import { useAuthStore } from '../store/authStore';
+import { supabase } from '../lib/supabase';
 
 /**
  * Hook để lấy thống kê Student Dashboard
@@ -39,6 +41,31 @@ export function useMyTopic() {
 export function useStudentNotifications(limit = 5) {
     const { profile } = useAuthStore();
     const studentId = profile?.id;
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        if (!studentId) return undefined;
+
+        const channel = supabase
+            .channel(`student-notifications-${studentId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${studentId}`,
+                },
+                () => {
+                    queryClient.invalidateQueries({ queryKey: ['student-notifications', studentId, limit] });
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [studentId, limit, queryClient]);
 
     return useQuery({
         queryKey: ['student-notifications', studentId, limit],

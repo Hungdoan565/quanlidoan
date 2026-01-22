@@ -13,7 +13,7 @@ import {
 import { GRADER_TYPES, GRADER_TYPE_LABELS } from '../../../lib/constants';
 import './GradingConfigPage.css';
 
-export function CriteriaFormModal({ open, onClose, criteria, sessionId }) {
+export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultGraderType = 'advisor' }) {
     const isEdit = !!criteria;
 
     // Form state
@@ -43,11 +43,11 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId }) {
                 name: '',
                 weight: '',
                 max_score: '10',
-                grader_type: 'advisor',
+                grader_type: defaultGraderType,
             });
         }
         setErrors({});
-    }, [criteria, open]);
+    }, [criteria, open, defaultGraderType]);
 
     // Handle input change
     const handleChange = (field, value) => {
@@ -185,11 +185,13 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId }) {
                         value={formData.grader_type}
                         onChange={(e) => handleChange('grader_type', e.target.value)}
                     >
-                        {Object.entries(GRADER_TYPE_LABELS).map(([value, label]) => (
-                            <option key={value} value={value}>
-                                {label}
-                            </option>
-                        ))}
+                        {Object.entries(GRADER_TYPE_LABELS)
+                            .filter(([value]) => value !== 'reviewer')
+                            .map(([value, label]) => (
+                                <option key={value} value={value}>
+                                    {label}
+                                </option>
+                            ))}
                     </Select>
                 </div>
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Users,
@@ -9,14 +9,18 @@ import {
     TrendingUp,
     Calendar,
     ChevronRight,
-    BookOpen
+    BookOpen,
+    Download,
+    Loader2
 } from 'lucide-react';
 import { useAdminDashboardStats, useRecentActivities, useActiveSessions, useUpcomingDeadlines } from '../../hooks/useStats';
 import { useUIStore } from '../../store/uiStore';
-import { StatCard, SkeletonStatCard, Select, Card, CardHeader, CardBody, Badge } from '../../components/ui';
+import { StatCard, SkeletonStatCard, Select, Card, CardHeader, CardBody, Badge, Button, Dropdown, DropdownTrigger, DropdownContent, DropdownItem } from '../../components/ui';
 import { formatDistanceToNow, format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+import { exportService } from '../../services/export.service';
+import { toast } from 'sonner';
 import './DashboardPage.css';
 
 // Status colors for charts
@@ -45,6 +49,7 @@ const STATUS_LABELS = {
 export function AdminDashboard() {
     const navigate = useNavigate();
     const { selectedSessionId, setSelectedSession } = useUIStore();
+    const [exporting, setExporting] = useState(null);
 
     // Fetch data
     const { data: sessions = [], isLoading: sessionsLoading } = useActiveSessions();
@@ -58,6 +63,51 @@ export function AdminDashboard() {
             setSelectedSession(sessions[0].id);
         }
     }, [sessions, selectedSessionId, setSelectedSession]);
+
+    // Get current session name
+    const currentSession = sessions.find(s => s.id === selectedSessionId);
+    const sessionName = currentSession ? `${currentSession.name}_${currentSession.academic_year}` : 'TatCa';
+
+    // Export handlers
+    const handleExportTopics = async () => {
+        setExporting('topics');
+        try {
+            const count = await exportService.exportTopics(selectedSessionId, sessionName);
+            toast.success(`Đã xuất ${count} đề tài ra Excel`);
+        } catch (error) {
+            toast.error('Lỗi khi xuất dữ liệu: ' + error.message);
+        } finally {
+            setExporting(null);
+        }
+    };
+
+    const handleExportTeacherWorkload = async () => {
+        setExporting('teachers');
+        try {
+            const count = await exportService.exportTeacherWorkload(selectedSessionId, sessionName);
+            toast.success(`Đã xuất tải lượng ${count} giảng viên`);
+        } catch (error) {
+            toast.error('Lỗi khi xuất dữ liệu: ' + error.message);
+        } finally {
+            setExporting(null);
+        }
+    };
+
+    const handleExportFullReport = async () => {
+        if (!selectedSessionId) {
+            toast.error('Vui lòng chọn đợt đồ án để xuất báo cáo tổng hợp');
+            return;
+        }
+        setExporting('full');
+        try {
+            const result = await exportService.exportFullSessionReport(selectedSessionId, sessionName);
+            toast.success(`Đã xuất báo cáo: ${result.classCount} lớp, ${result.topicCount} đề tài`);
+        } catch (error) {
+            toast.error('Lỗi khi xuất dữ liệu: ' + error.message);
+        } finally {
+            setExporting(null);
+        }
+    };
 
     // Prepare chart data
     const pieChartData = stats ? Object.entries(stats.topicStats)
@@ -92,6 +142,31 @@ export function AdminDashboard() {
                     <p>Tổng quan hệ thống quản lý đồ án</p>
                 </div>
                 <div className="page-header-actions">
+                    <Dropdown>
+                        <DropdownTrigger>
+                            <Button 
+                                variant="outline" 
+                                disabled={exporting !== null}
+                                leftIcon={exporting ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
+                            >
+                                Xuất báo cáo
+                            </Button>
+                        </DropdownTrigger>
+                        <DropdownContent align="end">
+                            <DropdownItem onClick={handleExportTopics}>
+                                <FileText size={16} />
+                                Danh sách đề tài (Excel)
+                            </DropdownItem>
+                            <DropdownItem onClick={handleExportTeacherWorkload}>
+                                <Users size={16} />
+                                Tải lượng giảng viên (Excel)
+                            </DropdownItem>
+                            <DropdownItem onClick={handleExportFullReport} disabled={!selectedSessionId}>
+                                <BookOpen size={16} />
+                                Báo cáo tổng hợp đợt (Excel)
+                            </DropdownItem>
+                        </DropdownContent>
+                    </Dropdown>
                     <Select
                         value={selectedSessionId || ''}
                         onChange={(e) => setSelectedSession(e.target.value || null)}

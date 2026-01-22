@@ -29,14 +29,13 @@ export const logbookService = {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
 
-        // First get the topic
+        // First get the topic (Unified Lecturer - no reviewer)
         const { data: topic, error } = await supabase
             .from('topics')
             .select(`
                 *,
                 class:class_id(name, session:session_id(name)),
-                advisor:advisor_id(full_name),
-                reviewer:reviewer_id(full_name)
+                advisor:advisor_id(full_name, teacher_code, email)
             `)
             .eq('student_id', user.id)
             .in('status', ['approved', 'in_progress', 'submitted'])

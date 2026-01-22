@@ -28,6 +28,7 @@ export { ProgressBar } from './ProgressBar';
 export { Modal, ConfirmModal } from './Modal';
 export { Skeleton, SkeletonText, SkeletonCard, SkeletonTable, SkeletonStatCard } from './Skeleton';
 export { EmptyState, NoDataState, NoSearchResultState, ErrorState } from './EmptyState';
+export { Tooltip } from './Tooltip';
 
 // Data Display
 export {

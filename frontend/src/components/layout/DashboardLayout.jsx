@@ -39,6 +39,7 @@ const navItems = {
     ],
     teacher: [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/teacher/dashboard' },
+        { icon: Users, label: 'Sinh viên', path: '/teacher/mentees' },
         { icon: BookOpen, label: 'Đề tài mẫu', path: '/teacher/topics' },
         { icon: FileText, label: 'Duyệt đề tài', path: '/teacher/reviews' },
         { icon: BookOpen, label: 'Nhật ký SV', path: '/teacher/logbook' },

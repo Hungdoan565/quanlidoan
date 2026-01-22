@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
     FileText,
     CheckCircle,
@@ -8,9 +8,12 @@ import {
     Search,
     Filter,
     Eye,
-    RefreshCw
+    RefreshCw,
+    CheckSquare,
+    Square,
+    Loader2
 } from 'lucide-react';
-import { usePendingTopics, useMyAllTopics } from '../../../hooks/useTeacherReviews';
+import { usePendingTopics, useMyAllTopics, useBulkApproveTopics } from '../../../hooks/useTeacherReviews';
 import { TopicReviewModal } from './TopicReviewModal';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
@@ -41,6 +44,7 @@ export function TopicReviewsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTopic, setSelectedTopic] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedIds, setSelectedIds] = useState(new Set());
 
     // Fetch data based on active tab
     const {
@@ -55,9 +59,51 @@ export function TopicReviewsPage() {
         refetch: refetchAll
     } = useMyAllTopics(activeTab === 'all' ? null : activeTab !== 'pending' ? activeTab : null);
 
+    // Bulk approve mutation
+    const bulkApproveMutation = useBulkApproveTopics();
+
     // Determine which data to display
     const topics = activeTab === 'pending' ? pendingTopics : allTopics;
     const isLoading = activeTab === 'pending' ? pendingLoading : allLoading;
+
+    // Selectable topics (only pending or revision status)
+    const selectableTopics = useMemo(() => 
+        filteredTopics.filter(t => ['pending', 'revision'].includes(t.status)), 
+        [filteredTopics]
+    );
+
+    // Handle select all
+    const handleSelectAll = () => {
+        if (selectedIds.size === selectableTopics.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(selectableTopics.map(t => t.id)));
+        }
+    };
+
+    // Handle toggle select
+    const handleToggleSelect = (topicId) => {
+        const newSet = new Set(selectedIds);
+        if (newSet.has(topicId)) {
+            newSet.delete(topicId);
+        } else {
+            newSet.add(topicId);
+        }
+        setSelectedIds(newSet);
+    };
+
+    // Handle bulk approve
+    const handleBulkApprove = async () => {
+        if (selectedIds.size === 0) return;
+        try {
+            await bulkApproveMutation.mutateAsync(Array.from(selectedIds));
+            setSelectedIds(new Set());
+            refetchPending();
+            refetchAll();
+        } catch (error) {
+            console.error('Bulk approve error:', error);
+        }
+    };
 
     // Filter topics by search term
     const filteredTopics = topics?.filter(topic => {
@@ -148,6 +194,37 @@ export function TopicReviewsPage() {
 
             {/* Content */}
             <div className="topics-content">
+                {/* Bulk Action Bar */}
+                {selectedIds.size > 0 && (
+                    <div className="bulk-action-bar">
+                        <div className="bulk-info">
+                            <CheckSquare size={18} />
+                            <span>Đã chọn {selectedIds.size} đề tài</span>
+                        </div>
+                        <div className="bulk-actions">
+                            <Button
+                                variant="ghost"
+                                size="small"
+                                onClick={() => setSelectedIds(new Set())}
+                            >
+                                Bỏ chọn
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="small"
+                                onClick={handleBulkApprove}
+                                disabled={bulkApproveMutation.isPending}
+                            >
+                                {bulkApproveMutation.isPending ? (
+                                    <><Loader2 size={16} className="spin" /> Đang duyệt...</>
+                                ) : (
+                                    <><CheckCircle size={16} /> Duyệt tất cả</>
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
                 {isLoading ? (
                     <TopicsTableSkeleton />
                 ) : filteredTopics.length === 0 ? (
@@ -167,6 +244,20 @@ export function TopicReviewsPage() {
                         <table className="topics-table">
                             <thead>
                                 <tr>
+                                    {activeTab === 'pending' && selectableTopics.length > 0 && (
+                                        <th className="checkbox-col">
+                                            <button 
+                                                className="checkbox-btn"
+                                                onClick={handleSelectAll}
+                                            >
+                                                {selectedIds.size === selectableTopics.length ? (
+                                                    <CheckSquare size={18} />
+                                                ) : (
+                                                    <Square size={18} />
+                                                )}
+                                            </button>
+                                        </th>
+                                    )}
                                     <th>Sinh viên</th>
                                     <th>Đề tài</th>
                                     <th>Lớp</th>
@@ -179,9 +270,27 @@ export function TopicReviewsPage() {
                                 {filteredTopics.map(topic => {
                                     const statusConfig = STATUS_CONFIG[topic.status] || STATUS_CONFIG.pending;
                                     const StatusIcon = statusConfig.icon;
+                                    const isSelectable = ['pending', 'revision'].includes(topic.status);
+                                    const isSelected = selectedIds.has(topic.id);
 
                                     return (
-                                        <tr key={topic.id}>
+                                        <tr key={topic.id} className={isSelected ? 'selected' : ''}>
+                                            {activeTab === 'pending' && selectableTopics.length > 0 && (
+                                                <td className="checkbox-col">
+                                                    {isSelectable && (
+                                                        <button 
+                                                            className="checkbox-btn"
+                                                            onClick={() => handleToggleSelect(topic.id)}
+                                                        >
+                                                            {isSelected ? (
+                                                                <CheckSquare size={18} className="checked" />
+                                                            ) : (
+                                                                <Square size={18} />
+                                                            )}
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            )}
                                             <td>
                                                 <div className="student-info">
                                                     <span className="student-name">{topic.student?.full_name}</span>

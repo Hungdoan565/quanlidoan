@@ -1,231 +1,305 @@
 .topic-reviews-page {
-    padding: var(--space-6);
-    max-width: 1400px;
-    margin: 0 auto;
+  padding: var(--space-6);
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* Header */
 .topic-reviews-page .page-header {
-    margin-bottom: var(--space-6);
+  margin-bottom: var(--space-6);
 }
 
 .topic-reviews-page .header-content h1 {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    font-size: var(--text-2xl);
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
 }
 
 .topic-reviews-page .header-content p {
-    color: var(--text-secondary);
-    font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
 }
 
 /* Tabs Container */
 .topic-reviews-page .tabs-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
 }
 
 .topic-reviews-page .tabs {
-    display: flex;
-    gap: var(--space-2);
-    background: var(--bg-secondary);
-    padding: var(--space-1);
-    border-radius: var(--radius-lg);
+  display: flex;
+  gap: var(--space-2);
+  background: var(--bg-secondary);
+  padding: var(--space-1);
+  border-radius: var(--radius-lg);
 }
 
 .topic-reviews-page .tab {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    font-size: var(--text-sm);
-    font-weight: 500;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .topic-reviews-page .tab:hover {
-    color: var(--text-primary);
-    background: var(--bg-tertiary);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 .topic-reviews-page .tab.active {
-    background: var(--bg-primary);
-    color: var(--primary-600);
-    box-shadow: var(--shadow-sm);
+  background: var(--bg-primary);
+  color: var(--primary-600);
+  box-shadow: var(--shadow-sm);
 }
 
 .topic-reviews-page .tab-badge {
-    background: var(--warning-500);
-    color: white;
-    font-size: var(--text-xs);
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: var(--radius-full);
-    min-width: 20px;
-    text-align: center;
+  background: var(--warning-500);
+  color: white;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  min-width: 20px;
+  text-align: center;
 }
 
 /* Search */
 .topic-reviews-page .search-container {
-    position: relative;
-    width: 300px;
+  position: relative;
+  width: 300px;
 }
 
 .topic-reviews-page .search-icon {
-    position: absolute;
-    left: var(--space-3);
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
 }
 
 .topic-reviews-page .search-input {
-    width: 100%;
-    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-10);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    transition: all 0.2s ease;
+  width: 100%;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-10);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
 }
 
 .topic-reviews-page .search-input:focus {
-    outline: none;
-    border-color: var(--primary-500);
-    box-shadow: 0 0 0 3px var(--primary-100);
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--primary-100);
 }
 
 /* Topics Table Container */
 .topic-reviews-page .topics-content {
-    background: var(--bg-primary);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-default);
-    overflow: hidden;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  overflow: hidden;
 }
 
 .topic-reviews-page .topics-table-container {
-    overflow-x: auto;
+  overflow-x: auto;
 }
 
 .topic-reviews-page .topics-table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .topic-reviews-page .topics-table th,
 .topic-reviews-page .topics-table td {
-    padding: var(--space-3) var(--space-4);
-    text-align: left;
-    border-bottom: 1px solid var(--border-light);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .topic-reviews-page .topics-table th {
-    background: var(--bg-secondary);
-    font-weight: 600;
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    letter-spacing: 0.05em;
+  background: var(--bg-secondary);
+  font-weight: 600;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
 }
 
 .topic-reviews-page .topics-table tbody tr {
-    transition: background 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .topic-reviews-page .topics-table tbody tr:hover {
-    background: var(--bg-hover);
+  background: var(--bg-hover);
 }
 
 .topic-reviews-page .topics-table tbody tr:last-child td {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 /* Student Info */
 .topic-reviews-page .student-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .topic-reviews-page .student-name {
-    font-weight: 500;
-    color: var(--text-primary);
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .topic-reviews-page .student-code {
-    font-size: var(--text-xs);
-    color: var(--text-muted);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
 }
 
 /* Topic Title */
 .topic-reviews-page .topic-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-weight: 500;
-    color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .topic-reviews-page .topic-type-badge {
-    font-size: var(--text-xs);
-    background: var(--primary-100);
-    color: var(--primary-700);
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-    font-weight: 500;
+  font-size: var(--text-xs);
+  background: var(--primary-100);
+  color: var(--primary-700);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
 }
 
 /* Class Name */
 .topic-reviews-page .class-name {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
 /* Date */
 .topic-reviews-page .date {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* Checkbox Column */
+.topic-reviews-page .checkbox-col {
+  width: 48px;
+  text-align: center;
+}
+
+.topic-reviews-page .checkbox-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+
+.topic-reviews-page .checkbox-btn:hover {
+  color: var(--primary-600);
+  background: var(--primary-50);
+}
+
+.topic-reviews-page .checkbox-btn .checked {
+  color: var(--primary-600);
+}
+
+.topic-reviews-page .topics-table tbody tr.selected {
+  background: var(--primary-50);
+}
+
+.topic-reviews-page .topics-table tbody tr.selected:hover {
+  background: var(--primary-100);
+}
+
+/* Bulk Action Bar */
+.topic-reviews-page .bulk-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  background: var(--primary-50);
+  border-bottom: 1px solid var(--primary-200);
+}
+
+.topic-reviews-page .bulk-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--primary-700);
+  font-weight: 500;
+  font-size: var(--text-sm);
+}
+
+.topic-reviews-page .bulk-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Spin animation for loading */
+.topic-reviews-page .spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .topic-reviews-page {
-        padding: var(--space-4);
-    }
+  .topic-reviews-page {
+    padding: var(--space-4);
+  }
 
-    .topic-reviews-page .tabs-container {
-        flex-direction: column;
-        align-items: stretch;
-    }
+  .topic-reviews-page .tabs-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-    .topic-reviews-page .tabs {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
+  .topic-reviews-page .tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
-    .topic-reviews-page .search-container {
-        width: 100%;
-    }
+  .topic-reviews-page .search-container {
+    width: 100%;
+  }
 
-    .topic-reviews-page .topics-table th:nth-child(3),
-    .topic-reviews-page .topics-table td:nth-child(3),
-    .topic-reviews-page .topics-table th:nth-child(5),
-    .topic-reviews-page .topics-table td:nth-child(5) {
-        display: none;
-    }
+  .topic-reviews-page .topics-table th:nth-child(3),
+  .topic-reviews-page .topics-table td:nth-child(3),
+  .topic-reviews-page .topics-table th:nth-child(5),
+  .topic-reviews-page .topics-table td:nth-child(5) {
+    display: none;
+  }
 }

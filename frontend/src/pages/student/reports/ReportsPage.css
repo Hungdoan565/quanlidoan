@@ -1,218 +1,426 @@
 .reports-page {
-    padding: 0;
+  padding: 0;
 }
 
 .reports-page .page-header {
-    margin-bottom: 24px;
+  margin-bottom: 24px;
 }
 
 .reports-page .page-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .reports-page .page-subtitle {
-    color: var(--text-secondary);
-    margin-top: 4px;
-    font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  font-size: 0.95rem;
 }
 
 /* Progress Card */
 .progress-card {
-    margin-bottom: 24px;
+  margin-bottom: 24px;
 }
 
 .progress-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
 .progress-label {
-    font-weight: 600;
-    color: var(--text-primary);
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 /* Phases Grid */
 .phases-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 .phase-card {
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    transition: all 0.2s ease;
-    background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  background: var(--bg-primary);
 }
 
 .phase-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 
 .phase-card.submitted {
-    border-color: var(--success);
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+  border-color: var(--success);
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.05) 0%,
+    transparent 100%
+  );
 }
 
 .phase-card.overdue {
-    border-color: var(--danger);
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
+  border-color: var(--danger);
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.05) 0%,
+    transparent 100%
+  );
 }
 
 .phase-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
 .phase-icon-wrap {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
-    background: var(--primary-100);
-    color: var(--primary-600);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--primary-100);
+  color: var(--primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .phase-card.submitted .phase-icon-wrap {
-    background: rgba(16, 185, 129, 0.15);
-    color: var(--success);
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
 }
 
 .phase-card.overdue .phase-icon-wrap {
-    background: rgba(239, 68, 68, 0.15);
-    color: var(--danger);
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
 }
 
 .phase-name {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
 }
 
 .phase-desc {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    line-height: 1.4;
-    margin-bottom: 12px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 12px;
 }
 
 .phase-deadline {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 16px;
-    padding: 8px 12px;
-    background: var(--bg-secondary);
-    border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
 }
 
 .phase-deadline.text-danger {
-    color: var(--danger);
-    background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .phase-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* Upload Form */
 .upload-form {
-    padding: 8px 0;
+  padding: 8px 0;
 }
 
 .upload-zone {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .upload-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 24px;
-    border: 2px dashed var(--border-color);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bg-secondary);
 }
 
 .upload-label:hover {
-    border-color: var(--primary-500);
-    background: var(--primary-50);
+  border-color: var(--primary-500);
+  background: var(--primary-50);
 }
 
 .upload-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
 }
 
 .upload-placeholder svg {
-    color: var(--primary-500);
+  color: var(--primary-500);
 }
 
 .file-types {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
 }
 
 .selected-file {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    color: var(--primary-600);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-600);
 }
 
 .file-name {
-    font-weight: 600;
-    word-break: break-all;
-    text-align: center;
+  font-weight: 600;
+  word-break: break-all;
+  text-align: center;
 }
 
 .file-size {
-    font-size: 0.85rem;
-    color: var(--text-muted);
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .upload-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.upload-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: var(--danger);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.upload-note {
+  margin-bottom: 20px;
+}
+
+.upload-note label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.upload-note textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.upload-note textarea:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+/* Repository Card */
+.repo-card {
+  margin-bottom: 24px;
+}
+
+.repo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.repo-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.repo-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-600);
+  text-decoration: none;
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+.repo-link:hover {
+  text-decoration: underline;
+}
+
+.repo-empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.repo-form {
+  padding: 8px 0;
+}
+
+.repo-hint {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.repo-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Phase Submission Info */
+.phase-submission {
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.submission-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.submission-version {
+  background: var(--primary-100);
+  color: var(--primary-700);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.submission-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  word-break: break-all;
+}
+
+.submission-size {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.submission-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Version History */
+.version-history {
+  margin-top: 12px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+}
+
+.version-history summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  user-select: none;
+}
+
+.version-history summary:hover {
+  color: var(--primary-600);
+}
+
+.version-history ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+
+.version-history li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border-color);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.version-history li:last-child {
+  border-bottom: none;
+}
+
+/* Spin animation for loading */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .phases-grid {
-        grid-template-columns: 1fr;
-    }
+  .phases-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .phase-actions {
-        flex-direction: column;
-    }
+  .phase-actions {
+    flex-direction: column;
+  }
 
-    .phase-actions .btn {
-        width: 100%;
-    }
+  .phase-actions .btn {
+    width: 100%;
+  }
+
+  .repo-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }

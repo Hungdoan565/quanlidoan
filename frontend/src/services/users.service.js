@@ -16,9 +16,13 @@ export const usersService = {
         const from = (page - 1) * limit;
         const to = from + limit - 1;
 
+        const selectFields = filters.class_id
+            ? '*, class_students!inner(class_id)'
+            : '*';
+
         let query = supabase
             .from('profiles')
-            .select('*', { count: 'exact' }); // Get total count
+            .select(selectFields, { count: 'exact' }); // Get total count
 
         // Apply filters
         if (filters.role) {
@@ -32,6 +36,9 @@ export const usersService = {
         }
         if (filters.department) {
             query = query.eq('department', filters.department);
+        }
+        if (filters.class_id) {
+            query = query.eq('class_students.class_id', filters.class_id);
         }
 
         // Ordering and pagination

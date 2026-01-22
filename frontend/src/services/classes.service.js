@@ -5,6 +5,20 @@ import { supabase } from '../lib/supabase';
  */
 export const classesService = {
     /**
+     * Tìm class theo session + code
+     */
+    getBySessionAndCode: async (sessionId, code) => {
+        const { data, error } = await supabase
+            .from('classes')
+            .select('id, code, name')
+            .eq('session_id', sessionId)
+            .eq('code', code)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data;
+    },
+    /**
      * Lấy danh sách classes với filters
      */
     getAll: async (filters = {}) => {
@@ -13,6 +27,7 @@ export const classesService = {
             .select(`
                 *,
                 session:sessions(id, name, academic_year, semester, session_type, status),
+                advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code),
                 class_students(count)
             `);
 
@@ -30,46 +45,11 @@ export const classesService = {
         const { data, error } = await query;
         if (error) throw error;
 
-        // Get all class IDs
-        const classIds = data?.map(c => c.id) || [];
-
-        // Fetch teacher_pairs separately
-        let teacherPairsMap = {};
-        if (classIds.length > 0) {
-            const { data: pairs } = await supabase
-                .from('teacher_pairs')
-                .select('class_id, advisor_id, reviewer_id')
-                .in('class_id', classIds);
-
-            if (pairs && pairs.length > 0) {
-                // Get unique teacher IDs
-                const teacherIds = [...new Set(pairs.flatMap(p => [p.advisor_id, p.reviewer_id].filter(Boolean)))];
-
-                // Fetch teacher profiles
-                const { data: teachers } = await supabase
-                    .from('profiles')
-                    .select('id, full_name, teacher_code')
-                    .in('id', teacherIds);
-
-                const teacherMap = {};
-                teachers?.forEach(t => { teacherMap[t.id] = t; });
-
-                // Build pairs map
-                pairs.forEach(p => {
-                    teacherPairsMap[p.class_id] = {
-                        advisor: teacherMap[p.advisor_id] || null,
-                        reviewer: teacherMap[p.reviewer_id] || null,
-                    };
-                });
-            }
-        }
-
         // Transform data
         return data?.map(cls => ({
             ...cls,
             student_count: cls.class_students?.[0]?.count || 0,
-            advisor: teacherPairsMap[cls.id]?.advisor || null,
-            reviewer: teacherPairsMap[cls.id]?.reviewer || null,
+            advisor: cls.advisor || null,
         }));
     },
 
@@ -83,6 +63,7 @@ export const classesService = {
             .select(`
                 *,
                 session:sessions(id, name, academic_year, semester, session_type, status),
+                advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, phone),
                 class_students(
                     id,
                     student:profiles(
@@ -103,37 +84,6 @@ export const classesService = {
 
         if (error) throw error;
 
-        // Separate query for teacher_pairs to avoid FK naming issues
-        let advisor = null;
-        let reviewer = null;
-
-        const { data: teacherPair } = await supabase
-            .from('teacher_pairs')
-            .select('id, advisor_id, reviewer_id')
-            .eq('class_id', id)
-            .maybeSingle();
-
-        if (teacherPair) {
-            // Fetch advisor profile
-            if (teacherPair.advisor_id) {
-                const { data: advisorData } = await supabase
-                    .from('profiles')
-                    .select('id, full_name, teacher_code, email, phone')
-                    .eq('id', teacherPair.advisor_id)
-                    .single();
-                advisor = advisorData;
-            }
-            // Fetch reviewer profile
-            if (teacherPair.reviewer_id) {
-                const { data: reviewerData } = await supabase
-                    .from('profiles')
-                    .select('id, full_name, teacher_code, email, phone')
-                    .eq('id', teacherPair.reviewer_id)
-                    .single();
-                reviewer = reviewerData;
-            }
-        }
-
         // Get topics for students in this class
         const studentIds = data?.class_students?.map(cs => cs.student?.id).filter(Boolean) || [];
 
@@ -152,8 +102,7 @@ export const classesService = {
         // Transform data
         return {
             ...data,
-            advisor,
-            reviewer,
+            advisor: data.advisor || null,
             students: data?.class_students?.map(cs => ({
                 ...cs.student,
                 joined_at: cs.created_at,
@@ -204,12 +153,17 @@ export const classesService = {
      * Xóa class
      */
     delete: async (id) => {
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('classes')
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .select('id')
+            .limit(1);
 
         if (error) throw error;
+        if (!data || data.length === 0) {
+            throw new Error('Không thể xóa lớp học (không đủ quyền hoặc lớp không tồn tại)');
+        }
         return true;
     },
 
@@ -217,17 +171,17 @@ export const classesService = {
      * Phân công cặp giảng viên cho class
      * Sử dụng UPSERT để tránh lỗi duplicate key
      */
-    assignTeacherPair: async (classId, advisorId, reviewerId) => {
+    assignTeacherPair: async (classId, advisorId) => {
+        if (!advisorId) {
+            throw new Error('Vui lòng chọn giảng viên phụ trách');
+        }
+
         const { data, error } = await supabase
-            .from('teacher_pairs')
-            .upsert({
-                class_id: classId,
+            .from('classes')
+            .update({
                 advisor_id: advisorId,
-                reviewer_id: reviewerId,
-            }, {
-                onConflict: 'class_id',
-                ignoreDuplicates: false
             })
+            .eq('id', classId)
             .select()
             .single();
 

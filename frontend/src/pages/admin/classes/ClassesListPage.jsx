@@ -142,7 +142,7 @@ export function ClassesListPage() {
                     ) : (
                         <>
                             <h1 className="page-title">Quản lý Lớp học phần</h1>
-                            <p className="page-subtitle">Quản lý lớp học và phân công giảng viên</p>
+                            <p className="page-subtitle">Quản lý lớp học và phân công giảng viên hướng dẫn</p>
                         </>
                     )}
                 </div>
@@ -201,7 +201,7 @@ export function ClassesListPage() {
                                     <TableHead>Mã lớp</TableHead>
                                     <TableHead>Tên lớp</TableHead>
                                     <TableHead>Đợt đồ án</TableHead>
-                                    <TableHead>GVHD / GVPB</TableHead>
+                                    <TableHead>GVHD</TableHead>
                                     <TableHead>Sĩ số</TableHead>
                                     <TableHead style={{ width: 120 }}>Thao tác</TableHead>
                                 </TableRow>
@@ -226,15 +226,11 @@ export function ClassesListPage() {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            {cls.advisor || cls.reviewer ? (
+                                            {cls.advisor ? (
                                                 <div className="teacher-pair">
                                                     <div className="teacher-item">
-                                                        <Badge variant="primary" size="sm">HD</Badge>
-                                                        <span>{cls.advisor?.full_name || 'Chưa phân'}</span>
-                                                    </div>
-                                                    <div className="teacher-item">
-                                                        <Badge variant="secondary" size="sm">PB</Badge>
-                                                        <span>{cls.reviewer?.full_name || 'Chưa phân'}</span>
+                                                        <Badge variant="primary" size="sm">GVHD</Badge>
+                                                        <span>{cls.advisor.full_name}</span>
                                                     </div>
                                                 </div>
                                             ) : (

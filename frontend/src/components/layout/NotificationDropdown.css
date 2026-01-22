@@ -136,6 +136,14 @@
     min-width: 0;
 }
 
+.notification-title {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin: 0 0 var(--space-1) 0;
+    line-height: 1.4;
+}
+
 .notification-message {
     font-size: var(--text-sm);
     color: var(--text-primary);

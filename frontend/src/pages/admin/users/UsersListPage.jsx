@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Search, Users, GraduationCap, UserCheck, Shield, Filter, UserPlus } from 'lucide-react';
+import { Search, Users, GraduationCap, UserCheck, Shield, UserPlus, Folder } from 'lucide-react';
 import { useUsers, useUserStats, useToggleUserActive } from '../../../hooks/useUsers';
+import { useClasses } from '../../../hooks/useClasses';
 import {
     Button,
     Input,
@@ -52,6 +53,8 @@ export function UsersListPage() {
         role: '',
         is_active: '', // Empty string = all users
     });
+    const [selectedClassId, setSelectedClassId] = useState('');
+    const [classSearch, setClassSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 15;
 
@@ -60,12 +63,21 @@ export function UsersListPage() {
     const [toggleConfirm, setToggleConfirm] = useState({ open: false, user: null, action: '' });
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
+    const { data: classes = [], isLoading: isClassesLoading } = useClasses({
+        search: classSearch || undefined,
+    });
+    const selectedClass = selectedClassId
+        ? classes.find(cls => cls.id === selectedClassId)
+        : null;
+    const effectiveRole = selectedClassId ? 'student' : filters.role;
+
     // Queries - Now with server-side pagination
     const { data: usersData, isLoading, error, refetch } = useUsers(
         {
             search: filters.search || undefined,
-            role: filters.role || undefined,
+            role: effectiveRole || undefined,
             is_active: filters.is_active === '' ? undefined : filters.is_active === 'true',
+            class_id: selectedClassId || undefined,
         },
         currentPage,
         itemsPerPage
@@ -81,6 +93,14 @@ export function UsersListPage() {
     // Handle filter changes - reset to page 1
     const handleFilterChange = (key, value) => {
         setFilters(prev => ({ ...prev, [key]: value }));
+        setCurrentPage(1);
+    };
+
+    const handleClassSelect = (classId) => {
+        setSelectedClassId(classId);
+        if (classId) {
+            setFilters(prev => ({ ...prev, role: 'student' }));
+        }
         setCurrentPage(1);
     };
 
@@ -158,118 +178,185 @@ export function UsersListPage() {
                 </Card>
             </div>
 
-            {/* Filters */}
-            <Card padding="md" className="filters-card">
-                <div className="filters-row">
-                    <div className="filter-search">
+            <div className="users-layout">
+                {/* Classes Sidebar */}
+                <Card padding="md" className="classes-sidebar">
+                    <div className="classes-sidebar-header">
+                        <Folder size={16} />
+                        <span>Lớp học</span>
+                    </div>
+                    <div className="classes-search">
                         <Input
-                            placeholder="Tìm theo tên, email, MSSV..."
-                            leftIcon={<Search size={18} />}
-                            value={filters.search}
-                            onChange={(e) => handleFilterChange('search', e.target.value)}
+                            placeholder="Tìm lớp..."
+                            leftIcon={<Search size={16} />}
+                            value={classSearch}
+                            onChange={(e) => setClassSearch(e.target.value)}
                         />
                     </div>
-                    <div className="filter-selects">
-                        <Select
-                            options={ROLE_OPTIONS}
-                            value={filters.role}
-                            onChange={(e) => handleFilterChange('role', e.target.value)}
-                        />
-                        <Select
-                            options={STATUS_OPTIONS}
-                            value={filters.is_active}
-                            onChange={(e) => handleFilterChange('is_active', e.target.value)}
-                        />
-                    </div>
-                </div>
-            </Card>
-
-            {/* Table */}
-            <Card padding="none" className="table-card">
-                {isLoading ? (
-                    <SkeletonTable rows={8} cols={6} />
-                ) : users?.length === 0 ? (
-                    <NoDataState
-                        title="Không tìm thấy người dùng"
-                        description="Thay đổi bộ lọc hoặc tìm kiếm để xem kết quả khác"
-                    />
-                ) : (
-                    <>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Người dùng</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Vai trò</TableHead>
-                                    <TableHead>Mã</TableHead>
-                                    <TableHead>Trạng thái</TableHead>
-                                    <TableHead style={{ width: 100 }}>Thao tác</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {users?.map((user) => (
-                                    <TableRow key={user.id}>
-                                        <TableCell>
-                                            <div className="user-cell">
-                                                <Avatar name={user.full_name} size="sm" />
-                                                <span className="user-name">{user.full_name}</span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="user-email">{user.email}</span>
-                                        </TableCell>
-                                        <TableCell>
-                                            {getRoleBadge(user.role)}
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="user-code">
-                                                {user.student_code || user.teacher_code || '-'}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant={user.is_active ? 'success' : 'default'}>
-                                                {user.is_active ? 'Hoạt động' : 'Vô hiệu'}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="action-buttons">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => setSelectedUser(user)}
-                                                >
-                                                    Chi tiết
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => setToggleConfirm({
-                                                        open: true,
-                                                        user,
-                                                        action: user.is_active ? 'deactivate' : 'activate',
-                                                    })}
-                                                >
-                                                    {user.is_active ? 'Khóa' : 'Mở'}
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-
-                        {totalPages > 1 && (
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                totalItems={totalItems}
-                                itemsPerPage={itemsPerPage}
-                                onPageChange={setCurrentPage}
-                            />
+                    <div className="class-list">
+                        <button
+                            className={`class-item ${selectedClassId === '' ? 'active' : ''}`}
+                            onClick={() => handleClassSelect('')}
+                        >
+                            <span className="class-name">Tất cả người dùng</span>
+                        </button>
+                        {isClassesLoading ? (
+                            <div className="class-loading">Đang tải lớp...</div>
+                        ) : classes.length === 0 ? (
+                            <div className="class-empty">Chưa có lớp học</div>
+                        ) : (
+                            classes.map((cls) => (
+                                <button
+                                    key={cls.id}
+                                    className={`class-item ${selectedClassId === cls.id ? 'active' : ''}`}
+                                    onClick={() => handleClassSelect(cls.id)}
+                                >
+                                    <div className="class-meta">
+                                        <span className="class-name">{cls.name}</span>
+                                        <span className="class-code">{cls.code}</span>
+                                    </div>
+                                    <span className="class-count">
+                                        {cls.student_count}/{cls.max_students}
+                                    </span>
+                                </button>
+                            ))
                         )}
-                    </>
-                )}
-            </Card>
+                    </div>
+                </Card>
+
+                <div className="users-content">
+                    {/* Filters */}
+                    <Card padding="md" className="filters-card">
+                        <div className="filters-header">
+                            <div className="filters-title">
+                                {selectedClass ? (
+                                    <>
+                                        <span>Danh sách sinh viên</span>
+                                        <Badge variant="primary" size="sm">{selectedClass.name}</Badge>
+                                    </>
+                                ) : (
+                                    <span>Danh sách người dùng</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="filters-row">
+                            <div className="filter-search">
+                                <Input
+                                    placeholder={selectedClass ? 'Tìm theo tên, email, MSSV...' : 'Tìm theo tên, email, MSSV...'}
+                                    leftIcon={<Search size={18} />}
+                                    value={filters.search}
+                                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                                />
+                            </div>
+                            <div className="filter-selects">
+                                <Select
+                                    options={ROLE_OPTIONS}
+                                    value={effectiveRole}
+                                    onChange={(e) => handleFilterChange('role', e.target.value)}
+                                    disabled={!!selectedClassId}
+                                />
+                                <Select
+                                    options={STATUS_OPTIONS}
+                                    value={filters.is_active}
+                                    onChange={(e) => handleFilterChange('is_active', e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        {selectedClassId && (
+                            <div className="filters-hint">
+                                Đang lọc theo lớp, vai trò được cố định là Sinh viên.
+                            </div>
+                        )}
+                    </Card>
+
+                    {/* Table */}
+                    <Card padding="none" className="table-card">
+                        {isLoading ? (
+                            <SkeletonTable rows={8} cols={6} />
+                        ) : users?.length === 0 ? (
+                            <NoDataState
+                                title={selectedClass ? 'Lớp chưa có sinh viên' : 'Không tìm thấy người dùng'}
+                                description={selectedClass ? 'Thêm sinh viên vào lớp để bắt đầu quản lý' : 'Thay đổi bộ lọc hoặc tìm kiếm để xem kết quả khác'}
+                            />
+                        ) : (
+                            <>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Người dùng</TableHead>
+                                            <TableHead>Email</TableHead>
+                                            <TableHead>Vai trò</TableHead>
+                                            <TableHead>Mã</TableHead>
+                                            <TableHead>Trạng thái</TableHead>
+                                            <TableHead style={{ width: 100 }}>Thao tác</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {users?.map((user) => (
+                                            <TableRow key={user.id}>
+                                                <TableCell>
+                                                    <div className="user-cell">
+                                                        <Avatar name={user.full_name} size="sm" />
+                                                        <span className="user-name">{user.full_name}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="user-email">{user.email}</span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {getRoleBadge(user.role)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="user-code">
+                                                        {user.student_code || user.teacher_code || '-'}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant={user.is_active ? 'success' : 'default'}>
+                                                        {user.is_active ? 'Hoạt động' : 'Vô hiệu'}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="action-buttons">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => setSelectedUser(user)}
+                                                        >
+                                                            Chi tiết
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => setToggleConfirm({
+                                                                open: true,
+                                                                user,
+                                                                action: user.is_active ? 'deactivate' : 'activate',
+                                                            })}
+                                                        >
+                                                            {user.is_active ? 'Khóa' : 'Mở'}
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+
+                                {totalPages > 1 && (
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        totalItems={totalItems}
+                                        itemsPerPage={itemsPerPage}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                )}
+                            </>
+                        )}
+                    </Card>
+                </div>
+            </div>
 
             {/* User Detail Modal */}
             {selectedUser && (

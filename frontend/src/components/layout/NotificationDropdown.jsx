@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Check, X } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -40,6 +40,31 @@ export function NotificationDropdown() {
         staleTime: 1 * 60 * 1000,
         refetchInterval: 2 * 60 * 1000,
     });
+
+    // Realtime updates
+    useEffect(() => {
+        if (!profile?.id) return undefined;
+
+        const channel = supabase
+            .channel(`notifications-${profile.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${profile.id}`,
+                },
+                () => {
+                    queryClient.invalidateQueries({ queryKey: ['notifications', profile.id] });
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [profile?.id, queryClient]);
 
     // Mark as read mutation
     const markAsRead = useMutation({
@@ -119,7 +144,10 @@ export function NotificationDropdown() {
                             >
                                 <div className="notification-dot" />
                                 <div className="notification-body">
-                                    <p className="notification-message">{notification.message}</p>
+                                    <p className="notification-title">{notification.title}</p>
+                                    {notification.message && (
+                                        <p className="notification-message">{notification.message}</p>
+                                    )}
                                     <span className="notification-time">
                                         {formatDistanceToNow(new Date(notification.created_at), { 
                                             addSuffix: true, 

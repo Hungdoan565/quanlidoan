@@ -17,6 +17,8 @@ export const topicsService = {
                     name, 
                     code,
                     session_id,
+                    advisor_id,
+                    advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email),
                     session:sessions(
                         id, 
                         name, 
@@ -25,11 +27,6 @@ export const topicsService = {
                         status,
                         registration_start,
                         registration_end
-                    ),
-                    teacher_pair:teacher_pairs(
-                        id,
-                        advisor:profiles!teacher_pairs_advisor_id_fkey(id, full_name, teacher_code),
-                        reviewer:profiles!teacher_pairs_reviewer_id_fkey(id, full_name, teacher_code)
                     )
                 )
             `)
@@ -40,11 +37,10 @@ export const topicsService = {
 
         if (!data) return null;
 
-        // Transform data
+        // Transform data - Unified Lecturer model (no reviewer)
         return {
             ...data.class,
-            advisor: data.class?.teacher_pair?.[0]?.advisor || null,
-            reviewer: data.class?.teacher_pair?.[0]?.reviewer || null,
+            advisor: data.class?.advisor || null,
         };
     },
 
@@ -104,7 +100,7 @@ export const topicsService = {
             throw new Error('Đề tài này đã hết slot đăng ký');
         }
 
-        // Tạo topic mới (trigger sẽ tự động gán GVHD/GVPB)
+        // Tạo topic mới (trigger sẽ tự động gán advisor từ class)
         const { data, error } = await supabase
             .from('topics')
             .insert({
@@ -118,8 +114,7 @@ export const topicsService = {
             })
             .select(`
                 *,
-                advisor:profiles!topics_advisor_id_fkey(id, full_name, email),
-                reviewer:profiles!topics_reviewer_id_fkey(id, full_name, email)
+                advisor:profiles!topics_advisor_id_fkey(id, full_name, email)
             `)
             .single();
 
@@ -144,8 +139,7 @@ export const topicsService = {
             })
             .select(`
                 *,
-                advisor:profiles!topics_advisor_id_fkey(id, full_name, email),
-                reviewer:profiles!topics_reviewer_id_fkey(id, full_name, email)
+                advisor:profiles!topics_advisor_id_fkey(id, full_name, email)
             `)
             .single();
 
@@ -156,21 +150,27 @@ export const topicsService = {
     /**
      * Cập nhật đề tài (khi yêu cầu revision)
      */
-    updateTopic: async (topicId, { title, description, technologies }) => {
+    updateTopic: async (topicId, { title, description, technologies, repoUrl }) => {
+        const updateData = {
+            title,
+            description,
+            technologies,
+            status: 'pending', // Reset về pending sau khi sửa
+            revision_note: null, // Clear revision note
+        };
+        
+        // Chỉ update repo_url nếu được cung cấp
+        if (repoUrl !== undefined) {
+            updateData.repo_url = repoUrl;
+        }
+
         const { data, error } = await supabase
             .from('topics')
-            .update({
-                title,
-                description,
-                technologies,
-                status: 'pending', // Reset về pending sau khi sửa
-                revision_note: null, // Clear revision note
-            })
+            .update(updateData)
             .eq('id', topicId)
             .select(`
                 *,
-                advisor:profiles!topics_advisor_id_fkey(id, full_name, email),
-                reviewer:profiles!topics_reviewer_id_fkey(id, full_name, email)
+                advisor:profiles!topics_advisor_id_fkey(id, full_name, email)
             `)
             .single();
 
@@ -183,61 +183,41 @@ export const topicsService = {
  * Advisor/Reviewer được lấy từ class teacher_pairs (separate query)
  */
     getMyTopic: async (studentId) => {
-        // 1. Get topic with class info
+        // Get topic with class info and advisor (Unified Lecturer model)
         const { data, error } = await supabase
             .from('topics')
             .select(`
-            *,
-            class:classes(
-                id, name, code,
-                session:sessions(*)
-            ),
-            sample_topic:sample_topics(id, title)
-        `)
+                *,
+                class:classes(
+                    id, name, code,
+                    advisor_id,
+                    session:sessions(*)
+                ),
+                advisor:profiles!topics_advisor_id_fkey(id, full_name, teacher_code, email, phone),
+                sample_topic:sample_topics(id, title)
+            `)
             .eq('student_id', studentId)
             .single();
 
         if (error && error.code !== 'PGRST116') throw error;
         if (!data) return null;
 
-        // 2. Fetch teacher_pairs separately (to avoid FK naming issues)
-        let advisor = null;
-        let reviewer = null;
+        return data;
+    },
 
-        if (data.class_id) {
-            const { data: teacherPair } = await supabase
-                .from('teacher_pairs')
-                .select('id, advisor_id, reviewer_id')
-                .eq('class_id', data.class_id)
-                .maybeSingle();
+    /**
+     * Cập nhật repo URL của topic
+     */
+    updateRepoUrl: async (topicId, repoUrl) => {
+        const { data, error } = await supabase
+            .from('topics')
+            .update({ repo_url: repoUrl })
+            .eq('id', topicId)
+            .select()
+            .single();
 
-            if (teacherPair) {
-                // Fetch advisor profile
-                if (teacherPair.advisor_id) {
-                    const { data: advisorData } = await supabase
-                        .from('profiles')
-                        .select('id, full_name, teacher_code, email, phone')
-                        .eq('id', teacherPair.advisor_id)
-                        .single();
-                    advisor = advisorData;
-                }
-                // Fetch reviewer profile
-                if (teacherPair.reviewer_id) {
-                    const { data: reviewerData } = await supabase
-                        .from('profiles')
-                        .select('id, full_name, teacher_code, email, phone')
-                        .eq('id', teacherPair.reviewer_id)
-                        .single();
-                    reviewer = reviewerData;
-                }
-            }
-        }
-
-        return {
-            ...data,
-            advisor,
-            reviewer,
-        };
+        if (error) throw error;
+        return data;
     },
 
     /**

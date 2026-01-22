@@ -31,6 +31,7 @@ import {
     SkeletonCard,
     ErrorState,
     ProgressBar,
+    Tooltip,
 } from '../../../components/ui';
 import { AddStudentModal } from './AddStudentModal';
 import { ImportStudentsModal } from './ImportStudentsModal';
@@ -68,7 +69,7 @@ export function ClassDetailPage() {
         try {
             await assignTeacherPair.mutateAsync({
                 classId: id,
-                teacherId: teacherForm.teacherId,
+                advisorId: teacherForm.teacherId,
             });
             setTeacherForm({ editing: false, teacherId: '' });
             // Manually refetch to ensure UI updates
@@ -81,7 +82,7 @@ export function ClassDetailPage() {
     const handleEditTeacher = () => {
         setTeacherForm({
             editing: true,
-            teacherId: cls?.advisor?.id || cls?.teacher?.id || '',
+            teacherId: cls?.advisor?.id || '',
         });
     };
 
@@ -200,10 +201,10 @@ export function ClassDetailPage() {
                         <GraduationCap size={20} />
                     </div>
                     <div className="stat-content">
-                        <span className="stat-value">{(cls?.advisor || cls?.teacher) ? '1/1' : '0/1'}</span>
+                        <span className="stat-value">{cls?.advisor ? '1/1' : '0/1'}</span>
                         <span className="stat-label">Giảng viên</span>
                     </div>
-                    {!(cls?.advisor || cls?.teacher) && (
+                    {!cls?.advisor && (
                         <div className="stat-warning">
                             <AlertCircle size={12} />
                             <span>Chưa phân công</span>
@@ -215,11 +216,11 @@ export function ClassDetailPage() {
             {/* Teacher Assignment Section */}
             <section className="teachers-section">
                 <div className="section-header">
-                    <h2>Giảng viên phụ trách</h2>
+                            <h2>Giảng viên hướng dẫn</h2>
                     {!teacherForm.editing && (
                         <Button variant="ghost" size="sm" onClick={handleEditTeacher}>
                             <Edit size={14} />
-                            {(cls?.advisor || cls?.teacher) ? 'Thay đổi' : 'Phân công'}
+                                    {cls?.advisor ? 'Thay đổi' : 'Phân công'}
                         </Button>
                     )}
                 </div>
@@ -228,7 +229,7 @@ export function ClassDetailPage() {
                     <Card className="teacher-form-card">
                         <div className="teacher-form">
                             <div className="form-group">
-                                <label>Giảng viên phụ trách (Hướng dẫn & Phản biện)</label>
+                                <label>Giảng viên hướng dẫn</label>
                                 <Select
                                     options={[{ value: '', label: '-- Chọn giảng viên --' }, ...teacherOptions]}
                                     value={teacherForm.teacherId}
@@ -260,9 +261,9 @@ export function ClassDetailPage() {
                 ) : (
                     <div className="teacher-cards single">
                         <TeacherCard
-                            role="GV"
-                            roleLabel="Hướng dẫn & Phản biện"
-                            teacher={cls?.advisor || cls?.teacher}
+                            role="GVHD"
+                            roleLabel="Giảng viên hướng dẫn"
+                            teacher={cls?.advisor}
                             variant="primary"
                         />
                     </div>
@@ -324,7 +325,11 @@ export function ClassDetailPage() {
                                         <td className="col-topic">
                                             {student.topic ? (
                                                 <div className="topic-info">
-                                                    <span className="topic-title">{student.topic.title}</span>
+                                                    <Tooltip content={student.topic.title} position="top">
+                                                        <span className="topic-title">
+                                                            {student.topic.title}
+                                                        </span>
+                                                    </Tooltip>
                                                 </div>
                                             ) : (
                                                 <span className="no-topic">Chưa đăng ký đề tài</span>

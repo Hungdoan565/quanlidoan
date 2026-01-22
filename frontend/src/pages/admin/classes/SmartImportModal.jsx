@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import {
     Upload,
@@ -27,6 +28,7 @@ import './SmartImportModal.css';
  * - Create class + import in one step
  */
 export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
+    const navigate = useNavigate();
     const fileInputRef = useRef(null);
     const { data: sessions = [] } = useSessions();
     const createClass = useCreateClass();
@@ -40,6 +42,7 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
     const [validationErrors, setValidationErrors] = useState([]);
     const [step, setStep] = useState('upload'); // upload | preview | importing | done
     const [importResults, setImportResults] = useState(null);
+    const [showOnlyErrors, setShowOnlyErrors] = useState(false);
 
     // Reset when modal opens/closes
     useEffect(() => {
@@ -56,6 +59,7 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
         setValidationErrors([]);
         setStep('upload');
         setImportResults(null);
+        setShowOnlyErrors(false);
         onClose();
     };
 
@@ -70,6 +74,20 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
             .replace(/đ/g, 'd').replace(/Đ/g, 'd')
             .replace(/\s+/g, '_');
+    };
+
+    const cleanStudentCode = (value) => {
+        if (value === null || value === undefined) return '';
+        let text = String(value).trim();
+        if (text.endsWith('.0')) {
+            text = text.replace(/\.0$/, '');
+        }
+        return text;
+    };
+
+    const isValidEmail = (email) => {
+        if (!email) return false;
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     };
 
     // Handle file selection
@@ -87,6 +105,7 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
             selectedFile.type === type || selectedFile.name.endsWith('.xlsx') || selectedFile.name.endsWith('.xls')
         )) {
             setValidationErrors([{ row: 0, message: 'Vui lòng chọn file Excel (.xlsx hoặc .xls)' }]);
+            setStep('upload');
             return;
         }
 
@@ -96,6 +115,8 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
         setClassName(extractedCode);
 
         setFile(selectedFile);
+        setValidationErrors([]);
+        setShowOnlyErrors(false);
         parseExcelFile(selectedFile);
     }, []);
 
@@ -106,10 +127,15 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
             const workbook = XLSX.read(buffer, { type: 'array' });
             const sheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+                header: 1,
+                defval: '',
+                raw: false,
+            });
 
             if (jsonData.length < 2) {
                 setValidationErrors([{ row: 0, message: 'File Excel rỗng hoặc không có dữ liệu' }]);
+                setStep('upload');
                 return;
             }
 
@@ -183,6 +209,7 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                     row: 0,
                     message: 'Không tìm thấy cột MSSV. Cần có cột: "Mã sinh viên", "MSSV", hoặc "Mã SV"'
                 }]);
+                setStep('upload');
                 return;
             }
 
@@ -191,18 +218,20 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                     row: 0,
                     message: 'Không tìm thấy cột Họ tên. Cần có: "Họ tên" hoặc "Họ đệm" + "Tên"'
                 }]);
+                setStep('upload');
                 return;
             }
 
             // Parse data rows
             const students = [];
             let stt = 0;
+            const seenCodes = new Set();
 
             for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
                 const row = jsonData[i];
                 if (!row || row.every(cell => !cell)) continue;
 
-                const studentCode = String(row[columnMap.student_code] || '').trim();
+                const studentCode = cleanStudentCode(row[columnMap.student_code] || '');
                 if (!studentCode) continue;
 
                 let fullName = '';
@@ -222,6 +251,14 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                     email = `${studentCode}@dnc.edu.vn`;
                 }
 
+                const errors = [];
+                if (!fullName) errors.push('Thiếu họ tên');
+                if (!isValidEmail(email)) errors.push('Email không hợp lệ');
+                if (seenCodes.has(studentCode)) errors.push('Trùng MSSV');
+                if (!errors.length) {
+                    seenCodes.add(studentCode);
+                }
+
                 stt++;
                 const student = {
                     student_code: studentCode,
@@ -229,8 +266,8 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                     email: email,
                     phone: columnMap.phone !== undefined ? String(row[columnMap.phone] || '').trim() || null : null,
                     row_number: stt,
-                    status: fullName ? 'valid' : 'error',
-                    errors: fullName ? [] : ['Thiếu họ tên']
+                    status: errors.length === 0 ? 'valid' : 'error',
+                    errors
                 };
 
                 students.push(student);
@@ -238,16 +275,19 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
 
             if (students.length === 0) {
                 setValidationErrors([{ row: 0, message: 'Không tìm thấy sinh viên nào trong file' }]);
+                setStep('upload');
                 return;
             }
 
             setParsedData(students);
             setValidationErrors([]);
             setStep('preview');
+            setShowOnlyErrors(false);
 
         } catch (error) {
             console.error('Parse error:', error);
             setValidationErrors([{ row: 0, message: `Lỗi đọc file: ${error.message}` }]);
+            setStep('upload');
         }
     };
 
@@ -271,12 +311,23 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
         setStep('importing');
 
         try {
+            const existingClass = await classesService.getBySessionAndCode(
+                sessionId,
+                classCode.trim()
+            );
+
+            if (existingClass) {
+                toast.error(`Mã lớp "${classCode.trim()}" đã tồn tại trong đợt này. Vui lòng đổi mã lớp hoặc import vào lớp hiện có.`);
+                setStep('preview');
+                return;
+            }
+
             // Step 1: Create class
             const classData = {
                 session_id: sessionId,
-                class_code: classCode.trim(),
-                class_name: className.trim() || classCode.trim(),
-                max_students: validStudents.length + 5, // Add buffer
+                code: classCode.trim(),
+                name: className.trim() || classCode.trim(),
+                max_students: validStudents.length,
             };
 
             const newClass = await createClass.mutateAsync(classData);
@@ -284,9 +335,18 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
             // Step 2: Import students to the new class
             const results = await classesService.bulkImportStudents(newClass.id, validStudents);
 
+            // Ensure max_students matches actual added count
+            if (results?.added_to_class !== undefined) {
+                await classesService.update(newClass.id, {
+                    max_students: results.added_to_class,
+                });
+            }
+
             setImportResults({
                 classId: newClass.id,
                 classCode: classCode,
+                sessionId,
+                sessionName: selectedSession?.name || '',
                 ...results
             });
             setStep('done');
@@ -302,11 +362,12 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
     // Stats
     const validCount = parsedData.filter(s => s.status === 'valid').length;
     const errorCount = parsedData.filter(s => s.status === 'error').length;
+    const selectedSession = sessions.find(s => s.id === sessionId);
 
     // Session options
     const sessionOptions = sessions
-        .filter(s => s.status === 'active' || s.status === 'upcoming')
-        .map(s => ({ value: s.id, label: `${s.session_name} (${s.academic_year})` }));
+        .filter(s => s.status === 'open' || s.status === 'draft')
+        .map(s => ({ value: s.id, label: `${s.name} (${s.academic_year})` }));
 
     return (
         <Modal
@@ -374,12 +435,17 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                                         setParsedData([]);
                                         setClassCode('');
                                         setClassName('');
+                                        setValidationErrors([]);
+                                        setShowOnlyErrors(false);
                                         setStep('upload');
                                     }}
                                 >
                                     <X size={16} />
                                 </button>
                                 <Badge variant="success">{validCount} hợp lệ</Badge>
+                                {errorCount > 0 && (
+                                    <Badge variant="danger">{errorCount} lỗi</Badge>
+                                )}
                             </div>
                         ) : (
                             <div className="upload-placeholder">
@@ -446,7 +512,25 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
 
                         {/* Preview table */}
                         <div className="preview-section">
-                            <h4>Preview ({parsedData.length} sinh viên)</h4>
+                            <div className="preview-header">
+                                <h4>Preview ({parsedData.length} sinh viên)</h4>
+                                <div className="preview-actions">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setShowOnlyErrors(prev => !prev)}
+                                        disabled={errorCount === 0}
+                                    >
+                                        {showOnlyErrors ? 'Xem tất cả' : 'Chỉ xem lỗi'}
+                                    </Button>
+                                </div>
+                            </div>
+                            <div className="preview-summary">
+                                <Badge variant="success">Hợp lệ: {validCount}</Badge>
+                                {errorCount > 0 && (
+                                    <Badge variant="danger">Lỗi: {errorCount}</Badge>
+                                )}
+                            </div>
                             <div className="preview-table-container">
                                 <table className="preview-table">
                                     <thead>
@@ -459,7 +543,9 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {parsedData.slice(0, 50).map((student, i) => (
+                                        {(showOnlyErrors ? parsedData.filter(s => s.status === 'error') : parsedData)
+                                            .slice(0, 50)
+                                            .map((student, i) => (
                                             <tr key={i} className={student.status === 'error' ? 'row-error' : ''}>
                                                 <td>{student.row_number}</td>
                                                 <td>{student.student_code}</td>
@@ -503,6 +589,11 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                                 <School size={20} />
                                 <span>Lớp: <strong>{importResults.classCode}</strong></span>
                             </div>
+                            {importResults.sessionName && (
+                                <div className="result-item">
+                                    <span>Đợt: <strong>{importResults.sessionName}</strong></span>
+                                </div>
+                            )}
                             <div className="result-item">
                                 <Users size={20} />
                                 <span>Đã thêm: <strong>{importResults.added_to_class}</strong> sinh viên</span>
@@ -528,9 +619,22 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                 {/* Actions */}
                 <div className="modal-actions">
                     {step === 'done' ? (
-                        <Button variant="primary" onClick={handleClose}>
-                            Đóng
-                        </Button>
+                        <>
+                            <Button
+                                variant="ghost"
+                                onClick={() => {
+                                    handleClose();
+                                    if (importResults?.classId) {
+                                        navigate(`/admin/classes/${importResults.classId}`);
+                                    }
+                                }}
+                            >
+                                Xem lớp vừa tạo
+                            </Button>
+                            <Button variant="primary" onClick={handleClose}>
+                                Đóng
+                            </Button>
+                        </>
                     ) : (
                         <>
                             <Button variant="ghost" onClick={handleClose} disabled={step === 'importing'}>
