@@ -1,0 +1,129 @@
+/* ==================== */
+/* BUTTON COMPONENT     */
+/* ==================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-family: inherit;
+    font-weight: var(--font-medium);
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+/* Sizes */
+.btn-sm {
+    height: 32px;
+    padding: 0 var(--space-3);
+    font-size: var(--text-sm);
+}
+
+.btn-md {
+    height: 40px;
+    padding: 0 var(--space-4);
+    font-size: var(--text-sm);
+}
+
+.btn-lg {
+    height: 48px;
+    padding: 0 var(--space-6);
+    font-size: var(--text-base);
+}
+
+/* Full width */
+.btn-full {
+    width: 100%;
+}
+
+/* Variants */
+.btn-primary {
+    background: var(--primary-600);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--primary-700);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+    background: var(--neutral-100);
+    color: var(--neutral-700);
+    border-color: var(--neutral-200);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--neutral-200);
+}
+
+.btn-danger {
+    background: var(--danger-600);
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: var(--danger-700);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--neutral-600);
+}
+
+.btn-ghost:hover:not(:disabled) {
+    background: var(--neutral-100);
+    color: var(--neutral-900);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--primary-600);
+    border-color: var(--primary-600);
+}
+
+.btn-outline:hover:not(:disabled) {
+    background: var(--primary-50);
+}
+
+/* Disabled state */
+.btn-disabled,
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Spinner animation */
+.btn-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Icon spacing */
+.btn-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.btn-text {
+    display: inline-block;
+}

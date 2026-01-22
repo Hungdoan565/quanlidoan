@@ -1,0 +1,181 @@
+/* ==================== */
+/* TABLE COMPONENT      */
+/* ==================== */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background: var(--bg-primary);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+}
+
+/* Header */
+.table-header {
+    background: var(--neutral-50);
+}
+
+.table-head {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    font-weight: var(--font-semibold);
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-default);
+    white-space: nowrap;
+}
+
+.table-head-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.table-head-sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.table-head-sortable:hover {
+    color: var(--text-primary);
+}
+
+.table-sort-icon {
+    color: var(--text-muted);
+    font-size: 10px;
+}
+
+.table-head-sorted .table-sort-icon {
+    color: var(--primary-600);
+}
+
+/* Body */
+.table-row {
+    transition: background 0.15s ease;
+}
+
+.table-row:not(:last-child) {
+    border-bottom: 1px solid var(--border-default);
+}
+
+.table-row:hover {
+    background: var(--neutral-50);
+}
+
+.table-row-clickable {
+    cursor: pointer;
+}
+
+.table-row-selected {
+    background: var(--primary-50) !important;
+}
+
+.table-cell {
+    padding: var(--space-3) var(--space-4);
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+/* ==================== */
+/* PAGINATION           */
+/* ==================== */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--border-default);
+    background: var(--neutral-50);
+    gap: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.pagination-info {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: var(--neutral-100);
+    border-color: var(--neutral-300);
+    color: var(--text-primary);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-pages {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.pagination-page {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 var(--space-2);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pagination-page:hover {
+    background: var(--neutral-100);
+    border-color: var(--neutral-300);
+}
+
+.pagination-page.active {
+    background: var(--primary-600);
+    border-color: var(--primary-600);
+    color: white;
+}
+
+.pagination-ellipsis {
+    padding: 0 var(--space-1);
+    color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .pagination {
+        justify-content: center;
+    }
+    
+    .pagination-info {
+        width: 100%;
+        text-align: center;
+    }
+}

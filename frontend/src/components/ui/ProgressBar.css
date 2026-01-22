@@ -1,0 +1,52 @@
+.progress-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress-bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--neutral-200);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-bar-fill.primary {
+    background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+}
+
+.progress-bar-fill.success {
+    background: linear-gradient(90deg, var(--success-400), var(--success-600));
+}
+
+.progress-bar-fill.warning {
+    background: linear-gradient(90deg, var(--warning-400), var(--warning-600));
+}
+
+.progress-bar-fill.danger {
+    background: linear-gradient(90deg, var(--danger-400), var(--danger-600));
+}
+
+.progress-bar-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 36px;
+    text-align: right;
+}
+
+/* Size variants */
+.progress-bar-container.sm .progress-bar-track {
+    height: 4px;
+}
+
+.progress-bar-container.lg .progress-bar-track {
+    height: 12px;
+}

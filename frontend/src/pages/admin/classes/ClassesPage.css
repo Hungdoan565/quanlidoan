@@ -1,0 +1,409 @@
+/* ==================== */
+/* CLASSES PAGE         */
+/* ==================== */
+
+.classes-page {
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Back Link when filtered by session */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--primary-600);
+    text-decoration: none;
+    margin-bottom: var(--space-1);
+    transition: color 0.15s ease;
+}
+
+.back-link:hover {
+    color: var(--primary-700);
+}
+
+.page-subtitle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+/* Filters */
+.filters-card {
+    margin-bottom: var(--space-4);
+}
+
+.filters-row {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+}
+
+.filter-search {
+    flex: 1;
+    max-width: 400px;
+}
+
+.filter-selects {
+    display: flex;
+    gap: var(--space-3);
+}
+
+/* Table */
+.table-card {
+    overflow: hidden;
+}
+
+.class-code {
+    font-family: var(--font-mono);
+    font-weight: var(--font-medium);
+    color: var(--primary-600);
+}
+
+.class-name {
+    font-weight: var(--font-medium);
+}
+
+.session-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.session-name {
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+}
+
+.session-year {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.teacher-pair {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.teacher-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+}
+
+.student-count {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--text-secondary);
+}
+
+.action-buttons {
+    display: flex;
+    gap: var(--space-1);
+}
+
+/* ==================== */
+/* CLASS DETAIL PAGE    */
+/* ==================== */
+
+.class-detail-page {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.page-header-left {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+}
+
+.class-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+/* Info Card */
+.info-card .info-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-label {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.info-value {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+/* Teacher Pair Card */
+.teacher-pair-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.teacher-pair-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.teacher-pair-display {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.teacher-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+}
+
+.teacher-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.teacher-name {
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+}
+
+.teacher-code {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+/* Students Card */
+.students-card .card-body {
+    padding: 0;
+}
+
+.students-body {
+    padding: 0 !important;
+}
+
+.student-code {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--primary-600);
+}
+
+.student-name-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.topic-title {
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    font-weight: var(--font-medium);
+}
+
+.empty-students {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.empty-students svg {
+    margin-bottom: var(--space-2);
+    opacity: 0.5;
+}
+
+.empty-students p {
+    margin: 0 0 var(--space-4) 0;
+}
+
+/* ==================== */
+/* ADD STUDENT MODAL    */
+/* ==================== */
+
+.add-student-modal {
+    min-height: 400px;
+}
+
+.add-student-modal .search-header {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    margin-bottom: var(--space-3);
+}
+
+.add-student-modal .search-header .input-wrapper {
+    flex: 1;
+}
+
+.add-student-modal .selected-count {
+    margin-bottom: var(--space-3);
+}
+
+.add-student-modal .students-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+}
+
+.add-student-modal .student-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-default);
+    transition: background 0.15s ease;
+}
+
+.add-student-modal .student-item:last-child {
+    border-bottom: none;
+}
+
+.add-student-modal .student-item:hover {
+    background: var(--bg-secondary);
+}
+
+.add-student-modal .student-item.selected {
+    background: var(--primary-50);
+}
+
+.add-student-modal .student-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.add-student-modal .student-item.selected .student-checkbox {
+    background: var(--primary-600);
+    border-color: var(--primary-600);
+    color: white;
+}
+
+.add-student-modal .student-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.add-student-modal .student-name {
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+}
+
+.add-student-modal .student-details {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.add-student-modal .loading-text,
+.add-student-modal .empty-text {
+    padding: var(--space-8);
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.add-student-modal .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+}
+
+/* Forms */
+.class-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.class-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+
+.class-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.class-form .form-group label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+}
+
+.class-form .required {
+    color: var(--danger-500);
+}
+
+.class-form .error-text {
+    font-size: var(--text-xs);
+    color: var(--danger-500);
+}
+
+.class-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+/* Responsive */
+@media (max-width: 1023px) {
+    .class-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .filters-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-search {
+        max-width: none;
+    }
+
+    .filter-selects {
+        flex-direction: column;
+    }
+
+    .class-form .form-row {
+        grid-template-columns: 1fr;
+    }
+}

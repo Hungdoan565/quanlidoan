@@ -1,0 +1,84 @@
+/* ==================== */
+/* AVATAR COMPONENT     */
+/* ==================== */
+
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: var(--font-semibold);
+    color: white;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+/* Sizes */
+.avatar-xs {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+}
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+}
+
+.avatar-md {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+}
+
+.avatar-lg {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+}
+
+.avatar-xl {
+    width: 64px;
+    height: 64px;
+    font-size: 20px;
+}
+
+.avatar-2xl {
+    width: 96px;
+    height: 96px;
+    font-size: 28px;
+}
+
+/* Image avatar */
+img.avatar {
+    object-fit: cover;
+}
+
+/* Initials avatar */
+.avatar-initials {
+    text-transform: uppercase;
+}
+
+/* Count badge */
+.avatar-count {
+    background: var(--neutral-200);
+    color: var(--neutral-700);
+    font-size: 11px;
+}
+
+/* Avatar Group */
+.avatar-group {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.avatar-group .avatar {
+    border: 2px solid var(--bg-primary);
+    margin-left: -8px;
+}
+
+.avatar-group .avatar:last-child {
+    margin-left: 0;
+}

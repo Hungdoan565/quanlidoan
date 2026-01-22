@@ -1,0 +1,387 @@
+/* GradingDetailPage.css - Grading Detail Styles */
+
+.grading-detail-page {
+    padding: 0;
+}
+
+/* Back Button */
+.grading-detail-page .page-header-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.back-button:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* Content Layout */
+.grading-detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Topic Info Card */
+.topic-info-card {
+    background: var(--bg-primary);
+}
+
+.topic-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+    gap: 1rem;
+}
+
+.topic-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.topic-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.topic-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.topic-info-item svg {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.topic-info-item .label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-bottom: 0.125rem;
+}
+
+.topic-info-item .value {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.topic-description {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.topic-description h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.topic-description p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* Grading Form Card */
+.grading-form-card {
+    background: var(--bg-primary);
+}
+
+.grading-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.grading-form-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.grading-progress-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.grading-progress-bar-large {
+    width: 100px;
+    height: 8px;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.grading-progress-fill-large {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+/* Criteria List */
+.grading-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.grading-section {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.grading-criteria-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.grading-criteria-item {
+    padding: 1.25rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    position: relative;
+}
+
+.criteria-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.criteria-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.criteria-index {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.criteria-name {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.criteria-description {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.criteria-weight {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.criteria-weight .weight-value {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.criteria-weight .weight-label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+}
+
+/* Input Row */
+.criteria-input-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.score-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.score-input {
+    width: 80px;
+    text-align: center;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.score-max {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+}
+
+.notes-input {
+    flex: 1;
+    font-size: 0.875rem;
+}
+
+/* Saved Indicator */
+.criteria-saved-indicator {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    color: var(--success, #22c55e);
+    background: rgba(34, 197, 94, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+/* Footer */
+.grading-form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.total-score-section {
+    flex: 1;
+}
+
+.total-score {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.total-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.total-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.total-max {
+    font-size: 1rem;
+    color: var(--text-tertiary);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .topic-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .grading-form-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .criteria-header {
+        flex-direction: column;
+    }
+
+    .criteria-weight {
+        text-align: left;
+    }
+
+    .criteria-input-row {
+        flex-direction: column;
+    }
+
+    .score-input-group {
+        width: 100%;
+    }
+
+    .score-input {
+        flex: 1;
+    }
+
+    .grading-form-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

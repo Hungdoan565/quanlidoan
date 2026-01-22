@@ -1,0 +1,294 @@
+.logbook-page {
+    padding: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Header */
+.logbook-page .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 16px;
+}
+
+.logbook-page .page-header-content {
+    flex: 1;
+}
+
+.logbook-page .page-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+}
+
+.logbook-page .page-subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Topic Info Card */
+.topic-info-card {
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, var(--primary-50), var(--bg-secondary));
+    border: 1px solid var(--primary-100);
+}
+
+.topic-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.topic-info-grid .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.topic-info-grid .info-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.topic-info-grid .info-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.topic-info-grid .info-value.highlight {
+    color: var(--primary-600);
+    font-weight: 600;
+}
+
+/* Entries Section */
+.entries-section {
+    margin-top: 32px;
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 16px 0;
+}
+
+.empty-entries {
+    text-align: center;
+    padding: 48px 24px;
+}
+
+/* Timeline */
+.entries-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.entry-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.entry-card:hover {
+    border-color: var(--primary-200);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.entry-card.confirmed {
+    border-left: 4px solid var(--success-500);
+}
+
+.entry-card::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 24px;
+    width: 16px;
+    height: 16px;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-default);
+    border-radius: 50%;
+}
+
+.entry-card.confirmed::before {
+    background: var(--success-500);
+    border-color: var(--success-500);
+}
+
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+.entry-week {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.week-number {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.week-range {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.entry-content {
+    margin-bottom: 16px;
+}
+
+.content-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+}
+
+.entry-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.meta-item svg {
+    color: var(--text-muted);
+}
+
+.teacher-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--primary-600);
+    background: var(--primary-50);
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 4px;
+}
+
+.teacher-note svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.entry-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-light);
+}
+
+/* Form Modal */
+.logbook-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.logbook-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.logbook-form label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.logbook-form .week-select {
+    padding: 10px 12px;
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.logbook-form .week-select:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.logbook-form .form-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 4px 0 0 0;
+}
+
+.logbook-form .form-hint.warning {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--warning-600);
+}
+
+.logbook-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .logbook-page {
+        padding: 16px;
+    }
+
+    .logbook-page .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .logbook-page .page-title {
+        font-size: 1.5rem;
+    }
+
+    .topic-info-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .entry-header {
+        flex-direction: column;
+    }
+
+    .entry-card::before {
+        display: none;
+    }
+}

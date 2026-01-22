@@ -1,0 +1,95 @@
+/* ==================== */
+/* EMPTY STATE - Premium */
+/* ==================== */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-12) var(--space-6);
+    min-height: 300px;
+}
+
+.empty-state-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    margin-bottom: var(--space-5);
+    position: relative;
+}
+
+/* Subtle glow effect behind icon */
+.empty-state-icon::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    background: inherit;
+    opacity: 0.3;
+    filter: blur(16px);
+    z-index: -1;
+}
+
+/* Variants */
+.empty-state-default .empty-state-icon {
+    background: linear-gradient(135deg, var(--neutral-100) 0%, var(--neutral-200) 100%);
+    color: var(--neutral-500);
+}
+
+.empty-state-search .empty-state-icon {
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+    color: var(--primary-500);
+}
+
+.empty-state-error .empty-state-icon {
+    background: linear-gradient(135deg, var(--danger-50) 0%, var(--danger-100) 100%);
+    color: var(--danger-500);
+}
+
+.empty-state-title {
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin: 0 0 var(--space-2);
+}
+
+.empty-state-description {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 400px;
+    line-height: 1.6;
+}
+
+.empty-state-action {
+    margin-top: var(--space-6);
+}
+
+/* Dark mode enhancements */
+[data-theme="dark"] .empty-state-default .empty-state-icon {
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.2) 0%, rgba(100, 116, 139, 0.3) 100%);
+    color: var(--neutral-400);
+}
+
+[data-theme="dark"] .empty-state-search .empty-state-icon {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.25) 100%);
+    color: var(--primary-400);
+}
+
+[data-theme="dark"] .empty-state-error .empty-state-icon {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.25) 100%);
+    color: var(--danger-400);
+}
+
+[data-theme="dark"] .empty-state-title {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .empty-state-description {
+    color: var(--text-muted);
+}

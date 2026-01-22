@@ -1,0 +1,381 @@
+/* ===========================================
+   MY TOPIC PAGE - Professional Styling
+   =========================================== */
+
+.my-topic-page {
+    padding: 0;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Page Header */
+.my-topic-page .page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.my-topic-page .page-header-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.my-topic-page .page-header-content h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* ===========================================
+   STATUS ALERT CARDS
+   =========================================== */
+.revision-warning-card,
+.rejected-warning-card {
+    margin-bottom: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.revision-warning-card {
+    border-left: 4px solid var(--warning);
+    background: rgba(245, 158, 11, 0.08);
+}
+
+.rejected-warning-card {
+    border-left: 4px solid var(--danger);
+    background: rgba(239, 68, 68, 0.08);
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .revision-warning-card {
+    background: rgba(245, 158, 11, 0.12);
+}
+
+[data-theme="dark"] .rejected-warning-card {
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.revision-warning,
+.rejected-warning {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.revision-warning svg {
+    flex-shrink: 0;
+    color: var(--warning);
+}
+
+.rejected-warning svg {
+    flex-shrink: 0;
+    color: var(--danger);
+}
+
+.revision-content h4,
+.rejected-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+}
+
+.revision-content p,
+.rejected-content p {
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+/* ===========================================
+   TOPIC INFO CARD
+   =========================================== */
+.topic-info-card {
+    margin-bottom: 28px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    overflow: hidden;
+}
+
+[data-theme="dark"] .topic-info-card {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(148, 163, 184, 0.15);
+}
+
+.topic-info-card .card-header-with-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.topic-header-left {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.topic-details {
+    padding-top: 8px;
+}
+
+.topic-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+.topic-description {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: rgba(59, 130, 246, 0.06);
+    border-radius: 10px;
+    border-left: 4px solid var(--primary-500);
+    font-size: 0.95rem;
+}
+
+[data-theme="dark"] .topic-description {
+    background: rgba(59, 130, 246, 0.12);
+}
+
+.topic-technologies {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.topic-technologies svg {
+    color: var(--primary-500);
+}
+
+.tech-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tech-tag {
+    background: var(--primary-100);
+    color: var(--primary-700);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+[data-theme="dark"] .tech-tag {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--primary-300);
+}
+
+.topic-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .topic-meta {
+    border-color: rgba(148, 163, 184, 0.15);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* ===========================================
+   EDIT FORM
+   =========================================== */
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.edit-form .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 12px;
+}
+
+/* ===========================================
+   TEACHER CARD - Single Supervisor
+   =========================================== */
+.supervisor-card {
+    max-width: 500px;
+    margin-top: 8px;
+}
+
+.supervisor-card .teacher-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+}
+
+.supervisor-card .teacher-role {
+    font-size: 0.85rem;
+    color: var(--primary-500);
+    margin: 4px 0 12px 0;
+    font-weight: 500;
+}
+
+[data-theme="dark"] .supervisor-card .teacher-role {
+    color: var(--primary-400);
+}
+
+.teacher-card {
+    border-radius: 16px;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    overflow: hidden;
+}
+
+[data-theme="dark"] .teacher-card {
+    background: rgba(30, 41, 59, 0.5);
+    border-color: rgba(148, 163, 184, 0.15);
+}
+
+.teacher-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+[data-theme="dark"] .teacher-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.teacher-info {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.teacher-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.teacher-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.teacher-details h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 6px 0;
+}
+
+.teacher-code {
+    display: inline-block;
+    font-size: 0.8rem;
+    background: var(--bg-secondary);
+    padding: 3px 10px;
+    border-radius: 6px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+[data-theme="dark"] .teacher-code {
+    background: rgba(148, 163, 184, 0.15);
+}
+
+.teacher-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.teacher-contact a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-decoration: none;
+    padding: 6px 10px;
+    margin: 0 -10px;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+
+.teacher-contact a:hover {
+    background: var(--primary-50);
+    color: var(--primary-600);
+}
+
+[data-theme="dark"] .teacher-contact a:hover {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--primary-400);
+}
+
+.no-teacher {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 32px;
+    color: var(--text-muted);
+    text-align: center;
+    min-height: 120px;
+}
+
+.no-teacher svg {
+    opacity: 0.4;
+}
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+@media (max-width: 768px) {
+    .my-topic-page {
+        padding: 0;
+    }
+
+    .teachers-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .topic-info-card .card-header-with-action {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .topic-title {
+        font-size: 1.2rem;
+    }
+}

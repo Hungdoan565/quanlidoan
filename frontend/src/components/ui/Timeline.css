@@ -1,0 +1,213 @@
+/* ==================== */
+/* TIMELINE             */
+/* ==================== */
+
+/* Vertical Timeline */
+.timeline {
+    display: flex;
+    flex-direction: column;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    position: relative;
+    padding-bottom: var(--space-4);
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-marker {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+.timeline-item-completed .timeline-marker {
+    background: var(--success-500);
+    color: white;
+}
+
+.timeline-item-current .timeline-marker {
+    background: var(--primary-500);
+    color: white;
+    box-shadow: 0 0 0 4px var(--primary-100);
+}
+
+.timeline-item-pending .timeline-marker {
+    background: var(--neutral-200);
+    color: var(--neutral-400);
+}
+
+.timeline-connector {
+    position: absolute;
+    left: 11px;
+    top: 24px;
+    width: 2px;
+    height: calc(100% - 24px);
+    background: var(--neutral-200);
+}
+
+.timeline-item-completed .timeline-connector {
+    background: var(--success-300);
+}
+
+.timeline-content {
+    display: flex;
+    flex-direction: column;
+    padding-top: 2px;
+}
+
+.timeline-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+}
+
+.timeline-item-pending .timeline-label {
+    color: var(--text-muted);
+}
+
+.timeline-date {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* ==================== */
+/* PROGRESS TIMELINE    */
+/* ==================== */
+
+.progress-timeline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.progress-step:last-child {
+    flex: 0;
+}
+
+.progress-marker {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    background: var(--bg-primary);
+    border: 2px solid var(--neutral-300);
+}
+
+.progress-step-completed .progress-marker {
+    background: var(--success-500);
+    border-color: var(--success-500);
+    color: white;
+}
+
+.progress-step-current .progress-marker {
+    background: var(--bg-primary);
+    border-color: var(--primary-500);
+    border-width: 3px;
+}
+
+.progress-step-pending .progress-marker {
+    background: var(--bg-primary);
+    border-color: var(--neutral-300);
+}
+
+.progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--neutral-300);
+}
+
+.progress-dot-current {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-full);
+    background: var(--primary-500);
+}
+
+.progress-connector {
+    position: absolute;
+    top: 14px;
+    left: calc(50% + 14px);
+    right: calc(-50% + 14px);
+    height: 2px;
+    background: var(--neutral-200);
+}
+
+.progress-connector-completed {
+    background: var(--success-400);
+}
+
+.progress-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: var(--space-2);
+    text-align: center;
+}
+
+.progress-name {
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.progress-step-completed .progress-name {
+    color: var(--success-600);
+}
+
+.progress-step-current .progress-name {
+    color: var(--primary-600);
+    font-weight: var(--font-semibold);
+}
+
+.progress-step-pending .progress-name {
+    color: var(--text-muted);
+}
+
+.progress-date {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Responsive */
+@media (max-width: 639px) {
+    .progress-timeline {
+        flex-wrap: wrap;
+        gap: var(--space-3);
+    }
+
+    .progress-step {
+        flex: 0 0 auto;
+        min-width: 60px;
+    }
+
+    .progress-connector {
+        display: none;
+    }
+}

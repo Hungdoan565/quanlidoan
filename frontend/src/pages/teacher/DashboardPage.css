@@ -1,0 +1,318 @@
+/* ==================== */
+/* TEACHER DASHBOARD    */
+/* ==================== */
+
+.teacher-dashboard {
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Stats Grid - 4 columns */
+.stats-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+/* Dashboard Main - 2 column layout */
+.dashboard-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+/* Card header with action */
+.card-header-with-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.card-header-with-action h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    margin: 0;
+}
+
+.view-all-btn {
+    background: none;
+    border: none;
+    color: var(--primary-600);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-md);
+    transition: all 0.15s ease;
+}
+
+.view-all-btn:hover {
+    background: var(--primary-50);
+}
+
+/* Todo Card */
+.todo-card {
+    min-height: 350px;
+}
+
+.todo-body {
+    padding: 0 !important;
+}
+
+.todo-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--border-default);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.todo-item:last-child {
+    border-bottom: none;
+}
+
+.todo-item:hover {
+    background: var(--neutral-50);
+}
+
+.todo-item.todo-priority-high {
+    border-left: 3px solid var(--danger-500);
+}
+
+.todo-item.todo-priority-medium {
+    border-left: 3px solid var(--warning-500);
+}
+
+.todo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.todo-icon-pending_approval {
+    background: var(--warning-100);
+    color: var(--warning-600);
+}
+
+.todo-icon-pending_grading {
+    background: var(--primary-100);
+    color: var(--primary-600);
+}
+
+.todo-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.todo-title {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+}
+
+.todo-description {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.todo-arrow {
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+/* Empty state */
+.empty-todo,
+.empty-students {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    text-align: center;
+}
+
+.empty-icon {
+    color: var(--success-500);
+    margin-bottom: var(--space-3);
+}
+
+.empty-todo p,
+.empty-students p {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.empty-todo span,
+.empty-students span {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-top: var(--space-1);
+}
+
+.empty-students .empty-icon {
+    color: var(--neutral-400);
+}
+
+/* Students Card */
+.students-card {
+    min-height: 350px;
+}
+
+.students-body {
+    padding: 0 !important;
+}
+
+.students-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.student-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--border-default);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.student-item:last-child {
+    border-bottom: none;
+}
+
+.student-item:hover {
+    background: var(--neutral-50);
+}
+
+.student-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: var(--primary-100);
+    color: var(--primary-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-semibold);
+    font-size: var(--text-sm);
+    flex-shrink: 0;
+}
+
+.student-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.student-name {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+}
+
+.student-topic {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Quick Actions */
+.quick-actions h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    margin-bottom: var(--space-4);
+}
+
+.quick-actions-grid {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.quick-action-btn:hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+    color: var(--primary-700);
+}
+
+.quick-action-btn svg {
+    color: var(--text-muted);
+}
+
+.quick-action-btn:hover svg {
+    color: var(--primary-600);
+}
+
+/* Loading placeholder */
+.loading-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 1023px) {
+    .stats-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dashboard-main {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 639px) {
+    .stats-grid-4 {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-actions-grid {
+        flex-direction: column;
+    }
+
+    .quick-action-btn {
+        justify-content: center;
+    }
+}

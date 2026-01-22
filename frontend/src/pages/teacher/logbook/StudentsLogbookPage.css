@@ -1,0 +1,261 @@
+.students-logbook-page {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header */
+.students-logbook-page .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.students-logbook-page .page-header-content {
+    flex: 1;
+}
+
+.students-logbook-page .page-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+}
+
+.students-logbook-page .page-subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-default);
+}
+
+.stat-card .card-body {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-50);
+    color: var(--primary-600);
+    border-radius: 12px;
+}
+
+.stat-card.success .stat-icon {
+    background: var(--success-50);
+    color: var(--success-600);
+}
+
+.stat-card.warning .stat-icon {
+    background: var(--warning-50);
+    color: var(--warning-600);
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Filters */
+.filters-card {
+    margin-bottom: 24px;
+}
+
+.filters-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.filters-row .search-input {
+    flex: 1;
+    max-width: 400px;
+}
+
+/* Students List */
+.students-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.student-card {
+    transition: all 0.2s ease;
+}
+
+.student-card.clickable {
+    cursor: pointer;
+}
+
+.student-card.clickable:hover {
+    border-color: var(--primary-300);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.student-card-content {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.student-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 280px;
+}
+
+.student-avatar {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.student-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.student-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.student-code {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.topic-title {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Progress */
+.logbook-progress {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.progress-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.progress-meta {
+    display: flex;
+    gap: 16px;
+}
+
+.progress-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.progress-meta svg {
+    color: var(--text-muted);
+}
+
+.card-arrow {
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+.student-card:hover .card-arrow {
+    transform: translateX(4px);
+    color: var(--primary-500);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .students-logbook-page {
+        padding: 16px;
+    }
+
+    .student-card-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .student-info {
+        min-width: unset;
+    }
+
+    .card-arrow {
+        display: none;
+    }
+
+    .filters-row {
+        flex-direction: column;
+    }
+
+    .filters-row .search-input {
+        max-width: unset;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}

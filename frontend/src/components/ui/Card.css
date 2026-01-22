@@ -1,0 +1,105 @@
+/* ==================== */
+/* CARD COMPONENT       */
+/* ==================== */
+
+.card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-hover {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.card-hover:hover {
+    border-color: var(--primary-200);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+/* Padding variants */
+.card-padding-none {
+    padding: 0;
+}
+
+.card-padding-sm {
+    padding: var(--space-4);
+}
+
+.card-padding-md {
+    padding: var(--space-6);
+}
+
+.card-padding-lg {
+    padding: var(--space-8);
+}
+
+/* Card sections */
+.card-header {
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--border-default);
+}
+
+.card-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.card-description {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: var(--space-1) 0 0;
+}
+
+.card-body {
+    padding: var(--space-5);
+}
+
+.card-footer {
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--border-default);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+}
+
+/* When used inside card with padding */
+.card-padding-sm .card-header,
+.card-padding-sm .card-body,
+.card-padding-sm .card-footer {
+    margin: calc(var(--space-4) * -1);
+}
+
+.card-padding-md .card-header,
+.card-padding-md .card-body,
+.card-padding-md .card-footer {
+    margin: calc(var(--space-6) * -1);
+}
+
+/* ==================== */
+/* DARK MODE            */
+/* ==================== */
+[data-theme="dark"] .card {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(148, 163, 184, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .card-hover:hover {
+    border-color: var(--primary-500);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .card-header {
+    border-color: rgba(148, 163, 184, 0.1);
+}
+
+[data-theme="dark"] .card-footer {
+    border-color: rgba(148, 163, 184, 0.1);
+}

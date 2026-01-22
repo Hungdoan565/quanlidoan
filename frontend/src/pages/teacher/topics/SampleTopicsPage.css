@@ -1,0 +1,150 @@
+.sample-topics-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+}
+
+.page-header-content h1 {
+    margin: 0 0 var(--spacing-xs);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.page-header-content p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.filters-card .filters-row {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+/* Topic title cell */
+.topic-title-cell {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+}
+
+.topic-title-cell svg {
+    margin-top: 2px;
+    color: var(--text-secondary);
+}
+
+.topic-title-cell .topic-title {
+    font-weight: 500;
+    display: block;
+}
+
+.topic-title-cell .topic-desc {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    display: block;
+    margin-top: 2px;
+}
+
+/* Session name */
+.session-name {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Tech badges */
+.tech-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.tech-badges .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Student count */
+.student-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary);
+}
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+/* Form styles */
+.sample-topic-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.sample-topic-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.sample-topic-form label {
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.sample-topic-form .required {
+    color: var(--color-error);
+}
+
+.sample-topic-form .error-text {
+    color: var(--color-error);
+    font-size: 0.75rem;
+}
+
+/* Tech tags in form */
+.tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: var(--spacing-xs);
+}
+
+.tech-tags .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding-right: 6px;
+}
+
+.tech-tags .remove-tag {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    opacity: 0.6;
+}
+
+.tech-tags .remove-tag:hover {
+    opacity: 1;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}

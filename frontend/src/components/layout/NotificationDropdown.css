@@ -1,0 +1,199 @@
+/* ==================== */
+/* NOTIFICATION DROPDOWN */
+/* ==================== */
+
+.notification-trigger {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.notification-trigger:hover {
+    background: var(--neutral-100);
+    color: var(--text-primary);
+}
+
+.notification-count {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-width: 18px;
+    height: 18px;
+    background: var(--danger-500);
+    color: white;
+    font-size: 10px;
+    font-weight: var(--font-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    padding: 0 4px;
+}
+
+/* Dropdown content */
+.notification-dropdown {
+    padding: 0 !important;
+    max-height: 480px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-default);
+}
+
+.notification-header h4 {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.mark-all-read-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    background: none;
+    border: none;
+    color: var(--primary-600);
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: all 0.15s ease;
+}
+
+.mark-all-read-btn:hover {
+    background: var(--primary-50);
+}
+
+.mark-all-read-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Notification list */
+.notification-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 360px;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border-bottom: 1px solid var(--border-default);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background: var(--neutral-50);
+}
+
+.notification-item.unread {
+    background: var(--primary-50);
+}
+
+.notification-item.unread:hover {
+    background: var(--primary-100);
+}
+
+.notification-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: transparent;
+    flex-shrink: 0;
+    margin-top: 6px;
+}
+
+.notification-item.unread .notification-dot {
+    background: var(--primary-500);
+}
+
+.notification-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-message {
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    margin: 0 0 var(--space-1) 0;
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+/* Empty & Loading states */
+.notification-empty,
+.notification-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    text-align: center;
+}
+
+.notification-empty .empty-icon {
+    color: var(--neutral-300);
+    margin-bottom: var(--space-2);
+}
+
+.notification-empty p {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.notification-loading {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+/* Footer */
+.notification-footer {
+    border-top: 1px solid var(--border-default);
+    padding: var(--space-2);
+}
+
+.view-all-notifications {
+    width: 100%;
+    padding: var(--space-2);
+    background: none;
+    border: none;
+    color: var(--primary-600);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: all 0.15s ease;
+}
+
+.view-all-notifications:hover {
+    background: var(--primary-50);
+}

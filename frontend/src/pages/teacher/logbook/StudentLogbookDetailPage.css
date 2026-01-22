@@ -1,0 +1,277 @@
+.logbook-detail-page {
+    padding: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Header */
+.logbook-detail-page .page-header {
+    margin-bottom: 24px;
+}
+
+/* Student Info Card */
+.student-info-card {
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, var(--primary-50), var(--bg-secondary));
+    border: 1px solid var(--primary-100);
+}
+
+.student-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.student-avatar.large {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    border-radius: 16px;
+    flex-shrink: 0;
+}
+
+.student-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.logbook-detail-page .student-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.logbook-detail-page .student-code {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--primary-600);
+    margin: 0;
+}
+
+.logbook-detail-page .student-email {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.topic-info {
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+}
+
+.topic-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.topic-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Section */
+.entries-section {
+    margin-top: 32px;
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 16px 0;
+}
+
+/* Entries List */
+.entries-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.logbook-detail-page .entry-card {
+    transition: all 0.2s ease;
+}
+
+.logbook-detail-page .entry-card.confirmed {
+    border-left: 4px solid var(--success-500);
+}
+
+.logbook-detail-page .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.logbook-detail-page .entry-week {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.logbook-detail-page .week-number {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.logbook-detail-page .week-range {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.logbook-detail-page .entry-content {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.logbook-detail-page .content-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.logbook-detail-page .entry-meta {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 16px;
+}
+
+.logbook-detail-page .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Teacher Section */
+.teacher-section {
+    padding: 12px;
+    background: var(--primary-50);
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.section-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--primary-700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.teacher-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--primary-700);
+}
+
+.teacher-note svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.no-note {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 0;
+}
+
+/* Entry Actions */
+.logbook-detail-page .entry-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-light);
+}
+
+/* Modal Forms */
+.note-form,
+.confirm-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.note-form .form-hint,
+.confirm-form .form-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.note-form .form-actions,
+.confirm-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+}
+
+.confirm-form p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.confirm-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.confirm-form .form-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .logbook-detail-page {
+        padding: 16px;
+    }
+
+    .student-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .logbook-detail-page .entry-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .logbook-detail-page .entry-actions {
+        flex-direction: column;
+    }
+
+    .logbook-detail-page .entry-actions button {
+        width: 100%;
+    }
+}
