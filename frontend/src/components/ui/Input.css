@@ -34,7 +34,13 @@
     border-radius: var(--radius-lg);
     font-size: var(--text-sm);
     color: var(--text-primary);
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .input-field {
+        transition: none;
+    }
 }
 
 .input-field::placeholder {
@@ -111,7 +117,13 @@
     font-family: inherit;
     color: var(--text-primary);
     resize: vertical;
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .input.textarea {
+        transition: none;
+    }
 }
 
 .input.textarea::placeholder {

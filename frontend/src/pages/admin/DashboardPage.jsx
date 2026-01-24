@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Users,
@@ -109,27 +109,33 @@ export function AdminDashboard() {
         }
     };
 
-    // Prepare chart data
-    const pieChartData = stats ? Object.entries(stats.topicStats)
-        .filter(([key, value]) => key !== 'total' && value > 0)
-        .map(([key, value]) => ({
-            name: STATUS_LABELS[key] || key,
-            value,
-            color: STATUS_COLORS[key] || '#94a3b8',
-        })) : [];
+    // Prepare chart data - memoized for performance
+    const pieChartData = useMemo(() => {
+        if (!stats) return [];
+        return Object.entries(stats.topicStats)
+            .filter(([key, value]) => key !== 'total' && value > 0)
+            .map(([key, value]) => ({
+                name: STATUS_LABELS[key] || key,
+                value,
+                color: STATUS_COLORS[key] || '#94a3b8',
+            }));
+    }, [stats]);
 
-    const barChartData = stats ? [
-        { name: 'Chờ duyệt', value: stats.topicStats.pending, fill: STATUS_COLORS.pending },
-        { name: 'Đang làm', value: stats.topicStats.in_progress, fill: STATUS_COLORS.in_progress },
-        { name: 'Đã nộp', value: stats.topicStats.submitted, fill: STATUS_COLORS.submitted },
-        { name: 'Hoàn thành', value: stats.topicStats.completed, fill: STATUS_COLORS.completed },
-    ] : [];
+    const barChartData = useMemo(() => {
+        if (!stats) return [];
+        return [
+            { name: 'Chờ duyệt', value: stats.topicStats.pending, fill: STATUS_COLORS.pending },
+            { name: 'Đang làm', value: stats.topicStats.in_progress, fill: STATUS_COLORS.in_progress },
+            { name: 'Đã nộp', value: stats.topicStats.submitted, fill: STATUS_COLORS.submitted },
+            { name: 'Hoàn thành', value: stats.topicStats.completed, fill: STATUS_COLORS.completed },
+        ];
+    }, [stats]);
 
-    // Session options for dropdown
-    const sessionOptions = sessions.map(s => ({
+    // Session options for dropdown - memoized
+    const sessionOptions = useMemo(() => sessions.map(s => ({
         value: s.id,
         label: `${s.name} (${s.academic_year} - HK${s.semester})`,
-    }));
+    })), [sessions]);
 
     const isLoading = statsLoading || sessionsLoading;
 
@@ -148,7 +154,7 @@ export function AdminDashboard() {
                                 <Button 
                                     variant="outline" 
                                     disabled={exporting !== null}
-                                    leftIcon={exporting ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
+                                    leftIcon={exporting ? <Loader2 size={16} className="spin" aria-hidden="true" /> : <Download size={16} aria-hidden="true" />}
                                     onClick={onClick}
                                     aria-expanded={ariaExpanded}
                                     aria-haspopup="menu"
@@ -158,16 +164,16 @@ export function AdminDashboard() {
                             )}
                         </DropdownTrigger>
                         <DropdownContent align="end">
-                            <DropdownItem onClick={handleExportTopics}>
-                                <FileText size={16} />
+<DropdownItem onClick={handleExportTopics}>
+                                <FileText size={16} aria-hidden="true" />
                                 Danh sách đề tài (Excel)
                             </DropdownItem>
                             <DropdownItem onClick={handleExportTeacherWorkload}>
-                                <Users size={16} />
+                                <Users size={16} aria-hidden="true" />
                                 Tải lượng giảng viên (Excel)
                             </DropdownItem>
                             <DropdownItem onClick={handleExportFullReport} disabled={!selectedSessionId}>
-                                <BookOpen size={16} />
+                                <BookOpen size={16} aria-hidden="true" />
                                 Báo cáo tổng hợp đợt (Excel)
                             </DropdownItem>
                         </DropdownContent>
@@ -320,9 +326,9 @@ export function AdminDashboard() {
                         ) : activities.length > 0 ? (
                             <ul className="activities-list">
                                 {activities.map((activity, index) => (
-                                    <li key={activity.id || index} className="activity-item">
+<li key={activity.id || index} className="activity-item">
                                         <div className="activity-icon">
-                                            <FileText size={16} />
+                                            <FileText size={16} aria-hidden="true" />
                                         </div>
                                         <div className="activity-content">
                                             <span className="activity-actor">{activity.actor}</span>
@@ -357,9 +363,9 @@ export function AdminDashboard() {
                         {deadlines.length > 0 ? (
                             <ul className="deadlines-list">
                                 {deadlines.filter(d => !d.isPast).slice(0, 5).map((deadline, index) => (
-                                    <li key={deadline.key} className={`deadline-item ${deadline.isUrgent ? 'urgent' : ''}`}>
+<li key={deadline.key} className={`deadline-item ${deadline.isUrgent ? 'urgent' : ''}`}>
                                         <div className="deadline-icon">
-                                            <Calendar size={16} />
+                                            <Calendar size={16} aria-hidden="true" />
                                         </div>
                                         <div className="deadline-content">
                                             <span className="deadline-label">{deadline.label}</span>
@@ -391,30 +397,30 @@ export function AdminDashboard() {
                         <h3>Thống kê nhanh</h3>
                     </CardHeader>
                     <CardBody>
-                        <div className="quick-stats-grid">
+<div className="quick-stats-grid">
                             <div className="quick-stat">
-                                <Users size={20} className="quick-stat-icon" />
+                                <Users size={20} className="quick-stat-icon" aria-hidden="true" />
                                 <div className="quick-stat-info">
                                     <span className="quick-stat-value">{stats?.totalTeachers || 0}</span>
                                     <span className="quick-stat-label">Giảng viên</span>
                                 </div>
                             </div>
                             <div className="quick-stat">
-                                <BookOpen size={20} className="quick-stat-icon" />
+                                <BookOpen size={20} className="quick-stat-icon" aria-hidden="true" />
                                 <div className="quick-stat-info">
                                     <span className="quick-stat-value">{stats?.totalClasses || 0}</span>
                                     <span className="quick-stat-label">Lớp học</span>
                                 </div>
                             </div>
                             <div className="quick-stat">
-                                <FileText size={20} className="quick-stat-icon" />
+                                <FileText size={20} className="quick-stat-icon" aria-hidden="true" />
                                 <div className="quick-stat-info">
                                     <span className="quick-stat-value">{stats?.topicStats?.total || 0}</span>
                                     <span className="quick-stat-label">Tổng đề tài</span>
                                 </div>
                             </div>
                             <div className="quick-stat">
-                                <TrendingUp size={20} className="quick-stat-icon" />
+                                <TrendingUp size={20} className="quick-stat-icon" aria-hidden="true" />
                                 <div className="quick-stat-info">
                                     <span className="quick-stat-value">{stats?.registrationRate || 0}%</span>
                                     <span className="quick-stat-label">Tỉ lệ ĐK</span>

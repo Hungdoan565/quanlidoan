@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Plus, Search, Users, Edit, Trash2, Eye, ArrowLeft, Calendar, FileSpreadsheet } from 'lucide-react';
 import { useClasses, useDeleteClass } from '../../../hooks/useClasses';
@@ -21,9 +21,11 @@ import {
     NoDataState,
     ErrorState,
 } from '../../../components/ui';
-import { ClassFormModal } from './ClassFormModal';
-import { SmartImportModal } from './SmartImportModal';
 import './ClassesPage.css';
+
+// Lazy load modals for code-splitting
+const ClassFormModal = lazy(() => import('./ClassFormModal').then(m => ({ default: m.ClassFormModal })));
+const SmartImportModal = lazy(() => import('./SmartImportModal').then(m => ({ default: m.SmartImportModal })));
 
 export function ClassesListPage() {
     const navigate = useNavigate();
@@ -129,13 +131,13 @@ export function ClassesListPage() {
                 <div className="page-header-content">
                     {currentSession ? (
                         <>
-                            <Link to="/admin/sessions" className="back-link">
-                                <ArrowLeft size={16} />
+<Link to="/admin/sessions" className="back-link">
+                                <ArrowLeft size={16} aria-hidden="true" />
                                 Quay lại đợt đồ án
                             </Link>
                             <h1 className="page-title">Lớp học - {currentSession.name}</h1>
-                            <p className="page-subtitle">
-                                <Calendar size={14} />
+<p className="page-subtitle">
+                                <Calendar size={14} aria-hidden="true" />
                                 {currentSession.academic_year} • Học kỳ {currentSession.semester}
                             </p>
                         </>
@@ -149,12 +151,12 @@ export function ClassesListPage() {
                 <div className="header-actions">
                     <Button
                         variant="secondary"
-                        leftIcon={<FileSpreadsheet size={18} />}
+                        leftIcon={<FileSpreadsheet size={18} aria-hidden="true" />}
                         onClick={() => setIsSmartImportOpen(true)}
                     >
                         Import lớp từ Excel
                     </Button>
-                    <Button leftIcon={<Plus size={18} />} onClick={handleCreate}>
+                    <Button leftIcon={<Plus size={18} aria-hidden="true" />} onClick={handleCreate}>
                         {currentSession ? 'Thêm lớp vào đợt này' : 'Tạo lớp mới'}
                     </Button>
                 </div>
@@ -166,7 +168,7 @@ export function ClassesListPage() {
                     <div className="filter-search">
                         <Input
                             placeholder="Tìm theo tên hoặc mã lớp..."
-                            leftIcon={<Search size={18} />}
+                            leftIcon={<Search size={18} aria-hidden="true" />}
                             value={filters.search}
                             onChange={(e) => handleFilterChange('search', e.target.value)}
                         />
@@ -238,36 +240,36 @@ export function ClassesListPage() {
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            <div className="student-count">
-                                                <Users size={14} />
+<div className="student-count">
+                                                <Users size={14} aria-hidden="true" />
                                                 <span>{cls.student_count}/{cls.max_students}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell onClick={(e) => e.stopPropagation()}>
                                             <div className="action-buttons">
-                                                <Button
+<Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => handleView(cls)}
-                                                    title="Xem chi tiết"
+                                                    aria-label="Xem chi tiết"
                                                 >
-                                                    <Eye size={16} />
+                                                    <Eye size={16} aria-hidden="true" />
                                                 </Button>
-                                                <Button
+<Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => handleEdit(cls)}
-                                                    title="Chỉnh sửa"
+                                                    aria-label="Chỉnh sửa"
                                                 >
-                                                    <Edit size={16} />
+                                                    <Edit size={16} aria-hidden="true" />
                                                 </Button>
-                                                <Button
+<Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => setDeleteConfirm({ open: true, cls })}
-                                                    title="Xóa"
+                                                    aria-label="Xóa"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <Trash2 size={16} aria-hidden="true" />
                                                 </Button>
                                             </div>
                                         </TableCell>
@@ -289,17 +291,31 @@ export function ClassesListPage() {
                 )}
             </Card>
 
-            {/* Create/Edit Modal */}
-            <ClassFormModal
-                isOpen={isFormModalOpen}
-                onClose={() => {
-                    setIsFormModalOpen(false);
-                    setEditingClass(null);
-                }}
-                cls={editingClass}
-                sessions={activeSessions}
-                onSuccess={handleFormSuccess}
-            />
+            {/* Lazy-loaded Modals */}
+            <Suspense fallback={null}>
+                {/* Create/Edit Modal */}
+                {isFormModalOpen && (
+                    <ClassFormModal
+                        isOpen={isFormModalOpen}
+                        onClose={() => {
+                            setIsFormModalOpen(false);
+                            setEditingClass(null);
+                        }}
+                        cls={editingClass}
+                        sessions={activeSessions}
+                        onSuccess={handleFormSuccess}
+                    />
+                )}
+
+                {/* Smart Import Modal */}
+                {isSmartImportOpen && (
+                    <SmartImportModal
+                        isOpen={isSmartImportOpen}
+                        onClose={() => setIsSmartImportOpen(false)}
+                        defaultSessionId={filters.session_id}
+                    />
+                )}
+            </Suspense>
 
             {/* Delete Confirmation */}
             <ConfirmModal
@@ -311,13 +327,6 @@ export function ClassesListPage() {
                 confirmText="Xóa"
                 variant="danger"
                 loading={deleteClass.isPending}
-            />
-
-            {/* Smart Import Modal */}
-            <SmartImportModal
-                isOpen={isSmartImportOpen}
-                onClose={() => setIsSmartImportOpen(false)}
-                defaultSessionId={filters.session_id}
             />
         </div>
     );

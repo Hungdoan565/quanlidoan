@@ -335,7 +335,7 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
 
                     {selectedTemplate !== 'custom' && (
                         <div className="template-hint">
-                            <Zap size={14} />
+                            <Zap size={14} aria-hidden="true" />
                             <span>Chọn ngày bắt đầu, các mốc còn lại sẽ tự động điền theo template</span>
                         </div>
                     )}
@@ -352,7 +352,7 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
                                 error={errors.registration_start}
                             />
                             <span className="date-arrow">
-                                <ChevronRight size={16} />
+                                <ChevronRight size={16} aria-hidden="true" />
                                 {getDaysBetween('registration_start', 'registration_end') !== null && (
                                     <Badge variant="secondary" size="sm">
                                         {getDaysBetween('registration_start', 'registration_end')} ngày
@@ -381,7 +381,7 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
                                 onQuickAdd={(days) => addToDate('report1_deadline', days)}
                             />
                             <span className="date-arrow">
-                                <ChevronRight size={16} />
+                                <ChevronRight size={16} aria-hidden="true" />
                             </span>
                             <DateInputWithButtons
                                 label="BC tiến độ 2"
@@ -403,7 +403,7 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
                                 onQuickAdd={(days) => addToDate('final_deadline', days)}
                             />
                             <span className="date-arrow">
-                                <ChevronRight size={16} />
+                                <ChevronRight size={16} aria-hidden="true" />
                             </span>
                             <DateInputWithButtons
                                 label="Bảo vệ"

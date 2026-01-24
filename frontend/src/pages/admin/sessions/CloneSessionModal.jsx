@@ -82,7 +82,7 @@ export function CloneSessionModal({ isOpen, onClose, session }) {
                         value={customName}
                         onChange={(e) => setCustomName(e.target.value)}
                         placeholder={`${session.name} (Copy)`}
-                        leftIcon={<Calendar size={18} />}
+                        leftIcon={<Calendar size={18} aria-hidden="true" />}
                     />
                 </div>
 
@@ -105,7 +105,7 @@ export function CloneSessionModal({ isOpen, onClose, session }) {
                     <Button
                         onClick={handleClone}
                         loading={duplicateSession.isPending}
-                        leftIcon={<Copy size={16} />}
+                        leftIcon={<Copy size={16} aria-hidden="true" />}
                     >
                         Sao chép
                     </Button>

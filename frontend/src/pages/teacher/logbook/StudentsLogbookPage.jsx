@@ -85,12 +85,12 @@ export function StudentsLogbookPage() {
             ? stats.total_entries / stats.expected_weeks
             : 0;
 
-        if (ratio >= 1) {
-            return <Badge variant="success"><CheckCircle size={12} /> Đúng tiến độ</Badge>;
+if (ratio >= 1) {
+            return <Badge variant="success"><CheckCircle size={12} aria-hidden="true" /> Đúng tiến độ</Badge>;
         } else if (ratio >= 0.7) {
-            return <Badge variant="warning"><Clock size={12} /> Gần đủ</Badge>;
+            return <Badge variant="warning"><Clock size={12} aria-hidden="true" /> Gần đủ</Badge>;
         } else {
-            return <Badge variant="danger"><AlertCircle size={12} /> Thiếu nhật ký</Badge>;
+            return <Badge variant="danger"><AlertCircle size={12} aria-hidden="true" /> Thiếu nhật ký</Badge>;
         }
     };
 
@@ -114,8 +114,8 @@ export function StudentsLogbookPage() {
             {/* Header */}
             <div className="page-header">
                 <div className="page-header-content">
-                    <h1 className="page-title">
-                        <BookOpen size={28} />
+<h1 className="page-title">
+                        <BookOpen size={28} aria-hidden="true" />
                         Nhật ký Sinh viên
                     </h1>
                     <p className="page-subtitle">
@@ -126,10 +126,10 @@ export function StudentsLogbookPage() {
 
             {/* Stats Cards */}
             <div className="stats-grid">
-                <Card className="stat-card">
+<Card className="stat-card">
                     <CardBody>
                         <div className="stat-icon">
-                            <Users size={24} />
+                            <Users size={24} aria-hidden="true" />
                         </div>
                         <div className="stat-content">
                             <span className="stat-value">{students?.length || 0}</span>
@@ -140,7 +140,7 @@ export function StudentsLogbookPage() {
                 <Card className="stat-card success">
                     <CardBody>
                         <div className="stat-icon">
-                            <CheckCircle size={24} />
+                            <CheckCircle size={24} aria-hidden="true" />
                         </div>
                         <div className="stat-content">
                             <span className="stat-value">
@@ -153,7 +153,7 @@ export function StudentsLogbookPage() {
                 <Card className="stat-card warning">
                     <CardBody>
                         <div className="stat-icon">
-                            <Clock size={24} />
+                            <Clock size={24} aria-hidden="true" />
                         </div>
                         <div className="stat-content">
                             <span className="stat-value">
@@ -171,9 +171,9 @@ export function StudentsLogbookPage() {
             <Card className="filters-card">
                 <CardBody>
                     <div className="filters-row">
-                        <Input
+<Input
                             placeholder="Tìm theo tên, MSSV, đề tài..."
-                            leftIcon={<Search size={16} />}
+                            leftIcon={<Search size={16} aria-hidden="true" />}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="search-input"
@@ -252,20 +252,20 @@ export function StudentsLogbookPage() {
                                                 max={stats.expected_weeks || 1}
                                                 variant={stats.total_entries >= stats.expected_weeks ? 'success' : 'primary'}
                                             />
-                                            <div className="progress-meta">
+<div className="progress-meta">
                                                 <span>
-                                                    <CheckCircle size={12} />
+                                                    <CheckCircle size={12} aria-hidden="true" />
                                                     {stats.confirmed_entries} xác nhận
                                                 </span>
                                                 <span>
-                                                    <Calendar size={12} />
+                                                    <Calendar size={12} aria-hidden="true" />
                                                     {formatRelativeTime(stats.last_entry_at)}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        <div className="card-arrow">
-                                            <ChevronRight size={20} />
+<div className="card-arrow">
+                                            <ChevronRight size={20} aria-hidden="true" />
                                         </div>
                                     </div>
                                 </CardBody>

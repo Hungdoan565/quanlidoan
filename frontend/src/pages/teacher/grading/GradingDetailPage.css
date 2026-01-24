@@ -22,8 +22,14 @@
     border-radius: 8px;
     cursor: pointer;
     color: var(--text-secondary);
-    transition: all 0.2s;
+    transition: background-color 0.2s ease, color 0.2s ease;
     flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .back-button {
+        transition: none;
+    }
 }
 
 .back-button:hover {

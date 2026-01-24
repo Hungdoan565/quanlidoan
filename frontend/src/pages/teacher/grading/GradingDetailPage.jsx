@@ -195,8 +195,8 @@ export function GradingDetailPage() {
                     title="Không tìm thấy đề tài"
                     description="Đề tài không tồn tại hoặc bạn không có quyền truy cập"
                     action={
-                        <Button onClick={() => navigate('/teacher/grading')}>
-                            <ArrowLeft size={16} />
+<Button onClick={() => navigate('/teacher/grading')}>
+                            <ArrowLeft size={16} aria-hidden="true" />
                             Quay lại
                         </Button>
                     }
@@ -219,7 +219,7 @@ export function GradingDetailPage() {
                         onClick={() => navigate('/teacher/grading')}
                         aria-label="Quay lại danh sách chấm điểm"
                     >
-                        <ArrowLeft size={20} />
+                        <ArrowLeft size={20} aria-hidden="true" />
                     </button>
                     <div>
                         <h1>Chấm điểm</h1>
@@ -238,8 +238,8 @@ export function GradingDetailPage() {
                         </div>
 
                         <div className="topic-info-grid">
-                            <div className="topic-info-item">
-                                <User size={16} />
+<div className="topic-info-item">
+                                <User size={16} aria-hidden="true" />
                                 <div>
                                     <span className="label">Sinh viên</span>
                                     <span className="value">
@@ -249,8 +249,8 @@ export function GradingDetailPage() {
                                 </div>
                             </div>
 
-                            <div className="topic-info-item">
-                                <BookOpen size={16} />
+<div className="topic-info-item">
+                                <BookOpen size={16} aria-hidden="true" />
                                 <div>
                                     <span className="label">Lớp</span>
                                     <span className="value">{topic.class?.name}</span>
@@ -339,13 +339,13 @@ export function GradingDetailPage() {
                     {allCriteria.length > 0 && (
                         <CardFooter className="grading-form-footer">
                             <div className="action-buttons">
-                                <Button
+<Button
                                     variant="outline"
                                     onClick={handleSave}
                                     disabled={!isDirty || saveGradesMutation.isPending}
                                     loading={saveGradesMutation.isPending}
                                 >
-                                    <Save size={16} />
+                                    <Save size={16} aria-hidden="true" />
                                     Lưu nháp
                                 </Button>
 
@@ -354,7 +354,7 @@ export function GradingDetailPage() {
                                     onClick={() => setShowConfirmSubmit(true)}
                                     disabled={!allFilled || submitGradesMutation.isPending}
                                 >
-                                    <CheckCircle size={16} />
+                                    <CheckCircle size={16} aria-hidden="true" />
                                     Hoàn thành chấm điểm
                                 </Button>
                             </div>
@@ -425,9 +425,9 @@ function CriterionRow({ index, criterion, score, notes, onScoreChange, onNotesCh
                 />
             </div>
 
-            {existingGrade && (
+{existingGrade && (
                 <div className="criteria-saved-indicator">
-                    <CheckCircle size={12} />
+                    <CheckCircle size={12} aria-hidden="true" />
                     Đã lưu
                 </div>
             )}

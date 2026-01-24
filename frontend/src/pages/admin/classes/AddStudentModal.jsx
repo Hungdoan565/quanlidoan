@@ -81,7 +81,7 @@ export function AddStudentModal({ isOpen, onClose, classId, sessionId, existingS
                 <div className="search-header">
                     <Input
                         placeholder="Tìm theo tên, MSSV hoặc email..."
-                        leftIcon={<Search size={18} />}
+                        leftIcon={<Search size={18} aria-hidden="true" />}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -118,8 +118,8 @@ export function AddStudentModal({ isOpen, onClose, classId, sessionId, existingS
                                 className={`student-item ${selectedIds.includes(student.id) ? 'selected' : ''}`}
                                 onClick={() => toggleSelect(student.id)}
                             >
-                                <div className="student-checkbox">
-                                    {selectedIds.includes(student.id) && <Check size={14} />}
+<div className="student-checkbox">
+                                    {selectedIds.includes(student.id) && <Check size={14} aria-hidden="true" />}
                                 </div>
                                 <div className="student-info">
                                     <span className="student-name">{student.full_name}</span>
@@ -141,7 +141,7 @@ export function AddStudentModal({ isOpen, onClose, classId, sessionId, existingS
                         onClick={handleAdd}
                         loading={isAdding}
                         disabled={selectedIds.length === 0}
-                        leftIcon={<UserPlus size={16} />}
+                        leftIcon={<UserPlus size={16} aria-hidden="true" />}
                     >
                         Thêm {selectedIds.length > 0 ? `(${selectedIds.length})` : ''}
                     </Button>

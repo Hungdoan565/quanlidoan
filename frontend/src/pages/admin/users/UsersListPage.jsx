@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Search, Users, GraduationCap, UserCheck, Shield, UserPlus, Folder } from 'lucide-react';
 import { useUsers, useUserStats, useToggleUserActive } from '../../../hooks/useUsers';
 import { useClasses } from '../../../hooks/useClasses';
@@ -23,9 +23,11 @@ import {
     ErrorState,
     ConfirmModal,
 } from '../../../components/ui';
-import { UserDetailModal } from './UserDetailModal';
-import { UserFormModal } from './UserFormModal';
 import './UsersPage.css';
+
+// Lazy load modals for code-splitting
+const UserDetailModal = lazy(() => import('./UserDetailModal').then(m => ({ default: m.UserDetailModal })));
+const UserFormModal = lazy(() => import('./UserFormModal').then(m => ({ default: m.UserFormModal })));
 
 const ROLE_OPTIONS = [
     { value: '', label: 'Tất cả vai trò' },
@@ -133,7 +135,7 @@ export function UsersListPage() {
                     <h1 className="page-title">Quản lý Người dùng</h1>
                     <p className="page-subtitle">Quản lý tài khoản trong hệ thống</p>
                 </div>
-                <Button leftIcon={<UserPlus size={18} />} onClick={() => setIsCreateModalOpen(true)}>
+                <Button leftIcon={<UserPlus size={18} aria-hidden="true" />} onClick={() => setIsCreateModalOpen(true)}>
                     Thêm mới
                 </Button>
             </div>
@@ -142,7 +144,7 @@ export function UsersListPage() {
             <div className="users-stats">
                 <Card className="stat-mini">
                     <div className="stat-mini-content">
-                        <Users size={20} className="stat-icon total" />
+                        <Users size={20} className="stat-icon total" aria-hidden="true" />
                         <div>
                             <span className="stat-value">{stats?.total || 0}</span>
                             <span className="stat-label">Tổng</span>
@@ -151,7 +153,7 @@ export function UsersListPage() {
                 </Card>
                 <Card className="stat-mini">
                     <div className="stat-mini-content">
-                        <Shield size={20} className="stat-icon admin" />
+                        <Shield size={20} className="stat-icon admin" aria-hidden="true" />
                         <div>
                             <span className="stat-value">{stats?.admin || 0}</span>
                             <span className="stat-label">Admin</span>
@@ -160,7 +162,7 @@ export function UsersListPage() {
                 </Card>
                 <Card className="stat-mini">
                     <div className="stat-mini-content">
-                        <UserCheck size={20} className="stat-icon teacher" />
+                        <UserCheck size={20} className="stat-icon teacher" aria-hidden="true" />
                         <div>
                             <span className="stat-value">{stats?.teacher || 0}</span>
                             <span className="stat-label">Giảng viên</span>
@@ -169,7 +171,7 @@ export function UsersListPage() {
                 </Card>
                 <Card className="stat-mini">
                     <div className="stat-mini-content">
-                        <GraduationCap size={20} className="stat-icon student" />
+                        <GraduationCap size={20} className="stat-icon student" aria-hidden="true" />
                         <div>
                             <span className="stat-value">{stats?.student || 0}</span>
                             <span className="stat-label">Sinh viên</span>
@@ -181,14 +183,14 @@ export function UsersListPage() {
             <div className="users-layout">
                 {/* Classes Sidebar */}
                 <Card padding="md" className="classes-sidebar">
-                    <div className="classes-sidebar-header">
-                        <Folder size={16} />
+<div className="classes-sidebar-header">
+                        <Folder size={16} aria-hidden="true" />
                         <span>Lớp học</span>
                     </div>
                     <div className="classes-search">
                         <Input
                             placeholder="Tìm lớp..."
-                            leftIcon={<Search size={16} />}
+                            leftIcon={<Search size={16} aria-hidden="true" />}
                             value={classSearch}
                             onChange={(e) => setClassSearch(e.target.value)}
                         />
@@ -243,7 +245,7 @@ export function UsersListPage() {
                             <div className="filter-search">
                                 <Input
                                     placeholder={selectedClass ? 'Tìm theo tên, email, MSSV...' : 'Tìm theo tên, email, MSSV...'}
-                                    leftIcon={<Search size={18} />}
+                                    leftIcon={<Search size={18} aria-hidden="true" />}
                                     value={filters.search}
                                     onChange={(e) => handleFilterChange('search', e.target.value)}
                                 />
@@ -358,14 +360,26 @@ export function UsersListPage() {
                 </div>
             </div>
 
-            {/* User Detail Modal */}
-            {selectedUser && (
-                <UserDetailModal
-                    isOpen={!!selectedUser}
-                    onClose={() => setSelectedUser(null)}
-                    user={selectedUser}
-                />
-            )}
+            {/* Lazy-loaded Modals */}
+            <Suspense fallback={null}>
+                {/* User Detail Modal */}
+                {selectedUser && (
+                    <UserDetailModal
+                        isOpen={!!selectedUser}
+                        onClose={() => setSelectedUser(null)}
+                        user={selectedUser}
+                    />
+                )}
+
+                {/* Create User Modal */}
+                {isCreateModalOpen && (
+                    <UserFormModal
+                        isOpen={isCreateModalOpen}
+                        onClose={() => setIsCreateModalOpen(false)}
+                        onSuccess={refetch}
+                    />
+                )}
+            </Suspense>
 
             {/* Toggle Confirmation */}
             <ConfirmModal
@@ -381,13 +395,6 @@ export function UsersListPage() {
                 confirmText={toggleConfirm.action === 'activate' ? 'Kích hoạt' : 'Vô hiệu hóa'}
                 variant={toggleConfirm.action === 'activate' ? 'primary' : 'danger'}
                 loading={toggleActive.isPending}
-            />
-
-            {/* Create User Modal */}
-            <UserFormModal
-                isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
-                onSuccess={refetch}
             />
         </div>
     );

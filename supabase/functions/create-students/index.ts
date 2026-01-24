@@ -76,82 +76,100 @@ serve(async (req: Request) => {
 
         console.log(`Found ${existingMap.size} existing profiles`);
 
-        // OPTIMIZATION 2: Process in parallel batches
-        const BATCH_SIZE = 5; // Process 5 students at a time
-        const studentBatches: StudentData[][] = [];
-
-        for (let i = 0; i < students.length; i += BATCH_SIZE) {
-            studentBatches.push(students.slice(i, i + BATCH_SIZE));
-        }
-
+        // OPTIMIZATION 2: Process sequentially with delay to avoid rate limiting
+        // Supabase Auth Admin API has strict rate limits
+        const DELAY_MS = 100; // 100ms delay between each user creation
+        
         const classStudentsToInsert: { class_id: string; student_id: string }[] = [];
 
-        for (const batch of studentBatches) {
-            const batchPromises = batch.map(async (student) => {
-                try {
-                    const { student_code, full_name, phone, class_name, birth_date, gender } = student;
+        // Helper function to delay
+        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-                    if (!student_code || !full_name) {
-                        results.errors.push({ student_code: student_code || "unknown", error: "Missing required fields" });
-                        return;
-                    }
+        for (const student of students) {
+            try {
+                const { student_code, full_name, phone, class_name, birth_date, gender } = student;
 
-                    const email = `${student_code}@dnc.edu.vn`;
-                    const password = student_code;
+                if (!student_code || !full_name) {
+                    results.errors.push({ student_code: student_code || "unknown", error: "Missing required fields" });
+                    continue;
+                }
 
-                    // Check if already exists
-                    const existing = existingMap.get(email);
-                    let userId: string;
+                const email = `${student_code}@dnc.edu.vn`;
+                const password = student_code;
 
-                    if (existing) {
-                        userId = existing.id;
-                        results.skipped++;
-                    } else {
-                        // Create new auth user
-                        const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+                // Check if already exists
+                const existing = existingMap.get(email);
+                let userId: string;
+
+                if (existing) {
+                    userId = existing.id;
+                    results.skipped++;
+                } else {
+                    // Create new auth user with retry logic
+                    let retries = 3;
+                    let createError: Error | null = null;
+                    let newUser = null;
+
+                    while (retries > 0) {
+                        const result = await supabaseAdmin.auth.admin.createUser({
                             email,
                             password,
                             email_confirm: true,
                             user_metadata: { full_name, student_code, role: "student" },
                         });
 
-                        if (createError) {
-                            results.errors.push({ student_code, error: createError.message });
-                            return;
+                        if (result.error) {
+                            createError = result.error;
+                            if (result.error.message.includes("rate") || result.error.message.includes("reset")) {
+                                // Rate limited - wait longer and retry
+                                await delay(1000);
+                                retries--;
+                                continue;
+                            }
+                            break; // Other error, don't retry
                         }
 
-                        userId = newUser.user.id;
-
-                        // Create profile
-                        await supabaseAdmin.from("profiles").upsert({
-                            id: userId,
-                            full_name,
-                            email,
-                            student_code,
-                            phone: phone || null,
-                            class_name: class_name || null,
-                            birth_date: birth_date || null,
-                            gender: gender || null,
-                            role: "student",
-                            is_active: true,
-                        }, { onConflict: "id" });
-
-                        results.created++;
+                        newUser = result.data;
+                        createError = null;
+                        break;
                     }
 
-                    // Collect for batch insert to class
-                    classStudentsToInsert.push({ class_id: classId, student_id: userId });
+                    if (createError || !newUser) {
+                        results.errors.push({ student_code, error: createError?.message || "Failed to create user" });
+                        continue;
+                    }
 
-                } catch (err) {
-                    results.errors.push({
-                        student_code: student.student_code || "unknown",
-                        error: err instanceof Error ? err.message : "Unknown error",
-                    });
+                    userId = newUser.user.id;
+
+                    // Create profile
+                    await supabaseAdmin.from("profiles").upsert({
+                        id: userId,
+                        full_name,
+                        email,
+                        student_code,
+                        phone: phone || null,
+                        class_name: class_name || null,
+                        birth_date: birth_date || null,
+                        gender: gender || null,
+                        role: "student",
+                        is_active: true,
+                    }, { onConflict: "id" });
+
+                    results.created++;
+
+                    // Add delay between user creations to avoid rate limiting
+                    await delay(DELAY_MS);
                 }
-            });
 
-            // Wait for batch to complete
-            await Promise.all(batchPromises);
+                // Collect for batch insert to class
+                classStudentsToInsert.push({ class_id: classId, student_id: userId });
+
+            } catch (err) {
+                results.errors.push({
+                    student_code: student.student_code || "unknown",
+                    error: err instanceof Error ? err.message : "Unknown error",
+                });
+            }
         }
 
         // OPTIMIZATION 3: Batch insert to class_students

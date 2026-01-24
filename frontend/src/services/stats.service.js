@@ -11,24 +11,22 @@ export const statsService = {
         try {
             console.log('[Stats] Fetching stats for sessionId:', sessionId);
             
-            // Base queries
-            let classQuery = supabase.from('classes').select('id', { count: 'exact' });
-            let topicsQuery = supabase.from('topics').select('status, class_id');
+            // Get classes and classIds based on session filter
+            let classIds = [];
+            let totalClasses = 0;
             
-            // Nếu có sessionId, filter theo session
             if (sessionId) {
-                const { data: sessionClasses } = await supabase
+                // Filter by session
+                const { data: sessionClasses, count } = await supabase
                     .from('classes')
-                    .select('id')
+                    .select('id', { count: 'exact' })
                     .eq('session_id', sessionId);
                 
-                const classIds = sessionClasses?.map(c => c.id) || [];
+                classIds = sessionClasses?.map(c => c.id) || [];
+                totalClasses = count || 0;
                 console.log('[Stats] Session classes:', classIds.length);
                 
-                if (classIds.length > 0) {
-                    classQuery = supabase.from('classes').select('id', { count: 'exact' }).in('id', classIds);
-                    topicsQuery = supabase.from('topics').select('status, class_id').in('class_id', classIds);
-                } else {
+                if (classIds.length === 0) {
                     // No classes in this session
                     return {
                         totalStudents: 0,
@@ -38,22 +36,34 @@ export const statsService = {
                         registrationRate: 0,
                     };
                 }
+            } else {
+                // No session filter - get all classes
+                const { count } = await supabase
+                    .from('classes')
+                    .select('id', { count: 'exact', head: true });
+                totalClasses = count || 0;
+            }
+
+            // Build queries based on whether we have a session filter
+            let topicsQuery = supabase.from('topics').select('status, class_id');
+            let studentsQuery = supabase.from('class_students').select('student_id', { count: 'exact' });
+            
+            if (sessionId && classIds.length > 0) {
+                topicsQuery = topicsQuery.in('class_id', classIds);
+                studentsQuery = studentsQuery.in('class_id', classIds);
             }
 
             // Execute queries in parallel
             const [
-                classResult,
                 { data: topics },
-                { count: totalTeachers },
                 { count: totalStudents },
+                { count: totalTeachers },
             ] = await Promise.all([
-                classQuery,
                 topicsQuery,
+                studentsQuery,
                 supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'teacher'),
-                supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
             ]);
 
-            const totalClasses = classResult?.count || 0;
             console.log('[Stats] Results - Classes:', totalClasses, 'Topics:', topics?.length, 'Teachers:', totalTeachers, 'Students:', totalStudents);
 
             // Calculate topic stats
@@ -77,13 +87,14 @@ export const statsService = {
 
             console.log('[Stats] Topic stats:', topicStats);
 
+            const studentCount = totalStudents || 0;
             return {
-                totalStudents: totalStudents || 0,
+                totalStudents: studentCount,
                 totalTeachers: totalTeachers || 0,
                 totalClasses: totalClasses,
                 topicStats,
-                registrationRate: totalStudents > 0 
-                    ? Math.round((topicStats.total / totalStudents) * 100) 
+                registrationRate: studentCount > 0 
+                    ? Math.round((topicStats.total / studentCount) * 100) 
                     : 0,
             };
         } catch (error) {

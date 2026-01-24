@@ -6,6 +6,18 @@ export default defineConfig({
   plugins: [react()],
   build: {
     chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'recharts': ['recharts'],
+          'xlsx': ['xlsx'],
+          'date-fns': ['date-fns'],
+        }
+      }
+    }
+  },
+  optimizeDeps: {
+    include: ['lucide-react'],
   },
 })
 

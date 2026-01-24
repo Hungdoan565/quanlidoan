@@ -72,12 +72,13 @@ export function SessionRow({
                 {/* Expand Toggle + Name */}
                 <td className="td-name">
                     <div className="session-name-cell">
-                        <button
+<button
                             className="expand-toggle"
                             onClick={handleToggleExpand}
-                            title={isExpanded ? 'Thu gọn' : 'Xem lớp học'}
+                            aria-label={isExpanded ? 'Thu gọn' : 'Xem lớp học'}
+                            aria-expanded={isExpanded}
                         >
-                            {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                            {isExpanded ? <ChevronDown size={16} aria-hidden="true" /> : <ChevronRight size={16} aria-hidden="true" />}
                         </button>
                         <div className="session-name" onClick={() => onEdit(session)}>
                             <span className="name-text">{session.name}</span>
@@ -92,14 +93,14 @@ export function SessionRow({
                 {/* Stats - Clickable to view classes */}
                 <td>
                     <div className="session-stats">
-                        <button
+<button
                             className="stat-item clickable"
-                            title="Xem danh sách lớp"
+                            aria-label="Xem danh sách lớp"
                             onClick={handleViewClasses}
                         >
-                            <Users size={14} />
+                            <Users size={14} aria-hidden="true" />
                             <span>{classesCount} lớp</span>
-                            <ExternalLink size={12} className="external-icon" />
+                            <ExternalLink size={12} className="external-icon" aria-hidden="true" />
                         </button>
                     </div>
                 </td>
@@ -119,38 +120,38 @@ export function SessionRow({
                 {/* Actions */}
                 <td onClick={(e) => e.stopPropagation()}>
                     <div className="action-buttons">
-                        <Button
+<Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onToggleStatus(session)}
-                            title={session.status === 'open' ? 'Đóng đợt' : 'Mở đợt'}
+                            aria-label={session.status === 'open' ? 'Đóng đợt' : 'Mở đợt'}
                             disabled={toggleStatusPending}
                         >
-                            {session.status === 'open' ? <Lock size={16} /> : <Unlock size={16} />}
+                            {session.status === 'open' ? <Lock size={16} aria-hidden="true" /> : <Unlock size={16} aria-hidden="true" />}
                         </Button>
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onClone(session)}
-                            title="Sao chép đợt"
+                            aria-label="Sao chép đợt"
                         >
-                            <Copy size={16} />
+                            <Copy size={16} aria-hidden="true" />
                         </Button>
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onEdit(session)}
-                            title="Chỉnh sửa"
+                            aria-label="Chỉnh sửa"
                         >
-                            <Edit size={16} />
+                            <Edit size={16} aria-hidden="true" />
                         </Button>
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onDelete(session)}
-                            title="Xóa"
+                            aria-label="Xóa"
                         >
-                            <Trash2 size={16} />
+                            <Trash2 size={16} aria-hidden="true" />
                         </Button>
                     </div>
                 </td>
@@ -162,18 +163,18 @@ export function SessionRow({
                     <td colSpan={6}>
                         <div className="classes-preview">
                             <div className="classes-header">
-                                <span className="classes-title">
-                                    <Users size={14} />
+<span className="classes-title">
+                                    <Users size={14} aria-hidden="true" />
                                     Lớp học trong đợt này ({classesCount})
                                 </span>
                                 <div className="classes-header-actions">
-                                    <Button
+<Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={handleViewClasses}
                                     >
                                         Xem tất cả
-                                        <ExternalLink size={14} />
+                                        <ExternalLink size={14} aria-hidden="true" />
                                     </Button>
                                 </div>
                             </div>
@@ -186,14 +187,14 @@ export function SessionRow({
                                             className="class-card"
                                             onClick={(e) => handleViewClass(cls.id, e)}
                                         >
-                                            <div className="class-card-header">
+<div className="class-card-header">
                                                 <span className="class-code">{cls.code || cls.class_code}</span>
-                                                <ChevronRight size={14} />
+                                                <ChevronRight size={14} aria-hidden="true" />
                                             </div>
                                             <div className="class-card-body">
                                                 <span className="class-name">{cls.name || cls.class_name}</span>
                                                 <div className="class-stats">
-                                                    <Users size={12} />
+                                                    <Users size={12} aria-hidden="true" />
                                                     <span>{cls.student_count || cls.students?.length || 0} SV</span>
                                                 </div>
                                             </div>
@@ -214,10 +215,10 @@ export function SessionRow({
 
                             {/* Import button - contextual for this session */}
                             <div className="classes-actions">
-                                <Button
+<Button
                                     variant="primary"
                                     size="sm"
-                                    leftIcon={<FileSpreadsheet size={14} />}
+                                    leftIcon={<FileSpreadsheet size={14} aria-hidden="true" />}
                                     onClick={handleImport}
                                 >
                                     Import lớp từ Excel
@@ -225,7 +226,7 @@ export function SessionRow({
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    leftIcon={<Plus size={14} />}
+                                    leftIcon={<Plus size={14} aria-hidden="true" />}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         navigate(`/admin/classes?session=${session.id}&action=create`);

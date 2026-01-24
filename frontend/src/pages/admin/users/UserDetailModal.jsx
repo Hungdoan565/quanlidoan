@@ -70,7 +70,7 @@ export function UserDetailModal({ isOpen, onClose, user }) {
                         <h3>{user.full_name}</h3>
                         <div className="user-badges">
                             <Badge variant={roleConfig.variant}>
-                                <RoleIcon size={12} />
+                                <RoleIcon size={12} aria-hidden="true" />
                                 {roleConfig.label}
                             </Badge>
                             <Badge variant={user.is_active ? 'success' : 'default'}>
@@ -133,39 +133,39 @@ export function UserDetailModal({ isOpen, onClose, user }) {
                     </div>
                 ) : (
                     <div className="user-info-list">
-                        <div className="info-row">
-                            <Mail size={16} />
+<div className="info-row">
+                            <Mail size={16} aria-hidden="true" />
                             <span className="info-label">Email</span>
                             <span className="info-value">{user.email}</span>
                         </div>
-                        <div className="info-row">
-                            <Phone size={16} />
+<div className="info-row">
+                            <Phone size={16} aria-hidden="true" />
                             <span className="info-label">Điện thoại</span>
                             <span className="info-value">{user.phone || '-'}</span>
                         </div>
                         {user.role === 'student' && (
-                            <div className="info-row">
-                                <GraduationCap size={16} />
+<div className="info-row">
+                                <GraduationCap size={16} aria-hidden="true" />
                                 <span className="info-label">MSSV</span>
                                 <span className="info-value code">{user.student_code || '-'}</span>
                             </div>
                         )}
                         {user.role === 'teacher' && (
                             <>
-                                <div className="info-row">
-                                    <UserCheck size={16} />
+<div className="info-row">
+                                    <UserCheck size={16} aria-hidden="true" />
                                     <span className="info-label">Mã GV</span>
                                     <span className="info-value code">{user.teacher_code || '-'}</span>
                                 </div>
-                                <div className="info-row">
-                                    <Building size={16} />
+<div className="info-row">
+                                    <Building size={16} aria-hidden="true" />
                                     <span className="info-label">Khoa</span>
                                     <span className="info-value">{user.department || '-'}</span>
                                 </div>
                             </>
                         )}
-                        <div className="info-row">
-                            <Calendar size={16} />
+<div className="info-row">
+                            <Calendar size={16} aria-hidden="true" />
                             <span className="info-label">Ngày tạo</span>
                             <span className="info-value">{formatDate(user.created_at)}</span>
                         </div>

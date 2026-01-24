@@ -93,7 +93,7 @@ export function LoginPage() {
             <div className="auth-card">
                 <div className="auth-header">
                     <div className="auth-logo">
-                        <Logo size={64} />
+                        <Logo size={64} aria-hidden="true" />
                     </div>
                     <h1>Hệ thống Quản lý Đồ án</h1>
                     <p>Đăng nhập để tiếp tục</p>
@@ -128,7 +128,7 @@ export function LoginPage() {
                         {socialLoading.google ? (
                             <Loader2 className="animate-spin" size={20} aria-hidden="true" />
                         ) : (
-                            <GoogleIcon size={20} />
+                            <GoogleIcon size={20} aria-hidden="true" />
                         )}
                         <span>Tiếp tục với Google</span>
                     </button>
@@ -144,7 +144,7 @@ export function LoginPage() {
                         {socialLoading.github ? (
                             <Loader2 className="animate-spin" size={20} aria-hidden="true" />
                         ) : (
-                            <GithubIcon size={20} />
+                            <GithubIcon size={20} aria-hidden="true" />
                         )}
                         <span>Tiếp tục với GitHub</span>
                     </button>

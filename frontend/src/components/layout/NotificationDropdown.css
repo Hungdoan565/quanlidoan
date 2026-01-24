@@ -12,7 +12,13 @@
   color: var(--text-secondary);
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notification-trigger {
+    transition: none;
+  }
 }
 
 .notification-trigger:hover {
@@ -73,7 +79,13 @@
   font-weight: var(--font-medium);
   cursor: pointer;
   border-radius: var(--radius-md);
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mark-all-read-btn {
+    transition: none;
+  }
 }
 
 .mark-all-read-btn:hover {
@@ -98,8 +110,14 @@
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease;
   border-bottom: 1px solid var(--border-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notification-item {
+    transition: none;
+  }
 }
 
 .notification-item:last-child {
@@ -199,7 +217,13 @@
   font-weight: var(--font-medium);
   cursor: pointer;
   border-radius: var(--radius-md);
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view-all-notifications {
+    transition: none;
+  }
 }
 
 .view-all-notifications:hover {

@@ -81,7 +81,7 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                 <div className="modal-header">
                     <h2>Chi tiết đề tài</h2>
                     <button className="close-btn" onClick={onClose} aria-label="Đóng">
-                        <X size={20} />
+                        <X size={20} aria-hidden="true" />
                     </button>
                 </div>
 
@@ -95,10 +95,10 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                         )}
                     </div>
 
-                    {/* Student Info */}
+{/* Student Info */}
                     <div className="info-card">
                         <div className="info-header">
-                            <User size={18} />
+                            <User size={18} aria-hidden="true" />
                             <span>Thông tin sinh viên</span>
                         </div>
                         <div className="info-grid">
@@ -121,10 +121,10 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                         </div>
                     </div>
 
-                    {/* Class Info */}
+{/* Class Info */}
                     <div className="info-card">
                         <div className="info-header">
-                            <BookOpen size={18} />
+                            <BookOpen size={18} aria-hidden="true" />
                             <span>Thông tin lớp học phần</span>
                         </div>
                         <div className="info-grid">
@@ -150,10 +150,10 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                     </div>
 
                     {/* Topic Description */}
-                    {topic.description && (
+{topic.description && (
                         <div className="info-card">
                             <div className="info-header">
-                                <FileText size={18} />
+                                <FileText size={18} aria-hidden="true" />
                                 <span>Mô tả đề tài</span>
                             </div>
                             <p className="topic-description">{topic.description}</p>
@@ -161,10 +161,10 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                     )}
 
                     {/* Technologies */}
-                    {topic.technologies && topic.technologies.length > 0 && (
+{topic.technologies && topic.technologies.length > 0 && (
                         <div className="info-card">
                             <div className="info-header">
-                                <Code size={18} />
+                                <Code size={18} aria-hidden="true" />
                                 <span>Công nghệ sử dụng</span>
                             </div>
                             <div className="tech-tags">
@@ -175,10 +175,10 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                         </div>
                     )}
 
-                    {/* Metadata */}
+{/* Metadata */}
                     <div className="info-card">
                         <div className="info-header">
-                            <Calendar size={18} />
+                            <Calendar size={18} aria-hidden="true" />
                             <span>Thời gian</span>
                         </div>
                         <div className="info-grid">
@@ -196,10 +196,10 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                     </div>
 
                     {/* Previous Revision Note */}
-                    {topic.revision_note && topic.status === 'revision' && (
+{topic.revision_note && topic.status === 'revision' && (
                         <div className="info-card warning-card">
                             <div className="info-header">
-                                <AlertCircle size={18} />
+                                <AlertCircle size={18} aria-hidden="true" />
                                 <span>Yêu cầu chỉnh sửa trước đó</span>
                             </div>
                             <p className="revision-note">{topic.revision_note}</p>
@@ -219,10 +219,10 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                                         onClick={handleApprove}
                                         disabled={isLoading}
                                     >
-                                        {approveMutation.isPending ? (
-                                            <Loader2 size={18} className="animate-spin" />
+{approveMutation.isPending ? (
+                                            <Loader2 size={18} className="animate-spin" aria-hidden="true" />
                                         ) : (
-                                            <CheckCircle size={18} />
+                                            <CheckCircle size={18} aria-hidden="true" />
                                         )}
                                         Phê duyệt
                                     </Button>
@@ -231,7 +231,7 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                                         onClick={() => setActionType('revision')}
                                         disabled={isLoading}
                                     >
-                                        <AlertCircle size={18} />
+                                        <AlertCircle size={18} aria-hidden="true" />
                                         Yêu cầu chỉnh sửa
                                     </Button>
                                     <Button
@@ -239,7 +239,7 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                                         onClick={() => setActionType('reject')}
                                         disabled={isLoading}
                                     >
-                                        <XCircle size={18} />
+                                        <XCircle size={18} aria-hidden="true" />
                                         Từ chối
                                     </Button>
                                 </div>
@@ -269,10 +269,10 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                                             onClick={handleRevision}
                                             disabled={!revisionNote.trim() || isLoading}
                                         >
-                                            {revisionMutation.isPending ? (
-                                                <Loader2 size={18} className="animate-spin" />
+{revisionMutation.isPending ? (
+                                                <Loader2 size={18} className="animate-spin" aria-hidden="true" />
                                             ) : (
-                                                <AlertCircle size={18} />
+                                                <AlertCircle size={18} aria-hidden="true" />
                                             )}
                                             Gửi yêu cầu
                                         </Button>
@@ -304,10 +304,10 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                                             onClick={handleReject}
                                             disabled={!rejectReason.trim() || isLoading}
                                         >
-                                            {rejectMutation.isPending ? (
-                                                <Loader2 size={18} className="animate-spin" />
+{rejectMutation.isPending ? (
+                                                <Loader2 size={18} className="animate-spin" aria-hidden="true" />
                                             ) : (
-                                                <XCircle size={18} />
+                                                <XCircle size={18} aria-hidden="true" />
                                             )}
                                             Xác nhận từ chối
                                         </Button>

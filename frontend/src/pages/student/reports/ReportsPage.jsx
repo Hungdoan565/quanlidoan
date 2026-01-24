@@ -314,21 +314,21 @@ export function ReportsPage() {
                                             <Button 
                                                 variant="ghost" 
                                                 size="sm" 
-                                                leftIcon={<Download size={14} />}
+                                                leftIcon={<Download size={14} aria-hidden="true" />}
                                                 onClick={() => handleDownload(latestReport)}
                                                 disabled={downloadMutation.isPending}
                                             >
                                                 Tải về
                                             </Button>
                                             {canSubmit && (
-                                                <Button variant="outline" size="sm" leftIcon={<Upload size={14} />}
+                                                <Button variant="outline" size="sm" leftIcon={<Upload size={14} aria-hidden="true" />}
                                                     onClick={() => setUploadModal({ open: true, phase: phase.id })}>
                                                     Nộp lại (v{latestReport.version + 1})
                                                 </Button>
                                             )}
                                         </>
                                     ) : canSubmit ? (
-                                        <Button leftIcon={<Upload size={16} />}
+                                        <Button leftIcon={<Upload size={16} aria-hidden="true" />}
                                             onClick={() => setUploadModal({ open: true, phase: phase.id })}>
                                             Nộp báo cáo
                                         </Button>
@@ -436,7 +436,7 @@ export function ReportsPage() {
                         <Button 
                             onClick={handleUpload} 
                             disabled={!selectedFile || uploadMutation.isPending} 
-                            leftIcon={uploadMutation.isPending ? <Loader2 className="spin" size={16} /> : <Upload size={16}  aria-hidden="true" />}
+                            leftIcon={uploadMutation.isPending ? <Loader2 className="spin" size={16} aria-hidden="true" /> : <Upload size={16}  aria-hidden="true" />}
                         >
                             {uploadMutation.isPending ? 'Đang tải...' : 'Nộp file'}
                         </Button>

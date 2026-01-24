@@ -103,13 +103,13 @@ export function SetPasswordPage() {
                 <div className="auth-card">
                     <div className="auth-header">
                         <div className="auth-logo">
-                            <AlertCircle size={64} color="var(--warning-500)" />
+                            <AlertCircle size={64} color="var(--warning-500)" aria-hidden="true" />
                         </div>
                         <h1>Link không hợp lệ</h1>
                         <p>{error || 'Link đã hết hạn hoặc đã được sử dụng.'}</p>
                     </div>
                     <div className="info-note" style={{ marginBottom: 'var(--space-4)' }}>
-                        <AlertCircle size={16} />
+                        <AlertCircle size={16} aria-hidden="true" />
                         <span>Vui lòng yêu cầu link mới để đặt lại mật khẩu.</span>
                     </div>
                     <Link to="/reset-password" className="submit-btn">
@@ -130,7 +130,7 @@ export function SetPasswordPage() {
                 <div className="auth-card">
                     <div className="auth-header">
                         <div className="auth-logo">
-                            <CheckCircle size={64} color="var(--success-500)" />
+                            <CheckCircle size={64} color="var(--success-500)" aria-hidden="true" />
                         </div>
                         <h1>Thành công!</h1>
                         <p>Mật khẩu của bạn đã được cập nhật.</p>
@@ -151,7 +151,7 @@ export function SetPasswordPage() {
             <div className="auth-card">
                 <div className="auth-header">
                     <div className="auth-logo">
-                        <Logo size={64} />
+                        <Logo size={64} aria-hidden="true" />
                     </div>
                     <h1>Đặt mật khẩu mới</h1>
                     <p>Nhập mật khẩu mới cho tài khoản của bạn</p>
@@ -160,7 +160,7 @@ export function SetPasswordPage() {
                 <form onSubmit={handleSubmit} className="auth-form">
                     {error && (
                         <div className="error-message">
-                            <AlertCircle size={16} />
+                            <AlertCircle size={16} aria-hidden="true" />
                             <span>{error}</span>
                         </div>
                     )}
@@ -169,7 +169,7 @@ export function SetPasswordPage() {
                     <div className="form-group">
                         <label htmlFor="password">Mật khẩu mới <span className="required">*</span></label>
                         <div className="input-wrapper">
-                            <Lock className="input-icon" size={18} />
+                            <Lock className="input-icon" size={18} aria-hidden="true" />
                             <input
                                 id="password"
                                 type={showPassword ? 'text' : 'password'}
@@ -187,8 +187,9 @@ export function SetPasswordPage() {
                                 className="toggle-password"
                                 onClick={() => setShowPassword(!showPassword)}
                                 tabIndex={-1}
+                                aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                             >
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                             </button>
                         </div>
 
@@ -216,9 +217,9 @@ export function SetPasswordPage() {
                                 {passwordRequirements.map(req => (
                                     <li key={req.key} className={req.test(password) ? 'met' : ''}>
                                         {req.test(password) ? (
-                                            <Check size={14} />
+                                            <Check size={14} aria-hidden="true" />
                                         ) : (
-                                            <X size={14} />
+                                            <X size={14} aria-hidden="true" />
                                         )}
                                         <span>{req.label}</span>
                                     </li>
@@ -231,7 +232,7 @@ export function SetPasswordPage() {
                     <div className="form-group">
                         <label htmlFor="confirmPassword">Xác nhận mật khẩu <span className="required">*</span></label>
                         <div className="input-wrapper">
-                            <Lock className="input-icon" size={18} />
+                            <Lock className="input-icon" size={18} aria-hidden="true" />
                             <input
                                 id="confirmPassword"
                                 type={showConfirmPassword ? 'text' : 'password'}
@@ -248,16 +249,17 @@ export function SetPasswordPage() {
                                 className="toggle-password"
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 tabIndex={-1}
+                                aria-label={showConfirmPassword ? 'Ẩn mật khẩu xác nhận' : 'Hiện mật khẩu xác nhận'}
                             >
-                                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                {showConfirmPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                             </button>
                         </div>
                         {confirmPassword && (
                             <div className={`password-match ${passwordsMatch ? 'match' : 'no-match'}`}>
                                 {passwordsMatch ? (
-                                    <><Check size={14} /> Mật khẩu khớp</>
+                                    <><Check size={14} aria-hidden="true" /> Mật khẩu khớp</>
                                 ) : (
-                                    <><X size={14} /> Mật khẩu không khớp</>
+                                    <><X size={14} aria-hidden="true" /> Mật khẩu không khớp</>
                                 )}
                             </div>
                         )}
@@ -270,7 +272,7 @@ export function SetPasswordPage() {
                     >
                         {isLoading ? (
                             <>
-                                <Loader2 className="animate-spin" size={18} />
+                                <Loader2 className="animate-spin" size={18} aria-hidden="true" />
                                 Đang cập nhật...
                             </>
                         ) : (

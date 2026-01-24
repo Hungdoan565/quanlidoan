@@ -180,11 +180,11 @@ export function MenteesKanbanPage() {
         navigate(`/teacher/logbook/${topicId}`);
     };
 
-    if (isLoading) {
+if (isLoading) {
         return (
             <div className="mentees-kanban-page">
                 <div className="page-header">
-                    <h1 className="page-title"><Users size={28} /> Theo dõi Sinh viên</h1>
+                    <h1 className="page-title"><Users size={28} aria-hidden="true" /> Theo dõi Sinh viên</h1>
                 </div>
                 <div className="kanban-board">
                     {COLUMNS.map(col => (
@@ -206,7 +206,7 @@ export function MenteesKanbanPage() {
         return (
             <div className="mentees-kanban-page">
                 <div className="page-header">
-                    <h1 className="page-title"><Users size={28} /> Theo dõi Sinh viên</h1>
+<h1 className="page-title"><Users size={28} aria-hidden="true" /> Theo dõi Sinh viên</h1>
                 </div>
                 <NoDataState
                     icon={Users}
@@ -231,9 +231,9 @@ export function MenteesKanbanPage() {
                     </p>
                 </div>
                 <div className="page-actions">
-                    <Input
+<Input
                         placeholder="Tìm sinh viên..."
-                        leftIcon={<Search size={16} />}
+                        leftIcon={<Search size={16} aria-hidden="true" />}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="search-input"
@@ -265,8 +265,8 @@ export function MenteesKanbanPage() {
                     return (
                         <div key={col.id} className={`kanban-column ${col.color}`}>
                             <div className="column-header">
-                                <div className="column-title">
-                                    <Icon size={18} />
+<div className="column-title">
+                                    <Icon size={18} aria-hidden="true" />
                                     <span>{col.label}</span>
                                     <Badge variant={col.color}>{mentees.length}</Badge>
                                 </div>
@@ -274,9 +274,9 @@ export function MenteesKanbanPage() {
                             </div>
 
                             <div className="column-content">
-                                {mentees.length === 0 ? (
+{mentees.length === 0 ? (
                                     <div className="column-empty">
-                                        <CheckCircle size={24} />
+                                        <CheckCircle size={24} aria-hidden="true" />
                                         <span>Không có sinh viên</span>
                                     </div>
                                 ) : (
@@ -317,12 +317,12 @@ export function MenteesKanbanPage() {
                                                         {mentee.signals.map((signal, idx) => {
                                                             const SigIcon = signal.icon;
                                                             return (
-                                                                <div 
+<div 
                                                                     key={idx} 
                                                                     className={`signal signal-${signal.type}`}
                                                                     title={signal.text}
                                                                 >
-                                                                    <SigIcon size={12} />
+                                                                    <SigIcon size={12} aria-hidden="true" />
                                                                     <span>{signal.text}</span>
                                                                 </div>
                                                             );
@@ -333,8 +333,8 @@ export function MenteesKanbanPage() {
                                                 {/* Logbook Progress (if available) */}
                                                 {mentee.logbookStats && (
                                                     <div className="mentee-progress">
-                                                        <div className="progress-info">
-                                                            <BookOpen size={12} />
+<div className="progress-info">
+                                                            <BookOpen size={12} aria-hidden="true" />
                                                             <span>
                                                                 {mentee.logbookStats.total_entries}/{mentee.logbookStats.expected_weeks} tuần
                                                             </span>
@@ -352,12 +352,12 @@ export function MenteesKanbanPage() {
 
                                                 {/* Quick Actions */}
                                                 <div className="mentee-actions">
-                                                    <Button 
+<Button 
                                                         variant="ghost" 
                                                         size="sm"
                                                         onClick={(e) => handleViewLogbook(e, mentee.id)}
                                                     >
-                                                        <BookOpen size={14} />
+                                                        <BookOpen size={14} aria-hidden="true" />
                                                         Nhật ký
                                                     </Button>
                                                     {mentee.student?.email && (
@@ -368,8 +368,9 @@ export function MenteesKanbanPage() {
                                                                 e.stopPropagation();
                                                                 window.location.href = `mailto:${mentee.student.email}`;
                                                             }}
+                                                            aria-label={`Gửi email cho ${mentee.student.full_name}`}
                                                         >
-                                                            <Mail size={14} />
+                                                            <Mail size={14} aria-hidden="true" />
                                                         </Button>
                                                     )}
                                                 </div>

@@ -35,6 +35,7 @@ export function useCreateClass() {
         mutationFn: classesService.create,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['classes'] });
+            queryClient.invalidateQueries({ queryKey: ['sessions'] });
             toast.success('Tạo lớp học thành công');
         },
         onError: (error) => {
@@ -53,6 +54,7 @@ export function useUpdateClass() {
         mutationFn: ({ id, data }) => classesService.update(id, data),
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['classes'] });
+            queryClient.invalidateQueries({ queryKey: ['sessions'] });
             queryClient.invalidateQueries({ queryKey: ['class', data.id] });
             toast.success('Cập nhật lớp học thành công');
         },
@@ -72,6 +74,7 @@ export function useDeleteClass() {
         mutationFn: classesService.delete,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['classes'] });
+            queryClient.invalidateQueries({ queryKey: ['sessions'] });
             toast.success('Xóa lớp học thành công');
         },
         onError: (error) => {
@@ -155,6 +158,8 @@ export function useImportStudents() {
             classesService.bulkImportStudents(classId, students),
         onSuccess: (data, { classId }) => {
             queryClient.invalidateQueries({ queryKey: ['class', classId] });
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            queryClient.invalidateQueries({ queryKey: ['sessions'] });
             queryClient.invalidateQueries({ queryKey: ['available-students'] });
 
             // Build success message based on results

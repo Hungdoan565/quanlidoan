@@ -287,7 +287,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
                     />
                     <div className="role-preview">
                         <Badge variant={formData.role === 'admin' ? 'danger' : formData.role === 'teacher' ? 'primary' : 'success'}>
-                            <RoleIcon size={12} />
+                            <RoleIcon size={12} aria-hidden="true" />
                             {ROLE_OPTIONS.find(r => r.value === formData.role)?.label}
                         </Badge>
                     </div>
@@ -299,7 +299,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
                         <label>Họ và tên *</label>
                         <Input
                             name="full_name"
-                            leftIcon={<User size={16} />}
+                            leftIcon={<User size={16} aria-hidden="true" />}
                             placeholder="Nguyễn Văn A"
                             value={formData.full_name}
                             onChange={handleChange}
@@ -315,7 +315,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
                         <Input
                             name="email"
                             type="email"
-                            leftIcon={<Mail size={16} />}
+                            leftIcon={<Mail size={16} aria-hidden="true" />}
                             placeholder="email@example.com"
                             value={formData.email}
                             onChange={handleChange}
@@ -340,7 +340,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
                             <Input
                                 name="password"
                                 type={showGeneratedPassword ? 'text' : 'password'}
-                                leftIcon={<Key size={16} />}
+                                leftIcon={<Key size={16} aria-hidden="true" />}
                                 placeholder="Tối thiểu 6 ký tự"
                                 value={formData.password}
                                 onChange={handleChange}
@@ -372,7 +372,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
                         <label>Số điện thoại</label>
                         <Input
                             name="phone"
-                            leftIcon={<Phone size={16} />}
+                            leftIcon={<Phone size={16} aria-hidden="true" />}
                             placeholder="0901234567"
                             value={formData.phone}
                             onChange={handleChange}
@@ -386,7 +386,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
                         <label>MSSV *</label>
                         <Input
                             name="student_code"
-                            leftIcon={<GraduationCap size={16} />}
+                            leftIcon={<GraduationCap size={16} aria-hidden="true" />}
                             placeholder="VD: 20110001"
                             value={formData.student_code}
                             onChange={handleChange}
@@ -408,7 +408,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
                                 </label>
                                 <Input
                                     name="teacher_code"
-                                    leftIcon={<UserCheck size={16} />}
+                                    leftIcon={<UserCheck size={16} aria-hidden="true" />}
                                     placeholder="VD: GV001"
                                     value={formData.teacher_code}
                                     onChange={handleChange}
@@ -444,7 +444,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
                         Hủy
                     </Button>
                     <Button type="submit" loading={isLoading}>
-                        <UserPlus size={16} />
+                        <UserPlus size={16} aria-hidden="true" />
                         Tạo tài khoản
                     </Button>
                 </div>

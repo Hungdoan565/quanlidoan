@@ -93,7 +93,7 @@ export function SampleTopicsPage() {
                     <h1>Đề tài mẫu</h1>
                     <p>Tạo và quản lý các đề tài mẫu cho sinh viên đăng ký</p>
                 </div>
-                <Button leftIcon={<Plus size={18} />} onClick={handleCreate}>
+<Button leftIcon={<Plus size={18} aria-hidden="true" />} onClick={handleCreate}>
                     Thêm đề tài
                 </Button>
             </div>
@@ -126,7 +126,7 @@ export function SampleTopicsPage() {
                             title="Chưa có đề tài mẫu"
                             description="Tạo đề tài mẫu để sinh viên có thể đăng ký"
                             action={
-                                <Button leftIcon={<Plus size={16} />} onClick={handleCreate}>
+<Button leftIcon={<Plus size={16} aria-hidden="true" />} onClick={handleCreate}>
                                     Thêm đề tài đầu tiên
                                 </Button>
                             }
@@ -147,8 +147,8 @@ export function SampleTopicsPage() {
                                 {filteredTopics.map((topic) => (
                                     <TableRow key={topic.id}>
                                         <TableCell>
-                                            <div className="topic-title-cell">
-                                                <BookOpen size={16} />
+<div className="topic-title-cell">
+                                                <BookOpen size={16} aria-hidden="true" />
                                                 <div>
                                                     <span className="topic-title">{topic.title}</span>
                                                         {topic.description && (
@@ -167,8 +167,8 @@ export function SampleTopicsPage() {
                                         <TableCell>
                                             <div className="tech-badges">
                                                 {(topic.technologies || []).slice(0, 3).map((tech, i) => (
-                                                    <Badge key={i} variant="secondary" size="sm">
-                                                        <Code size={12} />
+<Badge key={i} variant="secondary" size="sm">
+                                                        <Code size={12} aria-hidden="true" />
                                                         {tech}
                                                     </Badge>
                                                 ))}
@@ -180,8 +180,8 @@ export function SampleTopicsPage() {
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="student-count">
-                                                <Users size={14} />
+<div className="student-count">
+                                                <Users size={14} aria-hidden="true" />
                                                 <span>{topic.current_students || 0}/{topic.max_students}</span>
                                             </div>
                                         </TableCell>
@@ -191,10 +191,10 @@ export function SampleTopicsPage() {
                                                 onClick={() => handleToggleActive(topic)}
                                                 style={{ cursor: 'pointer' }}
                                             >
-                                                {topic.is_active ? (
-                                                    <><ToggleRight size={14} /> Mở</>
+{topic.is_active ? (
+                                                    <><ToggleRight size={14} aria-hidden="true" /> Mở</>
                                                 ) : (
-                                                    <><ToggleLeft size={14} /> Đóng</>
+                                                    <><ToggleLeft size={14} aria-hidden="true" /> Đóng</>
                                                 )}
                                             </Badge>
                                         </TableCell>
@@ -206,7 +206,7 @@ export function SampleTopicsPage() {
                                                     onClick={() => handleEdit(topic)}
                                                     aria-label={`Chỉnh sửa đề tài ${topic.title}`}
                                                 >
-                                                    <Edit size={16} />
+                                                    <Edit size={16} aria-hidden="true" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
@@ -214,7 +214,7 @@ export function SampleTopicsPage() {
                                                     onClick={() => setDeleteConfirm({ open: true, topic })}
                                                     aria-label={`Xóa đề tài ${topic.title}`}
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <Trash2 size={16} aria-hidden="true" />
                                                 </Button>
                                             </div>
                                         </TableCell>

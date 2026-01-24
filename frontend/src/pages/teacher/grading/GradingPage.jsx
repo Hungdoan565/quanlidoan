@@ -128,12 +128,12 @@ function TopicGradingCard({ topic, onClick }) {
                     <h4 className="topic-card-title">{topic.title}</h4>
                     {isComplete ? (
                         <Badge variant="success">
-                            <CheckCircle size={12} />
+                            <CheckCircle size={12} aria-hidden="true" />
                             Đã chấm
                         </Badge>
                     ) : (
                         <Badge variant="warning">
-                            <Clock size={12} />
+                            <Clock size={12} aria-hidden="true" />
                             Chưa chấm
                         </Badge>
                     )}
@@ -141,7 +141,7 @@ function TopicGradingCard({ topic, onClick }) {
 
                 {/* Student Info */}
                 <div className="topic-card-student">
-                    <User size={14} />
+                    <User size={14} aria-hidden="true" />
                     <span>{topic.student?.full_name}</span>
                     {topic.student?.student_code && (
                         <span className="student-code">({topic.student.student_code})</span>
@@ -151,7 +151,7 @@ function TopicGradingCard({ topic, onClick }) {
                 {/* Meta */}
                 <div className="topic-card-meta">
                     <span className="topic-card-class">
-                        <BookOpen size={12} />
+                        <BookOpen size={12} aria-hidden="true" />
                         {topic.class?.name}
                     </span>
                     

@@ -69,13 +69,13 @@ export function TeacherDashboard() {
             <div className="stats-grid stats-grid-4">
                 {statsError ? (
                     <div className="stats-error-state">
-                        <AlertCircle size={24} />
+                        <AlertCircle size={24} aria-hidden="true" />
                         <p>Không thể tải thống kê</p>
                         <Button 
                             variant="outline" 
                             size="sm" 
                             onClick={() => refetchStats()}
-                            leftIcon={<RefreshCw size={14} />}
+                            leftIcon={<RefreshCw size={14} aria-hidden="true" />}
                         >
                             Thử lại
                         </Button>
@@ -138,13 +138,13 @@ export function TeacherDashboard() {
                     <CardBody className="todo-body">
                         {todosError ? (
                             <div className="error-state">
-                                <AlertCircle size={32} />
+                                <AlertCircle size={32} aria-hidden="true" />
                                 <p>Không thể tải danh sách</p>
                                 <Button 
                                     variant="outline" 
                                     size="sm" 
                                     onClick={() => refetchTodos()}
-                                    leftIcon={<RefreshCw size={14} />}
+                                    leftIcon={<RefreshCw size={14} aria-hidden="true" />}
                                 >
                                     Thử lại
                                 </Button>
@@ -166,7 +166,7 @@ export function TeacherDashboard() {
                                             aria-label={`${todo.title}: ${todo.description}`}
                                         >
                                             <div className={`todo-icon todo-icon-${todo.type}`}>
-                                                <Icon size={18} />
+                                                <Icon size={18} aria-hidden="true" />
                                             </div>
                                             <div className="todo-content">
                                                 <span className="todo-title">{todo.title}</span>
@@ -181,7 +181,7 @@ export function TeacherDashboard() {
                             </ul>
                         ) : (
                             <div className="empty-todo">
-                                <CheckCircle size={40} className="empty-icon" />
+                                <CheckCircle size={40} className="empty-icon" aria-hidden="true" />
                                 <p>Không có việc cần làm</p>
                                 <span>Tất cả đã được xử lý!</span>
                             </div>
@@ -205,13 +205,13 @@ export function TeacherDashboard() {
                     <CardBody className="students-body">
                         {studentsError ? (
                             <div className="error-state">
-                                <AlertCircle size={32} />
+                                <AlertCircle size={32} aria-hidden="true" />
                                 <p>Không thể tải danh sách</p>
                                 <Button 
                                     variant="outline" 
                                     size="sm" 
                                     onClick={() => refetchStudents()}
-                                    leftIcon={<RefreshCw size={14} />}
+                                    leftIcon={<RefreshCw size={14} aria-hidden="true" />}
                                 >
                                     Thử lại
                                 </Button>
@@ -245,7 +245,7 @@ export function TeacherDashboard() {
                             </ul>
                         ) : (
                             <div className="empty-students">
-                                <Users size={40} className="empty-icon" />
+                                <Users size={40} className="empty-icon" aria-hidden="true" />
                                 <p>Chưa có sinh viên</p>
                                 <span>Bạn chưa được phân công hướng dẫn sinh viên nào</span>
                             </div>
@@ -258,25 +258,25 @@ export function TeacherDashboard() {
             <div className="quick-actions">
                 <h3>Thao tác nhanh</h3>
                 <div className="quick-actions-grid">
-                    <button 
+<button 
                         className="quick-action-btn"
                         onClick={() => navigate('/teacher/topics/new')}
                     >
-                        <FileText size={20} />
+                        <FileText size={20} aria-hidden="true" />
                         <span>Tạo đề tài mẫu</span>
                     </button>
                     <button 
                         className="quick-action-btn"
                         onClick={() => navigate('/teacher/reviews')}
                     >
-                        <Clock size={20} />
+                        <Clock size={20} aria-hidden="true" />
                         <span>Duyệt đề tài</span>
                     </button>
                     <button 
                         className="quick-action-btn"
                         onClick={() => navigate('/teacher/grading')}
                     >
-                        <Star size={20} />
+                        <Star size={20} aria-hidden="true" />
                         <span>Chấm điểm</span>
                     </button>
                 </div>

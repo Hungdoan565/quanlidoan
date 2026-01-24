@@ -90,7 +90,13 @@
     color: var(--text-primary);
     text-align: left;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dropdown-item {
+        transition: none;
+    }
 }
 
 .dropdown-item:hover {

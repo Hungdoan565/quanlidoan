@@ -147,7 +147,7 @@ export function RegisterPage() {
             <div className="auth-page">
                 <div className="auth-card">
                     <div className="auth-header">
-                        <div className="auth-logo"><Logo size={64} /></div>
+                        <div className="auth-logo"><Logo size={64} aria-hidden="true" /></div>
                         <h1>Xác nhận Email</h1>
                         <p>Chúng tôi đã gửi link xác nhận đến</p>
                         <p className="email-highlight">{formData.email}</p>
@@ -167,7 +167,7 @@ export function RegisterPage() {
         <div className="auth-page">
             <div className="auth-card register-card">
                 <div className="auth-header auth-header-compact">
-                    <div className="auth-logo"><Logo size={48} /></div>
+                    <div className="auth-logo"><Logo size={48} aria-hidden="true" /></div>
                     <h1>Đăng ký tài khoản</h1>
                 </div>
 
@@ -189,9 +189,9 @@ export function RegisterPage() {
                         aria-label="Đăng ký với Google"
                     >
                         {socialLoading.google ? (
-                            <Loader2 className="animate-spin" size={18} />
+                            <Loader2 className="animate-spin" size={18} aria-hidden="true" />
                         ) : (
-                            <GoogleIcon size={18} />
+                            <GoogleIcon size={18} aria-hidden="true" />
                         )}
                         <span>Google</span>
                     </button>
@@ -205,9 +205,9 @@ export function RegisterPage() {
                         aria-label="Đăng ký với GitHub"
                     >
                         {socialLoading.github ? (
-                            <Loader2 className="animate-spin" size={18} />
+                            <Loader2 className="animate-spin" size={18} aria-hidden="true" />
                         ) : (
-                            <GithubIcon size={18} />
+                            <GithubIcon size={18} aria-hidden="true" />
                         )}
                         <span>GitHub</span>
                     </button>
@@ -287,7 +287,7 @@ export function RegisterPage() {
                                             key={req.key} 
                                             className={`req-tag ${req.test(formData.password) ? 'met' : ''}`}
                                         >
-                                            {req.test(formData.password) ? <Check size={10} /> : <X size={10} />}
+                                                                                        {req.test(formData.password) ? <Check size={10} aria-hidden="true" /> : <X size={10} aria-hidden="true" />}
                                             {req.label}
                                         </span>
                                     ))}
@@ -316,7 +316,7 @@ export function RegisterPage() {
                                 tabIndex={-1}
                                 aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                             >
-                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                                {showPassword ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
                             </button>
                         </div>
 
@@ -349,7 +349,7 @@ export function RegisterPage() {
                     >
                         {isLoading ? (
                             <>
-                                <Loader2 className="animate-spin" size={18} />
+                                <Loader2 className="animate-spin" size={18} aria-hidden="true" />
                                 Đang đăng ký...
                             </>
                         ) : (

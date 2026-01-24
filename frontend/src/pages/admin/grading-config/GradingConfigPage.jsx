@@ -130,7 +130,7 @@ export function GradingConfigPage() {
                 </div>
                 <div className="page-header-actions">
                     <Button variant="outline" onClick={() => setShowCopyModal(true)}>
-                        <Copy size={16} />
+                        <Copy size={16} aria-hidden="true" />
                         <span>Copy từ đợt khác</span>
                     </Button>
                 </div>
@@ -252,9 +252,9 @@ function CriteriaSection({ title, type, criteria, totalWeight, onEdit, onDelete,
                     <div className="criteria-section-actions">
                         <div className={`weight-indicator ${isValidWeight ? 'valid' : 'invalid'}`}>
                             {isValidWeight ? (
-                                <CheckCircle size={16} />
+                                <CheckCircle size={16} aria-hidden="true" />
                             ) : (
-                                <AlertCircle size={16} />
+                                <AlertCircle size={16} aria-hidden="true" />
                             )}
                             <span>Tổng: {(totalWeight * 100).toFixed(0)}%</span>
                             {!isValidWeight && totalWeight > 0 && (
@@ -264,7 +264,7 @@ function CriteriaSection({ title, type, criteria, totalWeight, onEdit, onDelete,
                             )}
                         </div>
                         <Button size="sm" variant="outline" onClick={onAdd}>
-                            <Plus size={14} />
+                            <Plus size={14} aria-hidden="true" />
                             <span>Thêm</span>
                         </Button>
                     </div>
@@ -309,16 +309,18 @@ function CriteriaSection({ title, type, criteria, totalWeight, onEdit, onDelete,
                                                 size="sm"
                                                 variant="ghost"
                                                 onClick={() => onEdit(item)}
+                                                aria-label="Chỉnh sửa"
                                             >
-                                                <Edit2 size={14} />
+                                                <Edit2 size={14} aria-hidden="true" />
                                             </Button>
                                             <Button
                                                 size="sm"
                                                 variant="ghost"
                                                 className="text-danger"
                                                 onClick={() => onDelete(item)}
+                                                aria-label="Xóa"
                                             >
-                                                <Trash2 size={14} />
+                                                <Trash2 size={14} aria-hidden="true" />
                                             </Button>
                                         </div>
                                     </TableCell>

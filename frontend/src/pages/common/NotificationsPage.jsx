@@ -245,7 +245,7 @@ export function NotificationsPage() {
                         title="Đánh dấu đã đọc"
                         disabled={markAsRead.isPending}
                     >
-                        <Check size={16} />
+                        <Check size={16} aria-hidden="true" />
                     </button>
                 )}
                 <button
@@ -257,7 +257,7 @@ export function NotificationsPage() {
                     title="Xóa"
                     disabled={deleteNotification.isPending}
                 >
-                    <Trash2 size={16} />
+                    <Trash2 size={16} aria-hidden="true" />
                 </button>
             </div>
         </div>
@@ -282,7 +282,7 @@ export function NotificationsPage() {
             <div className="page-header">
                 <div className="page-header-content">
                     <h1>
-                        <Bell size={28} />
+                        <Bell size={28} aria-hidden="true" />
                         Thông báo
                     </h1>
                     <p>
@@ -297,7 +297,7 @@ export function NotificationsPage() {
                     <Button
                         variant="ghost"
                         size="sm"
-                        leftIcon={<RefreshCw size={16} className={isRefetching ? 'spinning' : ''} />}
+                        leftIcon={<RefreshCw size={16} className={isRefetching ? 'spinning' : ''} aria-hidden="true" />}
                         onClick={() => refetch()}
                         disabled={isRefetching}
                     >
@@ -307,7 +307,7 @@ export function NotificationsPage() {
                         <Button
                             variant="outline"
                             size="sm"
-                            leftIcon={<CheckCheck size={16} />}
+                            leftIcon={<CheckCheck size={16} aria-hidden="true" />}
                             onClick={() => markAllAsRead.mutate()}
                             disabled={markAllAsRead.isPending}
                         >
@@ -350,7 +350,7 @@ export function NotificationsPage() {
                         <Button
                             variant="ghost"
                             size="sm"
-                            leftIcon={<Trash2 size={14} />}
+                            leftIcon={<Trash2 size={14} aria-hidden="true" />}
                             onClick={() => deleteSelected.mutate(selectedIds)}
                             disabled={deleteSelected.isPending}
                             className="delete-btn"

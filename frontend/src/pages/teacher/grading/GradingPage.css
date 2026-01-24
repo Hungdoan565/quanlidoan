@@ -51,7 +51,13 @@
 /* Topic Card */
 .grading-topic-card {
     cursor: pointer;
-    transition: all 0.2s;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .grading-topic-card {
+        transition: none;
+    }
 }
 
 .grading-topic-card:hover {

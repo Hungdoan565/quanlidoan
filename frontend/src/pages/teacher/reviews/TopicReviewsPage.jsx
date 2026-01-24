@@ -202,8 +202,8 @@ export function TopicReviewsPage() {
                 {/* Bulk Action Bar */}
                 {selectedIds.size > 0 && (
                     <div className="bulk-action-bar">
-                        <div className="bulk-info">
-                            <CheckSquare size={18} />
+<div className="bulk-info">
+                            <CheckSquare size={18} aria-hidden="true" />
                             <span>Đã chọn {selectedIds.size} đề tài</span>
                         </div>
                         <div className="bulk-actions">
@@ -220,10 +220,10 @@ export function TopicReviewsPage() {
                                 onClick={handleBulkApprove}
                                 disabled={bulkApproveMutation.isPending}
                             >
-                                {bulkApproveMutation.isPending ? (
-                                    <><Loader2 size={16} className="spin" /> Đang duyệt...</>
+{bulkApproveMutation.isPending ? (
+                                    <><Loader2 size={16} className="spin" aria-hidden="true" /> Đang duyệt...</>
                                 ) : (
-                                    <><CheckCircle size={16} /> Duyệt tất cả</>
+                                    <><CheckCircle size={16} aria-hidden="true" /> Duyệt tất cả</>
                                 )}
                             </Button>
                         </div>
@@ -316,8 +316,8 @@ export function TopicReviewsPage() {
                                                 <span className="class-name">{topic.class?.name}</span>
                                             </td>
                                             <td>
-                                                <Badge variant={statusConfig.color}>
-                                                    <StatusIcon size={14} />
+<Badge variant={statusConfig.color}>
+                                                    <StatusIcon size={14} aria-hidden="true" />
                                                     {statusConfig.label}
                                                 </Badge>
                                             </td>
@@ -325,12 +325,12 @@ export function TopicReviewsPage() {
                                                 <span className="date">{formatDate(topic.created_at)}</span>
                                             </td>
                                             <td>
-                                                <Button
+<Button
                                                     variant="outline"
                                                     size="small"
                                                     onClick={() => handleViewTopic(topic)}
                                                 >
-                                                    <Eye size={16} />
+                                                    <Eye size={16} aria-hidden="true" />
                                                     Xem
                                                 </Button>
                                             </td>

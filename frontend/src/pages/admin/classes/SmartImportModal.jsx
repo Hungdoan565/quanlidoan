@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import * as XLSX from 'xlsx';
 import {
     Upload,
@@ -29,6 +30,7 @@ import './SmartImportModal.css';
  */
 export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const fileInputRef = useRef(null);
     const { data: sessions = [] } = useSessions();
     const createClass = useCreateClass();
@@ -350,6 +352,11 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                 ...results
             });
             setStep('done');
+            
+            // Invalidate queries to refresh UI immediately
+            queryClient.invalidateQueries({ queryKey: ['sessions'] });
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            
             toast.success(`Đã tạo lớp ${classCode} và import ${results.added_to_class} sinh viên!`);
 
         } catch (error) {
@@ -424,9 +431,9 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                         />
                         {file ? (
                             <div className="file-info">
-                                <FileSpreadsheet size={24} className="file-icon" />
+                                <FileSpreadsheet size={24} className="file-icon" aria-hidden="true" />
                                 <span className="file-name">{file.name}</span>
-                                <button
+<button
                                     className="remove-file"
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -438,8 +445,9 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                                         setShowOnlyErrors(false);
                                         setStep('upload');
                                     }}
+                                    aria-label="Xóa file"
                                 >
-                                    <X size={16} />
+                                    <X size={16} aria-hidden="true" />
                                 </button>
                                 <Badge variant="success">{validCount} hợp lệ</Badge>
                                 {errorCount > 0 && (
@@ -448,7 +456,7 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                             </div>
                         ) : (
                             <div className="upload-placeholder">
-                                <Upload size={32} className="upload-icon" />
+                                <Upload size={32} className="upload-icon" aria-hidden="true" />
                                 <p>Click để chọn file Excel</p>
                                 <span className="hint">Hỗ trợ .xlsx, .xls</span>
                             </div>
@@ -460,8 +468,8 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                 {validationErrors.length > 0 && (
                     <div className="validation-errors">
                         {validationErrors.map((err, i) => (
-                            <div key={i} className="error-item">
-                                <AlertCircle size={16} />
+<div key={i} className="error-item">
+                                <AlertCircle size={16} aria-hidden="true" />
                                 <span>{err.message}</span>
                             </div>
                         ))}
@@ -473,8 +481,8 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                     <>
                         {/* Class info extracted from Excel */}
                         <div className="extracted-info">
-                            <div className="info-header">
-                                <Sparkles size={18} />
+<div className="info-header">
+                                <Sparkles size={18} aria-hidden="true" />
                                 <span>Thông tin từ Excel</span>
                             </div>
                             <div className="info-grid">
@@ -498,8 +506,8 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                                 </div>
                                 <div className="form-group">
                                     <label>Số sinh viên</label>
-                                    <div className="student-count">
-                                        <Users size={18} />
+<div className="student-count">
+                                        <Users size={18} aria-hidden="true" />
                                         <strong>{validCount}</strong>
                                         {errorCount > 0 && (
                                             <span className="error-count">({errorCount} lỗi)</span>
@@ -552,9 +560,9 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                                                 <td>{student.email}</td>
                                                 <td>
                                                     {student.status === 'valid' ? (
-                                                        <span className="status-ok"><CheckCircle size={14} /> OK</span>
+                                                        <span className="status-ok"><CheckCircle size={14} aria-hidden="true" /> OK</span>
                                                     ) : (
-                                                        <span className="status-error"><AlertCircle size={14} /> {student.errors?.join(', ')}</span>
+                                                        <span className="status-error"><AlertCircle size={14} aria-hidden="true" /> {student.errors?.join(', ')}</span>
                                                     )}
                                                 </td>
                                             </tr>
@@ -572,7 +580,7 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                 {/* Importing step */}
                 {step === 'importing' && (
                     <div className="importing-state">
-                        <Loader2 size={48} className="spin" />
+                        <Loader2 size={48} className="spin" aria-hidden="true" />
                         <h3>Đang tạo lớp và import sinh viên...</h3>
                         <p>Vui lòng đợi, quá trình này có thể mất vài giây</p>
                     </div>
@@ -581,11 +589,11 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                 {/* Done step */}
                 {step === 'done' && importResults && (
                     <div className="done-state">
-                        <CheckCircle size={64} className="success-icon" />
+                        <CheckCircle size={64} className="success-icon" aria-hidden="true" />
                         <h3>Import thành công!</h3>
                         <div className="results-summary">
-                            <div className="result-item">
-                                <School size={20} />
+<div className="result-item">
+                                <School size={20} aria-hidden="true" />
                                 <span>Lớp: <strong>{importResults.classCode}</strong></span>
                             </div>
                             {importResults.sessionName && (
@@ -593,13 +601,13 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                                     <span>Đợt: <strong>{importResults.sessionName}</strong></span>
                                 </div>
                             )}
-                            <div className="result-item">
-                                <Users size={20} />
+<div className="result-item">
+                                <Users size={20} aria-hidden="true" />
                                 <span>Đã thêm: <strong>{importResults.added_to_class}</strong> sinh viên</span>
                             </div>
                             {importResults.created > 0 && (
-                                <div className="result-item">
-                                    <Sparkles size={20} />
+<div className="result-item">
+                                    <Sparkles size={20} aria-hidden="true" />
                                     <span>Tài khoản mới: <strong>{importResults.created}</strong></span>
                                 </div>
                             )}
@@ -644,7 +652,7 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                                     variant="primary"
                                     onClick={handleSubmit}
                                     disabled={!sessionId || !classCode || validCount === 0}
-                                    leftIcon={step === 'importing' ? <Loader2 className="spin" /> : <School />}
+                                    leftIcon={step === 'importing' ? <Loader2 className="spin" aria-hidden="true" /> : <School aria-hidden="true" />}
                                 >
                                     Tạo lớp & Import {validCount} SV
                                 </Button>

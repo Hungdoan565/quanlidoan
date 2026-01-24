@@ -91,7 +91,13 @@
     color: var(--text-secondary);
     cursor: pointer;
     border-radius: var(--radius-md);
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .filter-tab {
+        transition: none;
+    }
 }
 
 .filter-tab:hover {
@@ -223,7 +229,13 @@
     background: white;
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-default);
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .notification-card {
+        transition: none;
+    }
 }
 
 .notification-card:hover {
@@ -336,7 +348,13 @@
     border: none;
     border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .action-btn {
+        transition: none;
+    }
 }
 
 .action-btn.mark-read {

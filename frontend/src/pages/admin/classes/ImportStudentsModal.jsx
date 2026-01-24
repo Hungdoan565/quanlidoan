@@ -364,7 +364,7 @@ export function ImportStudentsModal({ isOpen, onClose, classId, existingStudentI
                             className="upload-zone"
                             onClick={() => fileInputRef.current?.click()}
                         >
-                            <FileSpreadsheet size={48} className="upload-icon" />
+                            <FileSpreadsheet size={48} className="upload-icon" aria-hidden="true" />
                             <p className="upload-text">
                                 Kéo thả file Excel hoặc <span>click để chọn file</span>
                             </p>
@@ -384,7 +384,7 @@ export function ImportStudentsModal({ isOpen, onClose, classId, existingStudentI
                             <Button
                                 variant="outline"
                                 size="sm"
-                                leftIcon={<Download size={14} />}
+                                leftIcon={<Download size={14} aria-hidden="true" />}
                                 onClick={handleDownloadTemplate}
                             >
                                 Tải template Excel
@@ -392,8 +392,8 @@ export function ImportStudentsModal({ isOpen, onClose, classId, existingStudentI
                         </div>
 
                         {validationErrors.length > 0 && (
-                            <div className="error-box">
-                                <AlertCircle size={16} />
+<div className="error-box">
+                                <AlertCircle size={16} aria-hidden="true" />
                                 {validationErrors[0].message}
                             </div>
                         )}
@@ -405,10 +405,10 @@ export function ImportStudentsModal({ isOpen, onClose, classId, existingStudentI
                     <div className="preview-section">
                         <div className="preview-header">
                             <div className="file-info">
-                                <FileSpreadsheet size={20} />
+                                <FileSpreadsheet size={20} aria-hidden="true" />
                                 <span>{file?.name}</span>
-                                <button onClick={() => { setStep('upload'); setFile(null); setParsedData([]); }}>
-                                    <X size={14} />
+<button onClick={() => { setStep('upload'); setFile(null); setParsedData([]); }} aria-label="Xóa file">
+                                    <X size={14} aria-hidden="true" />
                                 </button>
                             </div>
                             <div className="stats">
@@ -438,18 +438,18 @@ export function ImportStudentsModal({ isOpen, onClose, classId, existingStudentI
                                             <td>{student.email}</td>
                                             <td>
                                                 {student.status === 'valid' && (
-                                                    <span className="status valid">
-                                                        <CheckCircle size={14} /> OK
+<span className="status valid">
+                                                        <CheckCircle size={14} aria-hidden="true" /> OK
                                                     </span>
                                                 )}
                                                 {student.status === 'warning' && (
-                                                    <span className="status warning" title={student.errors?.join(', ')}>
-                                                        <AlertCircle size={14} /> {student.errors?.[0]}
+<span className="status warning" title={student.errors?.join(', ')}>
+                                                        <AlertCircle size={14} aria-hidden="true" /> {student.errors?.[0]}
                                                     </span>
                                                 )}
                                                 {student.status === 'error' && (
-                                                    <span className="status error" title={student.errors?.join(', ')}>
-                                                        <AlertCircle size={14} /> {student.errors?.[0]}
+<span className="status error" title={student.errors?.join(', ')}>
+                                                        <AlertCircle size={14} aria-hidden="true" /> {student.errors?.[0]}
                                                     </span>
                                                 )}
                                             </td>
@@ -479,7 +479,7 @@ export function ImportStudentsModal({ isOpen, onClose, classId, existingStudentI
                 {/* Importing Step */}
                 {step === 'importing' && (
                     <div className="importing-section">
-                        <Loader2 size={48} className="spinner" />
+                        <Loader2 size={48} className="spinner" aria-hidden="true" />
                         <p>Đang import sinh viên...</p>
                     </div>
                 )}
@@ -487,7 +487,7 @@ export function ImportStudentsModal({ isOpen, onClose, classId, existingStudentI
                 {/* Done Step */}
                 {step === 'done' && (
                     <div className="done-section">
-                        <CheckCircle size={48} className="success-icon" />
+                        <CheckCircle size={48} className="success-icon" aria-hidden="true" />
                         <h3>Import thành công!</h3>
                         <p>Đã thêm {validCount + warningCount} sinh viên vào lớp</p>
                         <Button onClick={handleClose}>Đóng</Button>

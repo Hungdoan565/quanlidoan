@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Copy, Lock, Unlock, Users, BookOpen, FileText, FileSpreadsheet } from 'lucide-react';
 import { useSessions, useDeleteSession, useDuplicateSession, useToggleSessionStatus } from '../../../hooks/useSessions';
@@ -21,11 +21,13 @@ import {
     ErrorState,
 } from '../../../components/ui';
 import { formatDate } from '../../../lib/utils';
-import { SessionFormModal } from './SessionFormModal';
-import { CloneSessionModal } from './CloneSessionModal';
 import { SessionRow } from './SessionRow';
-import { SmartImportModal } from '../classes/SmartImportModal';
 import './SessionsPage.css';
+
+// Lazy load modals for code-splitting
+const SessionFormModal = lazy(() => import('./SessionFormModal').then(m => ({ default: m.SessionFormModal })));
+const CloneSessionModal = lazy(() => import('./CloneSessionModal').then(m => ({ default: m.CloneSessionModal })));
+const SmartImportModal = lazy(() => import('../classes/SmartImportModal').then(m => ({ default: m.SmartImportModal })));
 
 const SESSION_TYPE_OPTIONS = [
     { value: '', label: 'Tất cả loại' },
@@ -128,12 +130,12 @@ export function SessionsListPage() {
                 <div className="header-actions">
                     <Button
                         variant="secondary"
-                        leftIcon={<FileSpreadsheet size={18} />}
+                        leftIcon={<FileSpreadsheet size={18} aria-hidden="true" />}
                         onClick={() => setIsSmartImportOpen(true)}
                     >
                         Import lớp từ Excel
                     </Button>
-                    <Button leftIcon={<Plus size={18} />} onClick={handleCreate}>
+                    <Button leftIcon={<Plus size={18} aria-hidden="true" />} onClick={handleCreate}>
                         Tạo đợt mới
                     </Button>
                 </div>
@@ -145,7 +147,7 @@ export function SessionsListPage() {
                     <div className="filter-search">
                         <Input
                             placeholder="Tìm kiếm theo tên..."
-                            leftIcon={<Search size={18} />}
+                            leftIcon={<Search size={18} aria-hidden="true" />}
                             value={filters.search}
                             onChange={(e) => handleFilterChange('search', e.target.value)}
                         />
@@ -223,16 +225,42 @@ export function SessionsListPage() {
                 )}
             </Card>
 
-            {/* Create/Edit Modal */}
-            <SessionFormModal
-                isOpen={isFormModalOpen}
-                onClose={() => {
-                    setIsFormModalOpen(false);
-                    setEditingSession(null);
-                }}
-                session={editingSession}
-                onSuccess={handleFormSuccess}
-            />
+            {/* Lazy-loaded Modals */}
+            <Suspense fallback={null}>
+                {/* Create/Edit Modal */}
+                {isFormModalOpen && (
+                    <SessionFormModal
+                        isOpen={isFormModalOpen}
+                        onClose={() => {
+                            setIsFormModalOpen(false);
+                            setEditingSession(null);
+                        }}
+                        session={editingSession}
+                        onSuccess={handleFormSuccess}
+                    />
+                )}
+
+                {/* Clone Modal */}
+                {cloneSession && (
+                    <CloneSessionModal
+                        isOpen={!!cloneSession}
+                        onClose={() => setCloneSession(null)}
+                        session={cloneSession}
+                    />
+                )}
+
+                {/* Smart Import Modal */}
+                {isSmartImportOpen && (
+                    <SmartImportModal
+                        isOpen={isSmartImportOpen}
+                        onClose={() => {
+                            setIsSmartImportOpen(false);
+                            setImportSession(null);
+                        }}
+                        defaultSessionId={importSession?.id || null}
+                    />
+                )}
+            </Suspense>
 
             {/* Delete Confirmation */}
             <ConfirmModal
@@ -244,23 +272,6 @@ export function SessionsListPage() {
                 confirmText="Xóa"
                 variant="danger"
                 loading={deleteSession.isPending}
-            />
-
-            {/* Clone Modal */}
-            <CloneSessionModal
-                isOpen={!!cloneSession}
-                onClose={() => setCloneSession(null)}
-                session={cloneSession}
-            />
-
-            {/* Smart Import Modal */}
-            <SmartImportModal
-                isOpen={isSmartImportOpen}
-                onClose={() => {
-                    setIsSmartImportOpen(false);
-                    setImportSession(null);
-                }}
-                defaultSessionId={importSession?.id || null}
             />
         </div>
     );

@@ -135,12 +135,12 @@ export function SampleTopicFormModal({ isOpen, onClose, onSuccess, topic = null 
 
                 <div className="form-group">
                     <label>Tên đề tài <span className="required">*</span></label>
-                    <Input
+<Input
                         value={formData.title}
                         onChange={(e) => handleChange('title', e.target.value)}
                         placeholder="VD: Xây dựng hệ thống quản lý bán hàng"
                         error={errors.title}
-                        leftIcon={<BookOpen size={18} />}
+                        leftIcon={<BookOpen size={18} aria-hidden="true" />}
                     />
                     {errors.title && <span className="error-text">{errors.title}</span>}
                 </div>
@@ -164,19 +164,20 @@ export function SampleTopicFormModal({ isOpen, onClose, onSuccess, topic = null 
                         onChange={(e) => setTechInput(e.target.value)}
                         onKeyDown={addTechnology}
                         placeholder="Nhập và nhấn Enter để thêm (VD: React, Node.js)…"
-                        leftIcon={<Code size={18} />}
+                        leftIcon={<Code size={18} aria-hidden="true" />}
                     />
                     {formData.technologies.length > 0 && (
                         <div className="tech-tags">
                             {formData.technologies.map((tech, i) => (
                                 <Badge key={i} variant="secondary">
                                     {tech}
-                                    <button
+<button
                                         type="button"
                                         className="remove-tag"
                                         onClick={() => removeTechnology(tech)}
+                                        aria-label={`Xóa ${tech}`}
                                     >
-                                        <X size={12} />
+                                        <X size={12} aria-hidden="true" />
                                     </button>
                                 </Badge>
                             ))}

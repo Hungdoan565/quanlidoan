@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
     ArrowLeft,
@@ -33,10 +33,12 @@ import {
     ProgressBar,
     Tooltip,
 } from '../../../components/ui';
-import { AddStudentModal } from './AddStudentModal';
-import { ImportStudentsModal } from './ImportStudentsModal';
-import { ClassFormModal } from './ClassFormModal';
 import './ClassDetailPage.css';
+
+// Lazy load modals for code-splitting
+const AddStudentModal = lazy(() => import('./AddStudentModal').then(m => ({ default: m.AddStudentModal })));
+const ImportStudentsModal = lazy(() => import('./ImportStudentsModal').then(m => ({ default: m.ImportStudentsModal })));
+const ClassFormModal = lazy(() => import('./ClassFormModal').then(m => ({ default: m.ClassFormModal })));
 
 export function ClassDetailPage() {
     const { id } = useParams();
@@ -120,8 +122,8 @@ export function ClassDetailPage() {
             {/* Header */}
             <header className="detail-header">
                 <div className="header-left">
-                    <Link to="/admin/classes" className="back-link">
-                        <ArrowLeft size={16} />
+<Link to="/admin/classes" className="back-link">
+                        <ArrowLeft size={16} aria-hidden="true" />
                         Quay lại
                     </Link>
                     <div className="header-title">
@@ -138,7 +140,7 @@ export function ClassDetailPage() {
                     <Button
                         variant="outline"
                         size="sm"
-                        leftIcon={<FileSpreadsheet size={16} />}
+                        leftIcon={<FileSpreadsheet size={16} aria-hidden="true" />}
                         onClick={() => {
                             import('../../../utils/excel').then(({ exportStudentsToExcel }) => {
                                 exportStudentsToExcel(cls);
@@ -150,7 +152,7 @@ export function ClassDetailPage() {
                     <Button
                         variant="outline"
                         size="sm"
-                        leftIcon={<FileSpreadsheet size={16} />}
+                        leftIcon={<FileSpreadsheet size={16} aria-hidden="true" />}
                         onClick={() => {
                             import('../../../utils/pdf').then(({ generatePDF }) => {
                                 generatePDF('studentList', cls);
@@ -159,7 +161,7 @@ export function ClassDetailPage() {
                     >
                         PDF
                     </Button>
-                    <Button variant="outline" size="sm" leftIcon={<Edit size={16} />} onClick={() => setIsEditModalOpen(true)}>
+                    <Button variant="outline" size="sm" leftIcon={<Edit size={16} aria-hidden="true" />} onClick={() => setIsEditModalOpen(true)}>
                         Chỉnh sửa
                     </Button>
                 </div>
@@ -168,8 +170,8 @@ export function ClassDetailPage() {
             {/* Stats Overview */}
             <section className="stats-section">
                 <div className="stat-card">
-                    <div className="stat-icon students">
-                        <Users size={20} />
+<div className="stat-icon students">
+                        <Users size={20} aria-hidden="true" />
                     </div>
                     <div className="stat-content">
                         <span className="stat-value">{studentCount}/{maxStudents}</span>
@@ -181,32 +183,32 @@ export function ClassDetailPage() {
                 </div>
 
                 <div className="stat-card">
-                    <div className="stat-icon topics">
-                        <BookOpen size={20} />
+<div className="stat-icon topics">
+                        <BookOpen size={20} aria-hidden="true" />
                     </div>
                     <div className="stat-content">
                         <span className="stat-value">{topicsRegistered}</span>
                         <span className="stat-label">Đề tài đã đăng ký</span>
                     </div>
                     {topicsRegistered > 0 && (
-                        <div className="stat-mini">
-                            <CheckCircle size={12} />
+<div className="stat-mini">
+                            <CheckCircle size={12} aria-hidden="true" />
                             <span>{topicsApproved} đã duyệt</span>
                         </div>
                     )}
                 </div>
 
                 <div className="stat-card">
-                    <div className="stat-icon teachers">
-                        <GraduationCap size={20} />
+<div className="stat-icon teachers">
+                        <GraduationCap size={20} aria-hidden="true" />
                     </div>
                     <div className="stat-content">
                         <span className="stat-value">{cls?.advisor ? '1/1' : '0/1'}</span>
                         <span className="stat-label">Giảng viên</span>
                     </div>
                     {!cls?.advisor && (
-                        <div className="stat-warning">
-                            <AlertCircle size={12} />
+<div className="stat-warning">
+                            <AlertCircle size={12} aria-hidden="true" />
                             <span>Chưa phân công</span>
                         </div>
                     )}
@@ -218,8 +220,8 @@ export function ClassDetailPage() {
                 <div className="section-header">
                             <h2>Giảng viên hướng dẫn</h2>
                     {!teacherForm.editing && (
-                        <Button variant="ghost" size="sm" onClick={handleEditTeacher}>
-                            <Edit size={14} />
+<Button variant="ghost" size="sm" onClick={handleEditTeacher}>
+                            <Edit size={14} aria-hidden="true" />
                                     {cls?.advisor ? 'Thay đổi' : 'Phân công'}
                         </Button>
                     )}
@@ -278,14 +280,14 @@ export function ClassDetailPage() {
                         <Button
                             variant="outline"
                             size="sm"
-                            leftIcon={<FileSpreadsheet size={16} />}
+                            leftIcon={<FileSpreadsheet size={16} aria-hidden="true" />}
                             onClick={() => setIsImportOpen(true)}
                         >
                             Import Excel
                         </Button>
                         <Button
                             size="sm"
-                            leftIcon={<UserPlus size={16} />}
+                            leftIcon={<UserPlus size={16} aria-hidden="true" />}
                             onClick={() => setIsAddStudentOpen(true)}
                         >
                             Thêm SV
@@ -313,8 +315,8 @@ export function ClassDetailPage() {
                                         </td>
                                         <td className="col-student">
                                             <div className="student-info">
-                                                <div className="student-avatar">
-                                                    <User size={16} />
+<div className="student-avatar">
+                                                    <User size={16} aria-hidden="true" />
                                                 </div>
                                                 <div className="student-details">
                                                     <span className="student-name">{student.full_name}</span>
@@ -343,12 +345,12 @@ export function ClassDetailPage() {
                                             )}
                                         </td>
                                         <td className="col-actions">
-                                            <button
+<button
                                                 className="action-btn danger"
                                                 onClick={() => setRemoveStudentConfirm({ open: true, student })}
-                                                title="Xóa khỏi lớp"
+                                                aria-label="Xóa khỏi lớp"
                                             >
-                                                <Trash2 size={14} />
+                                                <Trash2 size={14} aria-hidden="true" />
                                             </button>
                                         </td>
                                     </tr>
@@ -359,13 +361,13 @@ export function ClassDetailPage() {
                 ) : (
                     <Card className="empty-state-card">
                         <div className="empty-state">
-                            <div className="empty-icon">
-                                <GraduationCap size={48} />
+<div className="empty-icon">
+                                <GraduationCap size={48} aria-hidden="true" />
                             </div>
                             <h3>Chưa có sinh viên trong lớp</h3>
                             <p>Thêm sinh viên vào lớp để bắt đầu quản lý đề tài</p>
                             <Button
-                                leftIcon={<UserPlus size={16} />}
+                                leftIcon={<UserPlus size={16} aria-hidden="true" />}
                                 onClick={() => setIsAddStudentOpen(true)}
                             >
                                 Thêm sinh viên đầu tiên
@@ -376,21 +378,29 @@ export function ClassDetailPage() {
             </section>
 
             {/* Add Student Modal */}
-            <AddStudentModal
-                isOpen={isAddStudentOpen}
-                onClose={() => setIsAddStudentOpen(false)}
-                classId={id}
-                sessionId={cls?.session_id}
-                existingStudentIds={cls?.students?.map(s => s.id) || []}
-            />
+            <Suspense fallback={null}>
+                {isAddStudentOpen && (
+                    <AddStudentModal
+                        isOpen={isAddStudentOpen}
+                        onClose={() => setIsAddStudentOpen(false)}
+                        classId={id}
+                        sessionId={cls?.session_id}
+                        existingStudentIds={cls?.students?.map(s => s.id) || []}
+                    />
+                )}
+            </Suspense>
 
             {/* Import Students Excel Modal */}
-            <ImportStudentsModal
-                isOpen={isImportOpen}
-                onClose={() => { setIsImportOpen(false); refetch(); }}
-                classId={id}
-                existingStudentIds={cls?.students?.map(s => s.id) || []}
-            />
+            <Suspense fallback={null}>
+                {isImportOpen && (
+                    <ImportStudentsModal
+                        isOpen={isImportOpen}
+                        onClose={() => { setIsImportOpen(false); refetch(); }}
+                        classId={id}
+                        existingStudentIds={cls?.students?.map(s => s.id) || []}
+                    />
+                )}
+            </Suspense>
 
             {/* Remove Student Confirmation */}
             <ConfirmModal
@@ -405,16 +415,20 @@ export function ClassDetailPage() {
             />
 
             {/* Edit Class Modal */}
-            <ClassFormModal
-                isOpen={isEditModalOpen}
-                onClose={() => setIsEditModalOpen(false)}
-                cls={cls}
-                sessions={sessions}
-                onSuccess={() => {
-                    setIsEditModalOpen(false);
-                    refetch();
-                }}
-            />
+            <Suspense fallback={null}>
+                {isEditModalOpen && (
+                    <ClassFormModal
+                        isOpen={isEditModalOpen}
+                        onClose={() => setIsEditModalOpen(false)}
+                        cls={cls}
+                        sessions={sessions}
+                        onSuccess={() => {
+                            setIsEditModalOpen(false);
+                            refetch();
+                        }}
+                    />
+                )}
+            </Suspense>
         </div>
     );
 }
@@ -429,8 +443,8 @@ function TeacherCard({ role, roleLabel, teacher, variant }) {
             </div>
             {teacher ? (
                 <div className="teacher-profile">
-                    <div className="teacher-avatar">
-                        <User size={20} />
+<div className="teacher-avatar">
+                        <User size={20} aria-hidden="true" />
                     </div>
                     <div className="teacher-info">
                         <span className="teacher-name">{teacher.full_name}</span>
