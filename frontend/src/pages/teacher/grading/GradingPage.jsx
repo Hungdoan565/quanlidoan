@@ -78,7 +78,7 @@ export function GradingPage() {
                 />
             ) : topics.length === 0 ? (
                 <div className="grading-empty">
-                    <Star size={48} className="grading-empty-icon" />
+                    <Star size={48} className="grading-empty-icon" aria-hidden="true" />
                     <h3>Không có đề tài cần chấm</h3>
                     <p>Bạn chưa được phân công hướng dẫn sinh viên nào</p>
                 </div>
@@ -105,8 +105,23 @@ function TopicGradingCard({ topic, onClick }) {
     const isComplete = gradingStatus?.isComplete;
     const percentage = gradingStatus?.percentage || 0;
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+        }
+    };
+
     return (
-        <Card className="grading-topic-card" hover onClick={onClick}>
+        <Card 
+            className="grading-topic-card" 
+            hover 
+            onClick={onClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
+            aria-label={`Chấm điểm đề tài: ${topic.title}`}
+        >
             <CardBody>
                 {/* Header */}
                 <div className="topic-card-header">

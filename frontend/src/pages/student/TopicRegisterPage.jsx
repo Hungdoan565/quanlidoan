@@ -195,21 +195,21 @@ export function TopicRegisterPage() {
                         <div className="class-info-item">
                             <span className="info-label">Lớp đồ án</span>
                             <div className="info-value-wrapper">
-                                <Users size={18} className="text-primary-600" />
+                                <Users size={18} className="text-primary-600"  aria-hidden="true" />
                                 <span className="info-value">{studentClass.name}</span>
                             </div>
                         </div>
                         <div className="class-info-item center-border">
                             <span className="info-label">Đợt</span>
                             <div className="info-value-wrapper">
-                                <Clock size={18} className="text-primary-600" />
+                                <Clock size={18} className="text-primary-600"  aria-hidden="true" />
                                 <span className="info-value">{studentClass.session?.name}</span>
                             </div>
                         </div>
                         <div className="class-info-item">
                             <span className="info-label">Giảng viên hướng dẫn</span>
                             <div className="info-value-wrapper">
-                                <User size={18} className="text-primary-600" />
+                                <User size={18} className="text-primary-600"  aria-hidden="true" />
                                 <span className="info-value">
                                     {studentClass.advisor?.full_name || studentClass.teacher?.full_name || 'Chưa phân công'}
                                 </span>
@@ -220,34 +220,40 @@ export function TopicRegisterPage() {
             </Card>
 
             {/* Tab Navigation */}
-            <div className="tab-navigation">
-                <div 
+            <div className="tab-navigation" role="tablist">
+                <button 
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === 'sample'}
                     className={`tab-card ${activeTab === 'sample' ? 'active' : ''}`}
                     onClick={() => setActiveTab('sample')}
                 >
                     <div className="tab-icon-wrapper">
-                        <BookOpen size={24} />
+                        <BookOpen size={24}  aria-hidden="true" />
                     </div>
                     <div className="tab-content">
                         <h3>Chọn đề tài mẫu</h3>
                         <p>Đăng ký đề tài do giảng viên cung cấp</p>
                     </div>
                     {activeTab === 'sample' && <div className="active-indicator" />}
-                </div>
+                </button>
                 
-                <div 
+                <button 
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === 'propose'}
                     className={`tab-card ${activeTab === 'propose' ? 'active' : ''}`}
                     onClick={() => setActiveTab('propose')}
                 >
                     <div className="tab-icon-wrapper">
-                        <Sparkles size={24} />
+                        <Sparkles size={24}  aria-hidden="true" />
                     </div>
                     <div className="tab-content">
                         <h3>Tự đề xuất</h3>
                         <p>Trình bày ý tưởng đề tài của riêng bạn</p>
                     </div>
                     {activeTab === 'propose' && <div className="active-indicator" />}
-                </div>
+                </button>
             </div>
 
             {/* Tab Content */}
@@ -277,7 +283,7 @@ export function TopicRegisterPage() {
 
                                         {topic.technologies?.length > 0 && (
                                             <div className="topic-technologies">
-                                                <Code size={14} />
+                                                <Code size={14}  aria-hidden="true" />
                                                 <div className="tech-tags">
                                                     {topic.technologies.map((tech, i) => (
                                                         <span key={i} className="tech-tag">{tech}</span>
@@ -287,7 +293,7 @@ export function TopicRegisterPage() {
                                         )}
 
                                         <div className="topic-teacher">
-                                            <User size={14} />
+                                            <User size={14}  aria-hidden="true" />
                                             <span>{topic.teacher?.full_name}</span>
                                         </div>
 
@@ -298,7 +304,7 @@ export function TopicRegisterPage() {
                                             variant={topic.current_students >= topic.max_students ? "secondary" : "primary"}
                                         >
                                             {topic.current_students >= topic.max_students ? 'Đã đủ số lượng' : 'Chọn đề tài này'}
-                                            {topic.current_students < topic.max_students && <ArrowRight size={16} />}
+                                            {topic.current_students < topic.max_students && <ArrowRight size={16}  aria-hidden="true" />}
                                         </Button>
                                     </CardBody>
                                 </Card>
@@ -311,7 +317,7 @@ export function TopicRegisterPage() {
                             description="Giảng viên chưa đăng đề tài mẫu cho đợt này. Bạn có thể tự đề xuất đề tài."
                             action={
                                 <Button onClick={() => setActiveTab('propose')}>
-                                    <Sparkles size={18} />
+                                    <Sparkles size={18}  aria-hidden="true" />
                                     Tự đề xuất đề tài
                                 </Button>
                             }
@@ -363,7 +369,7 @@ export function TopicRegisterPage() {
                                             {proposeForm.technologies.map(tech => (
                                                 <span key={tech} className="selected-tech-chip" onClick={() => removeTech(tech)}>
                                                     {tech}
-                                                    <X size={12} />
+                                                    <X size={12}  aria-hidden="true" />
                                                 </span>
                                             ))}
                                         </div>
@@ -383,7 +389,7 @@ export function TopicRegisterPage() {
                                                         className={`tech-chip ${proposeForm.technologies.includes(tech) ? 'selected' : ''}`}
                                                         onClick={() => toggleTech(tech)}
                                                     >
-                                                        {proposeForm.technologies.includes(tech) && <Check size={12} />}
+                                                        {proposeForm.technologies.includes(tech) && <Check size={12}  aria-hidden="true" />}
                                                         {tech}
                                                     </button>
                                                 ))}
@@ -408,7 +414,7 @@ export function TopicRegisterPage() {
                                     disabled={!proposeForm.title.trim() || proposeForm.technologies.length === 0}
                                     className="submit-btn"
                                 >
-                                    <FileText size={18} />
+                                    <FileText size={18}  aria-hidden="true" />
                                     Gửi đề xuất
                                 </Button>
                             </div>

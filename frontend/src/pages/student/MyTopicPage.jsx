@@ -148,7 +148,7 @@ export function MyTopicPage() {
                     description="Đăng ký đề tài để bắt đầu thực hiện đồ án của bạn"
                     action={
                         <Button onClick={() => navigate('/student/register')}>
-                            <BookOpen size={18} />
+                            <BookOpen size={18}  aria-hidden="true" />
                             Đăng ký đề tài ngay
                         </Button>
                     }
@@ -170,13 +170,13 @@ export function MyTopicPage() {
                 onClick={() => navigate('/student/dashboard')}
                 className="back-button"
             >
-                <ArrowLeft size={18} />
+                <ArrowLeft size={18}  aria-hidden="true" />
                 Quay lại
             </Button>
 
             <div className={`status-hero ${status.bgClass}`}>
                 <div className="status-hero-icon">
-                    <StatusIcon size={28} />
+                    <StatusIcon size={28}  aria-hidden="true" />
                 </div>
                 <div className="status-hero-content">
                     <h2>{status.label}</h2>
@@ -184,7 +184,7 @@ export function MyTopicPage() {
                 </div>
                 {canEdit && !isEditing && (
                     <Button variant="outline" size="sm" onClick={handleStartEdit} className="status-hero-action">
-                        <Edit size={16} />
+                        <Edit size={16}  aria-hidden="true" />
                         Chỉnh sửa đề tài
                     </Button>
                 )}
@@ -192,7 +192,7 @@ export function MyTopicPage() {
 
             {topic.status === 'revision' && topic.revision_note && (
                 <div className="revision-note">
-                    <AlertCircle size={18} />
+                    <AlertCircle size={18}  aria-hidden="true" />
                     <div>
                         <strong>Ghi chú từ giảng viên:</strong>
                         <p>{topic.revision_note}</p>
@@ -202,7 +202,7 @@ export function MyTopicPage() {
 
             {topic.status === 'rejected' && (
                 <div className="rejected-note">
-                    <XCircle size={18} />
+                    <XCircle size={18}  aria-hidden="true" />
                     <div>
                         <strong>Lý do từ chối:</strong>
                         <p>{topic.rejection_reason || 'Đề tài không phù hợp.'}</p>
@@ -249,7 +249,7 @@ export function MyTopicPage() {
                                                                 className={`tech-chip ${editForm.technologies.includes(tech) ? 'selected' : ''}`}
                                                                 onClick={() => toggleTech(tech)}
                                                             >
-                                                                {editForm.technologies.includes(tech) && <Check size={12} />}
+                                                                {editForm.technologies.includes(tech) && <Check size={12}  aria-hidden="true" />}
                                                                 {tech}
                                                             </button>
                                                         ))}
@@ -282,7 +282,7 @@ export function MyTopicPage() {
                                     {topic.technologies?.length > 0 && (
                                         <div className="topic-technologies">
                                             <div className="tech-label">
-                                                <Code size={16} />
+                                                <Code size={16}  aria-hidden="true" />
                                                 <span>Công nghệ:</span>
                                             </div>
                                             <div className="tech-tags">
@@ -294,12 +294,12 @@ export function MyTopicPage() {
                                     )}
                                     <div className="topic-meta">
                                         <div className="meta-item">
-                                            <Calendar size={14} />
+                                            <Calendar size={14}  aria-hidden="true" />
                                             <span>Đăng ký: {format(new Date(topic.created_at), 'dd/MM/yyyy HH:mm', { locale: vi })}</span>
                                         </div>
                                         {topic.sample_topic && (
                                             <div className="meta-item sample">
-                                                <BookOpen size={14} />
+                                                <BookOpen size={14}  aria-hidden="true" />
                                                 <span>Từ đề tài mẫu</span>
                                             </div>
                                         )}
@@ -314,7 +314,7 @@ export function MyTopicPage() {
                     <Card className="sidebar-card teacher-card">
                         <CardHeader>
                             <h3>
-                                <GraduationCap size={18} />
+                                <GraduationCap size={18}  aria-hidden="true" />
                                 Giảng viên hướng dẫn
                             </h3>
                         </CardHeader>
@@ -322,7 +322,7 @@ export function MyTopicPage() {
                             {teacher ? (
                                 <div className="teacher-info">
                                     <div className="teacher-avatar">
-                                        <User size={28} />
+                                        <User size={28}  aria-hidden="true" />
                                     </div>
                                     <div className="teacher-details">
                                         <h4>{teacher.full_name}</h4>
@@ -330,14 +330,14 @@ export function MyTopicPage() {
                                             <span className="teacher-code">{teacher.teacher_code}</span>
                                         )}
                                         <a href={`mailto:${teacher.email}`} className="teacher-email">
-                                            <Mail size={14} />
+                                            <Mail size={14}  aria-hidden="true" />
                                             {teacher.email}
                                         </a>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="no-teacher">
-                                    <User size={24} />
+                                    <User size={24}  aria-hidden="true" />
                                     <span>Chưa phân công</span>
                                 </div>
                             )}
@@ -348,7 +348,7 @@ export function MyTopicPage() {
                         <Card className="sidebar-card class-card">
                             <CardHeader>
                                 <h3>
-                                    <Users size={18} />
+                                    <Users size={18}  aria-hidden="true" />
                                     Thông tin lớp
                                 </h3>
                             </CardHeader>

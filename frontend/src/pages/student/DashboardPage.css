@@ -6,6 +6,16 @@
     animation: fadeIn 0.2s ease-out;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .student-dashboard {
+        animation: none;
+    }
+    
+    .progress-bar-fill {
+        transition: none;
+    }
+}
+
 /* Student Code Badge */
 .student-code {
     font-weight: var(--font-semibold);
@@ -161,7 +171,7 @@
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease;
 }
 
 .upload-btn:hover {
@@ -303,7 +313,7 @@
     font-size: var(--text-base);
     font-weight: var(--font-semibold);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease;
 }
 
 .register-topic-btn:hover {
@@ -328,11 +338,180 @@
     cursor: pointer;
     padding: var(--space-1) var(--space-2);
     border-radius: var(--radius-md);
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease;
 }
 
 .view-all-btn:hover {
     background: var(--primary-50);
+}
+
+/* Reminders Section */
+.reminders-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.reminder-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+}
+
+.reminder-card.reminder-info {
+    background: var(--info-50, #eff6ff);
+    border: 1px solid var(--info-200, #bfdbfe);
+    color: var(--info-700, #1d4ed8);
+}
+
+.reminder-card.reminder-warning {
+    background: var(--warning-50, #fffbeb);
+    border: 1px solid var(--warning-200, #fde68a);
+    color: var(--warning-700, #b45309);
+}
+
+.reminder-card.reminder-danger {
+    background: var(--danger-50, #fef2f2);
+    border: 1px solid var(--danger-200, #fecaca);
+    color: var(--danger-700, #b91c1c);
+}
+
+.reminder-card.reminder-success {
+    background: var(--success-50, #f0fdf4);
+    border: 1px solid var(--success-200, #bbf7d0);
+    color: var(--success-700, #15803d);
+}
+
+.reminder-icon {
+    flex-shrink: 0;
+}
+
+.reminder-message {
+    flex: 1;
+    font-weight: var(--font-medium);
+}
+
+.reminder-action {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    background: none;
+    border: none;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-md);
+    transition: background-color 0.15s ease;
+    color: inherit;
+}
+
+.reminder-action:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Quick Actions Card */
+.quick-actions-card {
+    height: fit-content;
+}
+
+.quick-actions-title {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin: 0 0 var(--space-3) 0;
+}
+
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+}
+
+.quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    background: var(--neutral-50);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.quick-action-btn:hover {
+    background: var(--primary-50);
+    border-color: var(--primary-200);
+    color: var(--primary-700);
+}
+
+.quick-action-btn svg {
+    color: var(--primary-600);
+}
+
+/* Registration Status in No Topic Card */
+.registration-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.registration-deadline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.deadline-warning {
+    color: var(--warning-600);
+    font-weight: var(--font-semibold);
+}
+
+.registration-closed-info {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin: 0;
+    text-align: center;
+}
+
+.no-class-warning {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--warning-600);
+    margin: 0 0 var(--space-4) 0;
+}
+
+.register-topic-btn:disabled {
+    background: var(--neutral-300);
+    color: var(--neutral-500);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.register-topic-btn:disabled:hover {
+    background: var(--neutral-300);
+    transform: none;
 }
 
 /* Responsive */
@@ -344,10 +523,36 @@
     .deadline-countdown {
         grid-column: 1 / -1;
     }
+    
+    .quick-actions-card {
+        grid-column: 1 / -1;
+    }
 }
 
 @media (max-width: 767px) {
     .student-dashboard-grid {
         grid-template-columns: 1fr;
     }
+    
+    .quick-actions-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.topic-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.topic-card-link:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+    border-radius: var(--radius-lg);
+}
+
+button:focus-visible,
+.btn:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
 }

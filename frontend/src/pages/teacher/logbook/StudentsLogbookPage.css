@@ -125,6 +125,22 @@
     transform: translateY(-2px);
 }
 
+.student-card.clickable:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+}
+
+.student-card.clickable:active {
+    transform: scale(0.99);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
 .student-card-content {
     display: flex;
     align-items: center;

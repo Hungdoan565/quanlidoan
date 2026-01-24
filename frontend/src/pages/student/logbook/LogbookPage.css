@@ -100,7 +100,7 @@
     border-radius: 12px;
     padding: 20px;
     position: relative;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .entry-card:hover {
@@ -239,9 +239,12 @@
 }
 
 .logbook-form .week-select:focus {
-    outline: none;
     border-color: var(--primary-500);
-    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.logbook-form .week-select:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
 }
 
 .logbook-form .form-hint {
@@ -291,4 +294,10 @@
     .entry-card::before {
         display: none;
     }
+}
+
+button:focus-visible,
+.btn:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
 }

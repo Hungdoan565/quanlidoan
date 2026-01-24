@@ -214,7 +214,11 @@ export function GradingDetailPage() {
             {/* Header */}
             <div className="page-header">
                 <div className="page-header-content">
-                    <button className="back-button" onClick={() => navigate('/teacher/grading')}>
+                    <button 
+                        className="back-button" 
+                        onClick={() => navigate('/teacher/grading')}
+                        aria-label="Quay lại danh sách chấm điểm"
+                    >
                         <ArrowLeft size={20} />
                     </button>
                     <div>

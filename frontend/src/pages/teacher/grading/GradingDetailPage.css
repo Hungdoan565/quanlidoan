@@ -31,6 +31,11 @@
     color: var(--text-primary);
 }
 
+.back-button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
 /* Content Layout */
 .grading-detail-content {
     display: flex;

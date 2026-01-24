@@ -80,7 +80,7 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                 {/* Header */}
                 <div className="modal-header">
                     <h2>Chi tiết đề tài</h2>
-                    <button className="close-btn" onClick={onClose}>
+                    <button className="close-btn" onClick={onClose} aria-label="Đóng">
                         <X size={20} />
                     </button>
                 </div>
@@ -248,11 +248,12 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                             {/* Revision Form */}
                             {actionType === 'revision' && (
                                 <div className="action-form">
-                                    <label>Nội dung yêu cầu chỉnh sửa:</label>
+                                    <label htmlFor="revision-note">Nội dung yêu cầu chỉnh sửa:</label>
                                     <textarea
+                                        id="revision-note"
                                         value={revisionNote}
                                         onChange={(e) => setRevisionNote(e.target.value)}
-                                        placeholder="Nhập nội dung yêu cầu sinh viên chỉnh sửa..."
+                                        placeholder="Nhập nội dung yêu cầu sinh viên chỉnh sửa…"
                                         rows={4}
                                     />
                                     <div className="form-actions">
@@ -282,11 +283,12 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                             {/* Reject Form */}
                             {actionType === 'reject' && (
                                 <div className="action-form">
-                                    <label>Lý do từ chối:</label>
+                                    <label htmlFor="reject-reason">Lý do từ chối:</label>
                                     <textarea
+                                        id="reject-reason"
                                         value={rejectReason}
                                         onChange={(e) => setRejectReason(e.target.value)}
-                                        placeholder="Nhập lý do từ chối đề tài..."
+                                        placeholder="Nhập lý do từ chối đề tài…"
                                         rows={4}
                                     />
                                     <div className="form-actions">

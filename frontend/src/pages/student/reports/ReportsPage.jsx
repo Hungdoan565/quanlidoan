@@ -191,7 +191,7 @@ export function ReportsPage() {
             <div className="reports-page">
                 <div className="page-header">
                     <div className="page-header-content">
-                        <h1 className="page-title"><FileText size={28} /> Nộp Báo cáo</h1>
+                        <h1 className="page-title"><FileText size={28}  aria-hidden="true" /> Nộp Báo cáo</h1>
                     </div>
                 </div>
                 <NoDataState
@@ -210,7 +210,7 @@ export function ReportsPage() {
         <div className="reports-page">
             <div className="page-header">
                 <div className="page-header-content">
-                    <h1 className="page-title"><FileText size={28} /> Nộp Báo cáo</h1>
+                    <h1 className="page-title"><FileText size={28}  aria-hidden="true" /> Nộp Báo cáo</h1>
                     <p className="page-subtitle">{topic.title}</p>
                 </div>
             </div>
@@ -233,7 +233,7 @@ export function ReportsPage() {
                 <CardBody>
                     <div className="repo-header">
                         <div className="repo-info">
-                            <Github size={20} />
+                            <Github size={20}  aria-hidden="true" />
                             <span className="repo-label">Repository mã nguồn</span>
                         </div>
                         <Button 
@@ -250,7 +250,7 @@ export function ReportsPage() {
                     {topic.repo_url ? (
                         <a href={topic.repo_url} target="_blank" rel="noopener noreferrer" className="repo-link">
                             {topic.repo_url}
-                            <ExternalLink size={14} />
+                            <ExternalLink size={14}  aria-hidden="true" />
                         </a>
                     ) : (
                         <p className="repo-empty">Chưa có link repository. Vui lòng thêm link GitHub/GitLab.</p>
@@ -273,14 +273,14 @@ export function ReportsPage() {
                             <CardBody>
                                 <div className="phase-top">
                                     <div className="phase-icon-wrap">
-                                        <PhaseIcon size={22} />
+                                        <PhaseIcon size={22}  aria-hidden="true" />
                                     </div>
                                     {status === 'submitted' ? (
-                                        <Badge variant="success"><CheckCircle size={12} /> Đã nộp</Badge>
+                                        <Badge variant="success"><CheckCircle size={12}  aria-hidden="true" /> Đã nộp</Badge>
                                     ) : overdue ? (
-                                        <Badge variant="danger"><AlertCircle size={12} /> Quá hạn</Badge>
+                                        <Badge variant="danger"><AlertCircle size={12}  aria-hidden="true" /> Quá hạn</Badge>
                                     ) : (
-                                        <Badge variant="warning"><Clock size={12} /> Chờ nộp</Badge>
+                                        <Badge variant="warning"><Clock size={12}  aria-hidden="true" /> Chờ nộp</Badge>
                                     )}
                                 </div>
 
@@ -289,7 +289,7 @@ export function ReportsPage() {
 
                                 {deadline && (
                                     <div className={`phase-deadline ${overdue ? 'text-danger' : ''}`}>
-                                        <Calendar size={14} />
+                                        <Calendar size={14}  aria-hidden="true" />
                                         <span>Hạn: {formatDateShort(deadline)}</span>
                                     </div>
                                 )}
@@ -350,7 +350,7 @@ export function ReportsPage() {
                                                         size="sm" 
                                                         onClick={() => handleDownload(report)}
                                                     >
-                                                        <Download size={12} />
+                                                        <Download size={12}  aria-hidden="true" />
                                                     </Button>
                                                 </li>
                                             ))}
@@ -378,7 +378,7 @@ export function ReportsPage() {
                 <div className="upload-form">
                     {uploadError && (
                         <div className="upload-error">
-                            <AlertCircle size={16} />
+                            <AlertCircle size={16}  aria-hidden="true" />
                             <span>{uploadError}</span>
                         </div>
                     )}
@@ -394,13 +394,13 @@ export function ReportsPage() {
                         <label htmlFor="file-input" className="upload-label">
                             {selectedFile ? (
                                 <div className="selected-file">
-                                    <FileText size={40} />
+                                    <FileText size={40}  aria-hidden="true" />
                                     <span className="file-name">{selectedFile.name}</span>
                                     <span className="file-size">{formatFileSize(selectedFile.size)}</span>
                                 </div>
                             ) : (
                                 <div className="upload-placeholder">
-                                    <Upload size={40} />
+                                    <Upload size={40}  aria-hidden="true" />
                                     <span>Kéo thả hoặc click để chọn file</span>
                                     <span className="file-types">
                                         {reportPhases.find(p => p.id === uploadModal.phase)?.accept?.toUpperCase().replace(/\./g, '') || 'PDF, DOC, DOCX'}
@@ -436,7 +436,7 @@ export function ReportsPage() {
                         <Button 
                             onClick={handleUpload} 
                             disabled={!selectedFile || uploadMutation.isPending} 
-                            leftIcon={uploadMutation.isPending ? <Loader2 className="spin" size={16} /> : <Upload size={16} />}
+                            leftIcon={uploadMutation.isPending ? <Loader2 className="spin" size={16} /> : <Upload size={16}  aria-hidden="true" />}
                         >
                             {uploadMutation.isPending ? 'Đang tải...' : 'Nộp file'}
                         </Button>
@@ -461,7 +461,7 @@ export function ReportsPage() {
                         placeholder="https://github.com/username/project"
                         value={repoUrl}
                         onChange={(e) => setRepoUrl(e.target.value)}
-                        leftIcon={<Github size={16} />}
+                        leftIcon={<Github size={16}  aria-hidden="true" />}
                     />
                     <div className="repo-actions">
                         <Button variant="ghost" onClick={() => setRepoModal(false)}>

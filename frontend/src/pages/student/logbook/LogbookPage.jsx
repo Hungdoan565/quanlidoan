@@ -161,7 +161,7 @@ export function LogbookPage() {
             <div className="page-header">
                 <div className="page-header-content">
                     <h1 className="page-title">
-                        <BookOpen size={28} />
+                        <BookOpen size={28}  aria-hidden="true" />
                         Nhật ký Đồ án
                     </h1>
                     <p className="page-subtitle">{topic.title}</p>
@@ -232,33 +232,37 @@ export function LogbookPage() {
                                     <div className="entry-status">
                                         {entry.teacher_confirmed ? (
                                             <Badge variant="success">
-                                                <CheckCircle size={12} />
+                                                <CheckCircle size={12}  aria-hidden="true" />
                                                 Đã xác nhận
                                             </Badge>
                                         ) : (
                                             <Badge variant="warning">
-                                                <Clock size={12} />
+                                                <Clock size={12}  aria-hidden="true" />
                                                 Chờ xác nhận
                                             </Badge>
                                         )}
                                     </div>
                                 </div>
 
-                                <div className="entry-content">
-                                    <div
-                                        className="content-text"
-                                        dangerouslySetInnerHTML={{ __html: entry.content.replace(/\n/g, '<br/>') }}
-                                    />
+<div className="entry-content">
+                                    <div className="content-text">
+                                        {entry.content.split('\n').map((line, i) => (
+                                            <span key={i}>
+                                                {line}
+                                                {i < entry.content.split('\n').length - 1 && <br />}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 <div className="entry-meta">
                                     <div className="meta-item">
-                                        <Calendar size={14} />
+                                        <Calendar size={14}  aria-hidden="true" />
                                         <span>Ngày gặp: {formatDate(entry.meeting_date)}</span>
                                     </div>
                                     {entry.teacher_note && (
                                         <div className="teacher-note">
-                                            <MessageSquare size={14} />
+                                            <MessageSquare size={14}  aria-hidden="true" />
                                             <span><strong>GV:</strong> {entry.teacher_note}</span>
                                         </div>
                                     )}
@@ -312,7 +316,7 @@ export function LogbookPage() {
                             </select>
                             {existingWeeks.length === currentWeek && (
                                 <p className="form-hint warning">
-                                    <AlertCircle size={14} />
+                                    <AlertCircle size={14}  aria-hidden="true" />
                                     Đã có đủ nhật ký cho các tuần. Hãy chỉnh sửa entry cũ.
                                 </p>
                             )}

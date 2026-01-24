@@ -154,7 +154,7 @@ export function TopicReviewsPage() {
             <div className="page-header">
                 <div className="header-content">
                     <h1>
-                        <FileText size={28} />
+                        <FileText size={28} aria-hidden="true" />
                         Duyệt đề tài
                     </h1>
                     <p>Xem xét và phê duyệt đề tài của sinh viên</p>
@@ -163,14 +163,17 @@ export function TopicReviewsPage() {
 
             {/* Tabs */}
             <div className="tabs-container">
-                <div className="tabs">
+                <div className="tabs" role="tablist">
                     {TABS.map(tab => (
                         <button
                             key={tab.key}
                             className={`tab ${activeTab === tab.key ? 'active' : ''}`}
                             onClick={() => setActiveTab(tab.key)}
+                            role="tab"
+                            aria-selected={activeTab === tab.key}
+                            aria-controls={`panel-${tab.key}`}
                         >
-                            <tab.icon size={18} />
+                            <tab.icon size={18} aria-hidden="true" />
                             <span>{tab.label}</span>
                             {tab.key === 'pending' && pendingTopics?.length > 0 && (
                                 <span className="tab-badge">{pendingTopics.length}</span>
@@ -181,13 +184,15 @@ export function TopicReviewsPage() {
 
                 {/* Search */}
                 <div className="search-container">
-                    <Search size={18} className="search-icon" />
+                    <Search size={18} className="search-icon" aria-hidden="true" />
                     <input
                         type="text"
-                        placeholder="Tìm kiếm đề tài, sinh viên..."
+                        placeholder="Tìm kiếm đề tài, sinh viên…"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="search-input"
+                        aria-label="Tìm kiếm đề tài hoặc sinh viên"
+                        autoComplete="off"
                     />
                 </div>
             </div>
@@ -249,11 +254,12 @@ export function TopicReviewsPage() {
                                             <button 
                                                 className="checkbox-btn"
                                                 onClick={handleSelectAll}
+                                                aria-label={selectedIds.size === selectableTopics.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
                                             >
                                                 {selectedIds.size === selectableTopics.length ? (
-                                                    <CheckSquare size={18} />
+                                                    <CheckSquare size={18} aria-hidden="true" />
                                                 ) : (
-                                                    <Square size={18} />
+                                                    <Square size={18} aria-hidden="true" />
                                                 )}
                                             </button>
                                         </th>
@@ -281,11 +287,12 @@ export function TopicReviewsPage() {
                                                         <button 
                                                             className="checkbox-btn"
                                                             onClick={() => handleToggleSelect(topic.id)}
+                                                            aria-label={isSelected ? `Bỏ chọn ${topic.title}` : `Chọn ${topic.title}`}
                                                         >
                                                             {isSelected ? (
-                                                                <CheckSquare size={18} className="checked" />
+                                                                <CheckSquare size={18} className="checked" aria-hidden="true" />
                                                             ) : (
-                                                                <Square size={18} />
+                                                                <Square size={18} aria-hidden="true" />
                                                             )}
                                                         </button>
                                                     )}

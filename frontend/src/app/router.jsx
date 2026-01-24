@@ -35,6 +35,7 @@ import { TopicRegisterPage } from '../pages/student/TopicRegisterPage';
 import { MyTopicPage } from '../pages/student/MyTopicPage';
 import { LogbookPage } from '../pages/student/logbook/LogbookPage';
 import { ReportsPage } from '../pages/student/reports/ReportsPage';
+import { GradesPage } from '../pages/student/grades/GradesPage';
 
 // Common Pages
 import { NotificationsPage } from '../pages/common/NotificationsPage';
@@ -140,12 +141,13 @@ export const router = createBrowserRouter([
             </ProtectedRoute>
         ),
         children: [
-            { index: true, element: <Navigate to="dashboard" replace /> },
+{ index: true, element: <Navigate to="dashboard" replace /> },
             { path: 'dashboard', element: <StudentDashboard /> },
             { path: 'register', element: <TopicRegisterPage /> },
             { path: 'topic', element: <MyTopicPage /> },
             { path: 'logbook', element: <LogbookPage /> },
             { path: 'reports', element: <ReportsPage /> },
+            { path: 'grades', element: <GradesPage /> },
         ],
     },
 

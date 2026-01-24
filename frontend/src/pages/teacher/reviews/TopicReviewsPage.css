@@ -230,6 +230,16 @@
   color: var(--primary-600);
 }
 
+.topic-reviews-page .checkbox-btn:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+.topic-reviews-page .tab:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
 .topic-reviews-page .topics-table tbody tr.selected {
   background: var(--primary-50);
 }

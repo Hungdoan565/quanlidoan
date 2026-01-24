@@ -56,6 +56,14 @@ export function StudentsLogbookPage() {
         navigate(`/teacher/logbook/${topicId}`);
     };
 
+    // Handle keyboard navigation
+    const handleCardKeyDown = (e, topicId) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleViewDetail(topicId);
+        }
+    };
+
     // Format relative time
     const formatRelativeTime = (date) => {
         if (!date) return 'Chưa có';
@@ -208,6 +216,10 @@ export function StudentsLogbookPage() {
                                 key={topic.id}
                                 className="student-card clickable"
                                 onClick={() => handleViewDetail(topic.id)}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => handleCardKeyDown(e, topic.id)}
+                                aria-label={`Xem nhật ký: ${topic.student?.full_name} - ${topic.title}`}
                             >
                                 <CardBody>
                                     <div className="student-card-content">

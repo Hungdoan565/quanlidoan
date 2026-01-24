@@ -1,74 +1,17 @@
 import { supabase } from '../lib/supabase';
+import { topicsService } from './topics.service';
 
 /**
  * Student Service - Student-specific operations
+ * Uses topicsService.getActiveTopic for topic data (unified source)
  */
 export const studentService = {
     /**
      * Lấy thông tin đề tài của sinh viên
-     * Advisor/Reviewer được lấy từ class teacher_pairs (separate query)
+     * Delegates to topicsService.getActiveTopic (single source of truth)
      */
     getMyTopic: async (studentId) => {
-        try {
-            // 1. Get topic with class info
-            const { data, error } = await supabase
-                .from('topics')
-                .select(`
-                    *,
-                    class:classes(
-                        id, name, code,
-                        session:sessions(*)
-                    ),
-                    sample_topic:sample_topics(id, title)
-                `)
-                .eq('student_id', studentId)
-                .single();
-
-            if (error && error.code !== 'PGRST116') throw error;
-            if (!data) return null;
-
-            // 2. Fetch teacher_pairs separately (to avoid FK naming issues)  
-            let advisor = null;
-            let reviewer = null;
-
-            if (data.class_id) {
-                const { data: teacherPair } = await supabase
-                    .from('teacher_pairs')
-                    .select('id, advisor_id, reviewer_id')
-                    .eq('class_id', data.class_id)
-                    .maybeSingle();
-
-                if (teacherPair) {
-                    // Fetch advisor profile
-                    if (teacherPair.advisor_id) {
-                        const { data: advisorData } = await supabase
-                            .from('profiles')
-                            .select('id, full_name, teacher_code, email, phone')
-                            .eq('id', teacherPair.advisor_id)
-                            .single();
-                        advisor = advisorData;
-                    }
-                    // Fetch reviewer profile
-                    if (teacherPair.reviewer_id) {
-                        const { data: reviewerData } = await supabase
-                            .from('profiles')
-                            .select('id, full_name, teacher_code, email, phone')
-                            .eq('id', teacherPair.reviewer_id)
-                            .single();
-                        reviewer = reviewerData;
-                    }
-                }
-            }
-
-            return {
-                ...data,
-                advisor,
-                reviewer,
-            };
-        } catch (error) {
-            console.error('Error fetching student topic:', error);
-            return null;
-        }
+        return topicsService.getActiveTopic(studentId);
     },
 
     /**

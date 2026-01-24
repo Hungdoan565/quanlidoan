@@ -231,15 +231,44 @@ export const topicsService = {
 
     /**
      * Kiểm tra sinh viên đã đăng ký đề tài chưa
+     * Chỉ tính các topic có status không phải 'rejected'
+     * Cho phép SV đăng ký lại sau khi bị reject
      */
     hasRegisteredTopic: async (studentId) => {
         const { count, error } = await supabase
             .from('topics')
             .select('*', { count: 'exact', head: true })
-            .eq('student_id', studentId);
+            .eq('student_id', studentId)
+            .not('status', 'eq', 'rejected'); // Exclude rejected topics
 
         if (error) throw error;
         return count > 0;
+    },
+
+    /**
+     * Lấy topic hiện tại (active) của sinh viên - không phải rejected
+     */
+    getActiveTopic: async (studentId) => {
+        const { data, error } = await supabase
+            .from('topics')
+            .select(`
+                *,
+                class:classes(
+                    id, name, code,
+                    advisor_id,
+                    session:sessions(*)
+                ),
+                advisor:profiles!topics_advisor_id_fkey(id, full_name, teacher_code, email, phone),
+                sample_topic:sample_topics(id, title)
+            `)
+            .eq('student_id', studentId)
+            .not('status', 'eq', 'rejected')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+        if (error && error.code !== 'PGRST116') throw error;
+        return data;
     },
 
     /**

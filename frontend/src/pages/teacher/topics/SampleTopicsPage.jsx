@@ -151,11 +151,11 @@ export function SampleTopicsPage() {
                                                 <BookOpen size={16} />
                                                 <div>
                                                     <span className="topic-title">{topic.title}</span>
-                                                    {topic.description && (
-                                                        <span className="topic-desc">
-                                                            {topic.description.slice(0, 80)}...
-                                                        </span>
-                                                    )}
+                                                        {topic.description && (
+                                                            <span className="topic-desc">
+                                                                {topic.description.slice(0, 80)}…
+                                                            </span>
+                                                        )}
                                                 </div>
                                             </div>
                                         </TableCell>
@@ -204,7 +204,7 @@ export function SampleTopicsPage() {
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => handleEdit(topic)}
-                                                    title="Chỉnh sửa"
+                                                    aria-label={`Chỉnh sửa đề tài ${topic.title}`}
                                                 >
                                                     <Edit size={16} />
                                                 </Button>
@@ -212,7 +212,7 @@ export function SampleTopicsPage() {
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => setDeleteConfirm({ open: true, topic })}
-                                                    title="Xóa"
+                                                    aria-label={`Xóa đề tài ${topic.title}`}
                                                 >
                                                     <Trash2 size={16} />
                                                 </Button>

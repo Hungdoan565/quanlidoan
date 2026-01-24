@@ -67,9 +67,14 @@ export const logbookService = {
 
     /**
      * Create new logbook entry
+     * RLS requires student_id = auth.uid() for INSERT
      */
     createEntry: async (topicId, data) => {
         const { weekNumber, content, meetingDate } = data;
+
+        // Get current user for RLS compliance
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
 
         // Check if entry for this week already exists
         const { data: existing } = await supabase
@@ -87,6 +92,7 @@ export const logbookService = {
             .from('logbook_entries')
             .insert({
                 topic_id: topicId,
+                student_id: user.id, // Required by RLS policy
                 week_number: weekNumber,
                 content: content,
                 meeting_date: meetingDate || null,

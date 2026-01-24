@@ -214,10 +214,9 @@ export function StudentLogbookDetailPage() {
                                     </div>
 
                                     <div className="entry-content">
-                                        <div
-                                            className="content-text"
-                                            dangerouslySetInnerHTML={{ __html: entry.content.replace(/\n/g, '<br/>') }}
-                                        />
+                                        <p className="content-text">
+                                            {entry.content}
+                                        </p>
                                     </div>
 
                                     <div className="entry-meta">
@@ -293,7 +292,7 @@ export function StudentLogbookDetailPage() {
                     <Textarea
                         value={noteText}
                         onChange={(e) => setNoteText(e.target.value)}
-                        placeholder="Nhập ghi chú, phản hồi cho sinh viên về tiến độ tuần này..."
+                        placeholder="Nhập ghi chú, phản hồi cho sinh viên về tiến độ tuần này…"
                         rows={5}
                     />
                     <p className="form-hint">

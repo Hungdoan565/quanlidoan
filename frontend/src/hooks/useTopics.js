@@ -116,7 +116,8 @@ export function useUpdateTopic() {
 }
 
 /**
- * Hook để lấy đề tài của sinh viên  
+ * Hook để lấy đề tài hiện tại (active) của sinh viên
+ * Sử dụng getActiveTopic để exclude rejected topics
  */
 export function useMyTopic() {
     const { profile } = useAuthStore();
@@ -124,7 +125,7 @@ export function useMyTopic() {
 
     return useQuery({
         queryKey: ['my-topic', studentId],
-        queryFn: () => topicsService.getMyTopic(studentId),
+        queryFn: () => topicsService.getActiveTopic(studentId),
         enabled: !!studentId,
         staleTime: 5 * 60 * 1000,
     });

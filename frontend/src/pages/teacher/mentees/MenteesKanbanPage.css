@@ -167,6 +167,21 @@
   border-color: var(--primary-400);
 }
 
+.mentee-card:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+.mentee-card:active {
+  transform: scale(0.99);
+}
+
+.summary-count {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 .mentee-header {
   display: flex;
   align-items: center;

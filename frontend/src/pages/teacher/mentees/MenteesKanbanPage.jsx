@@ -166,6 +166,14 @@ export function MenteesKanbanPage() {
         navigate(`/teacher/topics/${topicId}`);
     };
 
+    // Handle keyboard navigation for cards
+    const handleCardKeyDown = (e, topicId) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleCardClick(topicId);
+        }
+    };
+
     // Handle view logbook
     const handleViewLogbook = (e, topicId) => {
         e.stopPropagation();
@@ -215,7 +223,7 @@ export function MenteesKanbanPage() {
             <div className="page-header">
                 <div className="page-header-content">
                     <h1 className="page-title">
-                        <Users size={28} />
+                        <Users size={28} aria-hidden="true" />
                         Theo dõi Sinh viên
                     </h1>
                     <p className="page-subtitle">
@@ -240,7 +248,7 @@ export function MenteesKanbanPage() {
                     const Icon = col.icon;
                     return (
                         <div key={col.id} className={`summary-item ${col.color}`}>
-                            <Icon size={20} />
+                            <Icon size={20} aria-hidden="true" />
                             <span className="summary-count">{count}</span>
                             <span className="summary-label">{col.label}</span>
                         </div>
@@ -277,6 +285,10 @@ export function MenteesKanbanPage() {
                                             key={mentee.id} 
                                             className="mentee-card"
                                             onClick={() => handleCardClick(mentee.id)}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyDown={(e) => handleCardKeyDown(e, mentee.id)}
+                                            aria-label={`Xem chi tiết: ${mentee.student?.full_name} - ${mentee.title}`}
                                         >
                                             <CardBody>
                                                 {/* Student Info */}

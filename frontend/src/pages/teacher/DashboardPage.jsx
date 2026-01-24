@@ -6,29 +6,53 @@ import {
     CheckCircle,
     AlertCircle,
     ChevronRight,
-    Star
+    Star,
+    RefreshCw
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useTeacherDashboardStats, useTeacherTodoList, useGuidingStudents } from '../../hooks/useTeacher';
-import { StatCard, SkeletonStatCard, Card, CardHeader, CardBody, Badge, StatusBadge } from '../../components/ui';
+import { StatCard, SkeletonStatCard, Card, CardHeader, CardBody, Badge, StatusBadge, Button } from '../../components/ui';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import './DashboardPage.css';
+
+// Icon mapping - moved outside component to prevent recreation on each render
+const ICONS = { AlertCircle, FileText, Clock, CheckCircle };
+const getIcon = (iconName) => ICONS[iconName] || AlertCircle;
 
 export function TeacherDashboard() {
     const navigate = useNavigate();
     const { profile } = useAuthStore();
     
-    const { data: stats, isLoading: statsLoading } = useTeacherDashboardStats();
-    const { data: todos = [], isLoading: todosLoading } = useTeacherTodoList();
-    const { data: students = [], isLoading: studentsLoading } = useGuidingStudents();
+    const { 
+        data: stats, 
+        isLoading: statsLoading, 
+        isError: statsError,
+        refetch: refetchStats 
+    } = useTeacherDashboardStats();
+    
+    const { 
+        data: todos = [], 
+        isLoading: todosLoading,
+        isError: todosError,
+        refetch: refetchTodos
+    } = useTeacherTodoList();
+    
+    const { 
+        data: students = [], 
+        isLoading: studentsLoading,
+        isError: studentsError,
+        refetch: refetchStudents
+    } = useGuidingStudents();
 
     const isLoading = statsLoading;
 
-    // Get icon component
-    const getIcon = (iconName) => {
-        const icons = { AlertCircle, FileText, Clock, CheckCircle };
-        return icons[iconName] || AlertCircle;
+    // Keyboard navigation handler for list items
+    const handleKeyDown = (e, action) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            action();
+        }
     };
 
     return (
@@ -43,7 +67,20 @@ export function TeacherDashboard() {
 
             {/* Stats Grid */}
             <div className="stats-grid stats-grid-4">
-                {isLoading ? (
+                {statsError ? (
+                    <div className="stats-error-state">
+                        <AlertCircle size={24} />
+                        <p>Không thể tải thống kê</p>
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => refetchStats()}
+                            leftIcon={<RefreshCw size={14} />}
+                        >
+                            Thử lại
+                        </Button>
+                    </div>
+                ) : isLoading ? (
                     <>
                         <SkeletonStatCard />
                         <SkeletonStatCard />
@@ -99,7 +136,20 @@ export function TeacherDashboard() {
                         </div>
                     </CardHeader>
                     <CardBody className="todo-body">
-                        {todosLoading ? (
+                        {todosError ? (
+                            <div className="error-state">
+                                <AlertCircle size={32} />
+                                <p>Không thể tải danh sách</p>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={() => refetchTodos()}
+                                    leftIcon={<RefreshCw size={14} />}
+                                >
+                                    Thử lại
+                                </Button>
+                            </div>
+                        ) : todosLoading ? (
                             <div className="loading-placeholder">Đang tải...</div>
                         ) : todos.length > 0 ? (
                             <ul className="todo-list">
@@ -109,16 +159,22 @@ export function TeacherDashboard() {
                                         <li 
                                             key={todo.id} 
                                             className={`todo-item todo-priority-${todo.priority}`}
+                                            role="button"
+                                            tabIndex={0}
                                             onClick={() => navigate(todo.link)}
+                                            onKeyDown={(e) => handleKeyDown(e, () => navigate(todo.link))}
+                                            aria-label={`${todo.title}: ${todo.description}`}
                                         >
                                             <div className={`todo-icon todo-icon-${todo.type}`}>
                                                 <Icon size={18} />
                                             </div>
                                             <div className="todo-content">
                                                 <span className="todo-title">{todo.title}</span>
-                                                <span className="todo-description">{todo.description}</span>
+                                                <span className="todo-description" title={todo.description}>
+                                                    {todo.description}
+                                                </span>
                                             </div>
-                                            <ChevronRight size={16} className="todo-arrow" />
+                                            <ChevronRight size={16} className="todo-arrow" aria-hidden="true" />
                                         </li>
                                     );
                                 })}
@@ -147,7 +203,20 @@ export function TeacherDashboard() {
                         </div>
                     </CardHeader>
                     <CardBody className="students-body">
-                        {studentsLoading ? (
+                        {studentsError ? (
+                            <div className="error-state">
+                                <AlertCircle size={32} />
+                                <p>Không thể tải danh sách</p>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={() => refetchStudents()}
+                                    leftIcon={<RefreshCw size={14} />}
+                                >
+                                    Thử lại
+                                </Button>
+                            </div>
+                        ) : studentsLoading ? (
                             <div className="loading-placeholder">Đang tải...</div>
                         ) : students.length > 0 ? (
                             <ul className="students-list">
@@ -155,14 +224,20 @@ export function TeacherDashboard() {
                                     <li 
                                         key={item.id} 
                                         className="student-item"
+                                        role="button"
+                                        tabIndex={0}
                                         onClick={() => navigate(`/teacher/topics/${item.id}`)}
+                                        onKeyDown={(e) => handleKeyDown(e, () => navigate(`/teacher/topics/${item.id}`))}
+                                        aria-label={`${item.student?.full_name}: ${item.title}`}
                                     >
-                                        <div className="student-avatar">
+                                        <div className="student-avatar" aria-hidden="true">
                                             {item.student?.full_name?.[0] || 'S'}
                                         </div>
                                         <div className="student-info">
                                             <span className="student-name">{item.student?.full_name}</span>
-                                            <span className="student-topic">{item.title}</span>
+                                            <span className="student-topic" title={item.title}>
+                                                {item.title}
+                                            </span>
                                         </div>
                                         <StatusBadge status={item.status} />
                                     </li>

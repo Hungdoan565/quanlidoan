@@ -150,7 +150,7 @@ export function SampleTopicFormModal({ isOpen, onClose, onSuccess, topic = null 
                     <Textarea
                         value={formData.description}
                         onChange={(e) => handleChange('description', e.target.value)}
-                        placeholder="Mô tả chi tiết về đề tài, yêu cầu, mục tiêu..."
+                        placeholder="Mô tả chi tiết về đề tài, yêu cầu, mục tiêu…"
                         rows={4}
                         error={errors.description}
                     />
@@ -163,7 +163,7 @@ export function SampleTopicFormModal({ isOpen, onClose, onSuccess, topic = null 
                         value={techInput}
                         onChange={(e) => setTechInput(e.target.value)}
                         onKeyDown={addTechnology}
-                        placeholder="Nhập và nhấn Enter để thêm (VD: React, Node.js)"
+                        placeholder="Nhập và nhấn Enter để thêm (VD: React, Node.js)…"
                         leftIcon={<Code size={18} />}
                     />
                     {formData.technologies.length > 0 && (
