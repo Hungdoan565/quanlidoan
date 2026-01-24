@@ -63,3 +63,33 @@ export function useTemplateTopics() {
         staleTime: 5 * 60 * 1000,
     });
 }
+
+/**
+ * Hook để lấy danh sách lớp của teacher (là advisor)
+ */
+export function useMyClasses() {
+    const { profile } = useAuthStore();
+    const teacherId = profile?.id;
+
+    return useQuery({
+        queryKey: ['my-classes', teacherId],
+        queryFn: () => teacherService.getMyClasses(teacherId),
+        enabled: !!teacherId,
+        staleTime: 5 * 60 * 1000,
+    });
+}
+
+/**
+ * Hook để lấy chi tiết sinh viên trong lớp
+ */
+export function useMyClassStudents(classId) {
+    const { profile } = useAuthStore();
+    const teacherId = profile?.id;
+
+    return useQuery({
+        queryKey: ['my-class-students', classId, teacherId],
+        queryFn: () => teacherService.getClassStudents(classId, teacherId),
+        enabled: !!classId && !!teacherId,
+        staleTime: 2 * 60 * 1000,
+    });
+}

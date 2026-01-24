@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     BookOpen, ArrowLeft, Calendar, CheckCircle, Clock,
-    MessageSquare, Send, User, AlertCircle, XCircle
+    MessageSquare, Send, User, AlertCircle, XCircle,
+    FileText, FileCheck, Presentation, Code, Download
 } from 'lucide-react';
 import {
     Button,
@@ -15,6 +16,7 @@ import {
     SkeletonText,
     NoDataState,
     ErrorState,
+    ProgressBar,
 } from '../../../components/ui';
 import {
     useTopicLogbookDetail,
@@ -22,6 +24,8 @@ import {
     useConfirmMeeting,
     useUnconfirmMeeting,
 } from '../../../hooks/useLogbook';
+import { useReportsByTopic, useDownloadReport } from '../../../hooks/useReports';
+import { reportsService } from '../../../services/reports.service';
 import './StudentLogbookDetailPage.css';
 
 export function StudentLogbookDetailPage() {
@@ -37,6 +41,10 @@ export function StudentLogbookDetailPage() {
     const addNote = useAddTeacherNote();
     const confirmMeeting = useConfirmMeeting();
     const unconfirmMeeting = useUnconfirmMeeting();
+
+    // Reports data
+    const { data: reports = [], isLoading: reportsLoading } = useReportsByTopic(topicId);
+    const downloadReport = useDownloadReport();
 
     // Format date
     const formatDate = (date) => {
@@ -57,6 +65,37 @@ export function StudentLogbookDetailPage() {
         end.setDate(end.getDate() + 6);
         return `${formatDate(start)} - ${formatDate(end)}`;
     };
+
+    // Report phases configuration
+    const reportPhases = [
+        { id: 'report1', name: 'Báo cáo Tiến độ 1', icon: FileText },
+        { id: 'report2', name: 'Báo cáo Tiến độ 2', icon: FileText },
+        { id: 'final', name: 'Báo cáo Cuối kỳ', icon: FileCheck },
+        { id: 'slide', name: 'Slide Bảo vệ', icon: Presentation },
+        { id: 'source_code', name: 'Mã nguồn', icon: Code },
+    ];
+
+    // Get reports summary
+    const getReportsSummary = () => {
+        const submitted = {};
+        reportPhases.forEach(phase => {
+            const phaseReports = reports.filter(r => r.phase === phase.id);
+            if (phaseReports.length > 0) {
+                submitted[phase.id] = phaseReports.reduce((a, b) => 
+                    a.version > b.version ? a : b
+                );
+            }
+        });
+        return {
+            submitted,
+            count: Object.keys(submitted).length,
+            total: reportPhases.length
+        };
+    };
+
+    const reportsSummary = getReportsSummary();
+    const entries = topic?.logbook_entries || [];
+    const confirmedCount = entries.filter(e => e.teacher_confirmed).length;
 
     // Handle add note
     const handleOpenNoteModal = (entry) => {
@@ -130,8 +169,6 @@ export function StudentLogbookDetailPage() {
         );
     }
 
-    const entries = topic.logbook_entries || [];
-
     return (
         <div className="logbook-detail-page">
             {/* Header */}
@@ -168,6 +205,86 @@ export function StudentLogbookDetailPage() {
                             <span>•</span>
                             <span>Duyệt: {formatDate(topic.approved_at)}</span>
                         </div>
+                    </div>
+
+                    {/* Stats Overview */}
+                    <div className="logbook-stats-grid">
+                        <div className="stat-item">
+                            <span className="stat-value">{entries.length}</span>
+                            <span className="stat-label">Nhật ký</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-value">{confirmedCount}</span>
+                            <span className="stat-label">Đã xác nhận</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-value">{reportsSummary.count}/{reportsSummary.total}</span>
+                            <span className="stat-label">Báo cáo</span>
+                        </div>
+                    </div>
+                </CardBody>
+            </Card>
+
+            {/* Reports Progress Section */}
+            <Card className="reports-section-card">
+                <CardBody>
+                    <div className="reports-header">
+                        <h2 className="section-title">
+                            <FileText size={20} />
+                            Báo cáo tiến độ
+                        </h2>
+                        <div className="progress-wrapper">
+                            <ProgressBar 
+                                value={reportsSummary.count} 
+                                max={reportsSummary.total} 
+                                variant={reportsSummary.count === reportsSummary.total ? 'success' : 'primary'}
+                                showLabel 
+                            />
+                        </div>
+                    </div>
+                    
+                    <div className="reports-grid">
+                        {reportPhases.map(phase => {
+                            const report = reportsSummary.submitted[phase.id];
+                            const isSubmitted = !!report;
+                            const PhaseIcon = phase.icon;
+                            
+                            return (
+                                <div key={phase.id} className={`report-item ${isSubmitted ? 'submitted' : 'pending'}`}>
+                                    <div className="report-icon">
+                                        <PhaseIcon size={18} />
+                                    </div>
+                                    <div className="report-info">
+                                        <span className="report-name">{phase.name}</span>
+                                        {isSubmitted ? (
+                                            <>
+                                                <span className="report-meta">
+                                                    v{report.version} • {formatDate(report.submitted_at)}
+                                                </span>
+                                                <span className="report-filename">{report.file_name}</span>
+                                            </>
+                                        ) : (
+                                            <span className="report-status">Chưa nộp</span>
+                                        )}
+                                    </div>
+                                    <div className="report-actions">
+                                        {isSubmitted ? (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                leftIcon={<Download size={14} />}
+                                                onClick={() => downloadReport.mutate(report)}
+                                                loading={downloadReport.isPending}
+                                            >
+                                                Tải về
+                                            </Button>
+                                        ) : (
+                                            <Badge variant="default">Chờ</Badge>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </CardBody>
             </Card>

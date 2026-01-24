@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import {
     Users, AlertTriangle, AlertCircle, CheckCircle,
     BookOpen, FileText, Clock, Calendar, ChevronRight,
-    Search, Filter, ExternalLink, Mail
+    Search, Filter, ExternalLink, Copy
 } from 'lucide-react';
 import {
     Card,
@@ -364,13 +365,14 @@ if (isLoading) {
                                                         <Button 
                                                             variant="ghost" 
                                                             size="sm"
-                                                            onClick={(e) => {
+                                                            onClick={async (e) => {
                                                                 e.stopPropagation();
-                                                                window.location.href = `mailto:${mentee.student.email}`;
+                                                                await navigator.clipboard.writeText(mentee.student.email);
+                                                                toast.success(`Đã copy: ${mentee.student.email}`);
                                                             }}
-                                                            aria-label={`Gửi email cho ${mentee.student.full_name}`}
+                                                            aria-label={`Copy email ${mentee.student.full_name}`}
                                                         >
-                                                            <Mail size={14} aria-hidden="true" />
+                                                            <Copy size={14} aria-hidden="true" />
                                                         </Button>
                                                     )}
                                                 </div>

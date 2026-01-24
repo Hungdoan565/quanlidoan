@@ -275,3 +275,181 @@
         width: 100%;
     }
 }
+
+/* ========================================
+   ENHANCED UI - Stats Grid & Reports Section
+   ======================================== */
+
+/* Stats Grid */
+.logbook-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-default);
+    margin-top: 16px;
+}
+
+.logbook-stats-grid .stat-item {
+    text-align: center;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.logbook-stats-grid .stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-600);
+}
+
+.logbook-stats-grid .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Reports Section */
+.reports-section-card {
+    margin-bottom: 24px;
+}
+
+.reports-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 24px;
+}
+
+.reports-header .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.reports-header .progress-wrapper {
+    flex: 1;
+    max-width: 200px;
+}
+
+.reports-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.report-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-default);
+    transition: all 0.2s ease;
+}
+
+.report-item.submitted {
+    background: var(--success-50, #f0fdf4);
+    border-color: var(--success-200, #bbf7d0);
+}
+
+.report-item.pending {
+    background: var(--bg-secondary);
+}
+
+.report-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.report-item.submitted .report-icon {
+    background: var(--success-100, #dcfce7);
+    color: var(--success-700, #15803d);
+}
+
+.report-item.pending .report-icon {
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+}
+
+.report-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.report-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.report-meta {
+    font-size: 0.8rem;
+    color: var(--success-700, #15803d);
+}
+
+.report-filename {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.report-status {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.report-actions {
+    flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .logbook-stats-grid {
+        gap: 8px;
+    }
+    
+    .logbook-stats-grid .stat-value {
+        font-size: 1.25rem;
+    }
+    
+    .reports-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .reports-header .progress-wrapper {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .report-item {
+        flex-wrap: wrap;
+    }
+    
+    .report-actions {
+        width: 100%;
+        margin-top: 8px;
+    }
+    
+    .report-actions button {
+        width: 100%;
+    }
+}

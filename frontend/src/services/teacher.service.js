@@ -368,6 +368,129 @@ export const teacherService = {
         return data;
     },
 
+    // =========================================================
+    // MY CLASSES - Teacher's assigned classes
+    // =========================================================
+
+    /**
+     * Lấy danh sách lớp mà teacher được phân công làm advisor
+     * Includes: student count, topic registration stats
+     */
+    getMyClasses: async (teacherId) => {
+        try {
+            // Get classes where teacher is advisor
+            const { data: classes, error } = await supabase
+                .from('classes')
+                .select(`
+                    id, code, name, max_students, created_at,
+                    session:sessions(id, name, academic_year, semester, session_type, status),
+                    class_students(count)
+                `)
+                .eq('advisor_id', teacherId)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            // Get topic counts per class
+            const classIds = classes?.map(c => c.id) || [];
+            let topicStats = {};
+
+            if (classIds.length > 0) {
+                const { data: topics } = await supabase
+                    .from('topics')
+                    .select('class_id, status')
+                    .in('class_id', classIds);
+
+                // Aggregate topic stats per class
+                topics?.forEach(t => {
+                    if (!topicStats[t.class_id]) {
+                        topicStats[t.class_id] = { total: 0, approved: 0, pending: 0, in_progress: 0 };
+                    }
+                    topicStats[t.class_id].total++;
+                    if (t.status === 'approved') topicStats[t.class_id].approved++;
+                    if (t.status === 'pending') topicStats[t.class_id].pending++;
+                    if (t.status === 'in_progress') topicStats[t.class_id].in_progress++;
+                });
+            }
+
+            // Transform data
+            return classes?.map(cls => ({
+                ...cls,
+                student_count: cls.class_students?.[0]?.count || 0,
+                topics_registered: topicStats[cls.id]?.total || 0,
+                topics_approved: topicStats[cls.id]?.approved || 0,
+                topics_pending: topicStats[cls.id]?.pending || 0,
+                topics_in_progress: topicStats[cls.id]?.in_progress || 0,
+            })) || [];
+        } catch (error) {
+            console.error('Error fetching my classes:', error);
+            return [];
+        }
+    },
+
+    /**
+     * Lấy chi tiết lớp với danh sách sinh viên (bao gồm cả SV chưa đăng ký đề tài)
+     * Security: Chỉ trả về nếu teacher là advisor của lớp
+     */
+    getClassStudents: async (classId, teacherId) => {
+        try {
+            // Get class with security check
+            const { data: classData, error: classError } = await supabase
+                .from('classes')
+                .select(`
+                    id, code, name, max_students,
+                    session:sessions(id, name, academic_year, semester, session_type, status),
+                    class_students(
+                        id,
+                        student:profiles(
+                            id, full_name, student_code, email, phone, gender, class_name
+                        ),
+                        created_at
+                    )
+                `)
+                .eq('id', classId)
+                .eq('advisor_id', teacherId)
+                .single();
+
+            if (classError) {
+                if (classError.code === 'PGRST116') {
+                    throw new Error('Bạn không có quyền xem lớp này');
+                }
+                throw classError;
+            }
+
+            // Get topics for students in this class
+            const studentIds = classData?.class_students?.map(cs => cs.student?.id).filter(Boolean) || [];
+            let topicsMap = {};
+
+            if (studentIds.length > 0) {
+                const { data: topics } = await supabase
+                    .from('topics')
+                    .select('id, student_id, title, status, updated_at')
+                    .eq('class_id', classId);
+
+                topics?.forEach(t => {
+                    topicsMap[t.student_id] = t;
+                });
+            }
+
+            // Transform data - keep original import order (by joined_at)
+            return {
+                ...classData,
+                students: classData?.class_students
+                    ?.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+                    ?.map(cs => ({
+                        ...cs.student,
+                        joined_at: cs.created_at,
+                        topic: topicsMap[cs.student?.id] || null,
+                    })) || [],
+            };
+        } catch (error) {
+            console.error('Error fetching class students:', error);
+            throw error;
+        }
+    },
+
     /**
      * Get topic statistics for current teacher
      */

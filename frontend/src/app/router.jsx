@@ -28,6 +28,8 @@ import { StudentLogbookDetailPage } from '../pages/teacher/logbook/StudentLogboo
 import { GradingPage } from '../pages/teacher/grading/GradingPage';
 import { GradingDetailPage } from '../pages/teacher/grading/GradingDetailPage';
 import { MenteesKanbanPage } from '../pages/teacher/mentees/MenteesKanbanPage';
+import MyClassesPage from '../pages/teacher/mentees/MyClassesPage';
+import TeacherClassDetailPage from '../pages/teacher/mentees/TeacherClassDetailPage';
 
 // Student Pages
 import { StudentDashboard } from '../pages/student/DashboardPage';
@@ -118,11 +120,13 @@ export const router = createBrowserRouter([
             </ProtectedRoute>
         ),
         children: [
-            { index: true, element: <Navigate to="dashboard" replace /> },
+{ index: true, element: <Navigate to="dashboard" replace /> },
             { path: 'dashboard', element: <TeacherDashboard /> },
             { path: 'topics', element: <SampleTopicsPage /> },
             { path: 'reviews', element: <TopicReviewsPage /> },
-            { path: 'mentees', element: <MenteesKanbanPage /> },
+            { path: 'mentees', element: <MyClassesPage /> },
+            { path: 'mentees/health', element: <MenteesKanbanPage /> },
+            { path: 'mentees/:classId', element: <TeacherClassDetailPage /> },
             { path: 'logbook', element: <StudentsLogbookPage /> },
             { path: 'logbook/:topicId', element: <StudentLogbookDetailPage /> },
             { path: 'grading', element: <GradingPage /> },
