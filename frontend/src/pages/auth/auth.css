@@ -7,17 +7,37 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
     padding: var(--space-4);
+    position: relative;
+    
+    /* Mint Fresh Breeze Background */
+    background-color: #f0fdfa;
+    background-image: 
+        linear-gradient(45deg, 
+            rgba(240,253,250,1) 0%, 
+            rgba(204,251,241,0.7) 30%, 
+            rgba(153,246,228,0.5) 60%, 
+            rgba(94,234,212,0.4) 100%
+        ),
+        radial-gradient(circle at 40% 30%, rgba(255,255,255,0.8) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(167,243,208,0.5) 0%, transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(209,250,229,0.6) 0%, transparent 45%);
 }
 
 .auth-card {
     width: 100%;
     max-width: 420px;
-    background: var(--bg-primary);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 10px 15px -3px rgba(0, 0, 0, 0.08),
+        0 20px 25px -5px rgba(0, 0, 0, 0.05),
+        0 0 0 1px rgba(20, 184, 166, 0.1);
     padding: var(--space-8);
+    position: relative;
+    z-index: 1;
     
     /* Entry animation */
     animation: authCardEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -118,8 +138,8 @@
 }
 
 .req-tag.met {
-    background: var(--success-100);
-    color: var(--success-700);
+    background: rgba(204, 251, 241, 0.8);
+    color: #0f766e;
 }
 
 .req-tag svg {
@@ -197,7 +217,7 @@
 }
 
 .social-btn:focus-visible {
-    outline: 2px solid var(--primary-500);
+    outline: 2px solid #14b8a6;
     outline-offset: 2px;
 }
 
@@ -323,7 +343,7 @@
 
 .email-highlight {
     font-weight: var(--font-semibold);
-    color: var(--primary-600);
+    color: #0d9488;
     margin-top: var(--space-2);
 }
 
@@ -387,14 +407,14 @@
 
 .input-wrapper input:focus {
     outline: none;
-    border-color: var(--primary-500);
-    box-shadow: 0 0 0 3px var(--primary-100);
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
 }
 
 .input-wrapper input:focus-visible {
     outline: none;
-    border-color: var(--primary-500);
-    box-shadow: 0 0 0 3px var(--primary-100);
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
 }
 
 .input-wrapper input::placeholder {
@@ -422,7 +442,7 @@
 }
 
 .toggle-password:focus-visible {
-    outline: 2px solid var(--primary-500);
+    outline: 2px solid #14b8a6;
     outline-offset: 1px;
 }
 
@@ -513,7 +533,7 @@
 }
 
 .password-requirements li.met {
-    color: var(--success-600);
+    color: #0f766e;
 }
 
 .password-requirements li svg {
@@ -530,7 +550,7 @@
 }
 
 .password-match.match {
-    color: var(--success-600);
+    color: #0f766e;
 }
 
 .password-match.no-match {
@@ -560,16 +580,16 @@
     width: 16px;
     height: 16px;
     cursor: pointer;
-    accent-color: var(--primary-600);
+    accent-color: #14b8a6;
 }
 
 .remember-me input[type="checkbox"]:focus-visible {
-    outline: 2px solid var(--primary-500);
+    outline: 2px solid #14b8a6;
     outline-offset: 2px;
 }
 
 .forgot-link {
-    color: var(--primary-600);
+    color: #0d9488;
     font-weight: var(--font-medium);
     text-decoration: none;
     border-radius: var(--radius-sm);
@@ -577,10 +597,11 @@
 
 .forgot-link:hover {
     text-decoration: underline;
+    color: #0f766e;
 }
 
 .forgot-link:focus-visible {
-    outline: 2px solid var(--primary-500);
+    outline: 2px solid #14b8a6;
     outline-offset: 2px;
 }
 
@@ -594,25 +615,27 @@
     justify-content: center;
     gap: var(--space-2);
     padding: var(--space-3) var(--space-4);
-    background: var(--primary-600);
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
     color: white;
     border: none;
     border-radius: var(--radius-lg);
     font-size: var(--text-base);
     font-weight: var(--font-semibold);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     text-decoration: none;
     margin-top: var(--space-2);
+    box-shadow: 0 2px 4px rgba(20, 184, 166, 0.3);
 }
 
 .submit-btn:hover:not(:disabled) {
-    background: var(--primary-700);
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
 }
 
 .submit-btn:focus-visible {
-    outline: 2px solid var(--primary-300);
+    outline: 2px solid #5eead4;
     outline-offset: 2px;
 }
 
@@ -620,6 +643,7 @@
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
 }
 
 /* ==================== */
@@ -640,10 +664,10 @@
 
 .success-message {
     padding: var(--space-4);
-    background: var(--success-50);
-    border: 1px solid var(--success-100);
+    background: rgba(204, 251, 241, 0.6);
+    border: 1px solid rgba(94, 234, 212, 0.4);
     border-radius: var(--radius-md);
-    color: var(--success-600);
+    color: #0f766e;
     font-size: var(--text-sm);
     text-align: center;
     margin-bottom: var(--space-4);
@@ -654,8 +678,8 @@
     align-items: flex-start;
     gap: var(--space-2);
     padding: var(--space-3);
-    background: var(--neutral-50);
-    border: 1px solid var(--neutral-200);
+    background: rgba(204, 251, 241, 0.5);
+    border: 1px solid rgba(94, 234, 212, 0.3);
     border-radius: var(--radius-md);
     color: var(--text-secondary);
     font-size: var(--text-xs);
@@ -663,7 +687,7 @@
 
 .info-note svg {
     flex-shrink: 0;
-    color: var(--primary-500);
+    color: #0d9488;
     margin-top: 1px;
 }
 
@@ -687,17 +711,18 @@
 }
 
 .auth-footer a {
-    color: var(--primary-600);
+    color: #0d9488;
     text-decoration: none;
     font-weight: var(--font-medium);
 }
 
 .auth-footer a:hover {
     text-decoration: underline;
+    color: #0f766e;
 }
 
 .auth-footer a:focus-visible {
-    outline: 2px solid var(--primary-500);
+    outline: 2px solid #14b8a6;
     outline-offset: 2px;
     border-radius: var(--radius-sm);
 }
@@ -715,17 +740,18 @@
 }
 
 .auth-footer-links a {
-    color: var(--primary-600);
+    color: #0d9488;
     text-decoration: none;
     font-weight: var(--font-medium);
 }
 
 .auth-footer-links a:hover {
     text-decoration: underline;
+    color: #0f766e;
 }
 
 .auth-footer-links a:focus-visible {
-    outline: 2px solid var(--primary-500);
+    outline: 2px solid #14b8a6;
     outline-offset: 2px;
     border-radius: var(--radius-sm);
 }

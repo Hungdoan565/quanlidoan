@@ -9,6 +9,8 @@ export const statsService = {
      */
     getAdminDashboardStats: async (sessionId = null) => {
         try {
+            console.log('[Stats] Fetching stats for sessionId:', sessionId);
+            
             // Base queries
             let classQuery = supabase.from('classes').select('id', { count: 'exact' });
             let topicsQuery = supabase.from('topics').select('status, class_id');
@@ -21,16 +23,26 @@ export const statsService = {
                     .eq('session_id', sessionId);
                 
                 const classIds = sessionClasses?.map(c => c.id) || [];
+                console.log('[Stats] Session classes:', classIds.length);
                 
                 if (classIds.length > 0) {
-                    classQuery = classQuery.in('id', classIds);
-                    topicsQuery = topicsQuery.in('class_id', classIds);
+                    classQuery = supabase.from('classes').select('id', { count: 'exact' }).in('id', classIds);
+                    topicsQuery = supabase.from('topics').select('status, class_id').in('class_id', classIds);
+                } else {
+                    // No classes in this session
+                    return {
+                        totalStudents: 0,
+                        totalTeachers: 0,
+                        totalClasses: 0,
+                        topicStats: { total: 0, pending: 0, revision: 0, approved: 0, in_progress: 0, submitted: 0, defended: 0, completed: 0, rejected: 0 },
+                        registrationRate: 0,
+                    };
                 }
             }
 
             // Execute queries in parallel
             const [
-                { count: totalClasses },
+                classResult,
                 { data: topics },
                 { count: totalTeachers },
                 { count: totalStudents },
@@ -40,6 +52,9 @@ export const statsService = {
                 supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'teacher'),
                 supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
             ]);
+
+            const totalClasses = classResult?.count || 0;
+            console.log('[Stats] Results - Classes:', totalClasses, 'Topics:', topics?.length, 'Teachers:', totalTeachers, 'Students:', totalStudents);
 
             // Calculate topic stats
             const topicStats = {
@@ -60,17 +75,19 @@ export const statsService = {
                 }
             });
 
+            console.log('[Stats] Topic stats:', topicStats);
+
             return {
                 totalStudents: totalStudents || 0,
                 totalTeachers: totalTeachers || 0,
-                totalClasses: totalClasses || 0,
+                totalClasses: totalClasses,
                 topicStats,
                 registrationRate: totalStudents > 0 
                     ? Math.round((topicStats.total / totalStudents) * 100) 
                     : 0,
             };
         } catch (error) {
-            console.error('Error fetching admin stats:', error);
+            console.error('[Stats] Error fetching admin stats:', error);
             throw error;
         }
     },

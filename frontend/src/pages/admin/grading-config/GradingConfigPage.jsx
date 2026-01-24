@@ -24,7 +24,7 @@ import {
     CardHeader,
     CardBody,
     Button,
-    Select,
+    CustomSelect,
     Badge,
     Table,
     TableHeader,
@@ -141,18 +141,19 @@ export function GradingConfigPage() {
                 <CardBody>
                     <div className="session-selector-row">
                         <label>Chọn đợt đồ án:</label>
-                        <Select
+                        <CustomSelect
                             value={selectedSessionId}
                             onChange={(e) => setSelectedSessionId(e.target.value)}
                             className="session-select"
-                        >
-                            <option value="">-- Tất cả đợt --</option>
-                            {sessions.map(session => (
-                                <option key={session.id} value={session.id}>
-                                    {session.name} ({session.academic_year} - HK{session.semester})
-                                </option>
-                            ))}
-                        </Select>
+                            placeholder="-- Tất cả đợt --"
+                            options={[
+                                { value: '', label: '-- Tất cả đợt --' },
+                                ...sessions.map(session => ({
+                                    value: session.id,
+                                    label: `${session.name} (${session.academic_year} - HK${session.semester})`
+                                }))
+                            ]}
+                        />
                     </div>
                 </CardBody>
             </Card>

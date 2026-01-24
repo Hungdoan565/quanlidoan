@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCreateClass, useUpdateClass } from '../../../hooks/useClasses';
-import { Modal, Input, Select, Button } from '../../../components/ui';
+import { Modal, Input, CustomSelect, Button } from '../../../components/ui';
 
 export function ClassFormModal({ isOpen, onClose, cls, sessions = [], onSuccess }) {
     const [formData, setFormData] = useState({
@@ -112,7 +112,7 @@ export function ClassFormModal({ isOpen, onClose, cls, sessions = [], onSuccess 
                     <label htmlFor="session_id">
                         Đợt đồ án <span className="required">*</span>
                     </label>
-                    <Select
+                    <CustomSelect
                         id="session_id"
                         name="session_id"
                         options={sessionOptions}

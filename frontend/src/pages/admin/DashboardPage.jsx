@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useAdminDashboardStats, useRecentActivities, useActiveSessions, useUpcomingDeadlines } from '../../hooks/useStats';
 import { useUIStore } from '../../store/uiStore';
-import { StatCard, SkeletonStatCard, Select, Card, CardHeader, CardBody, Badge, Button, Dropdown, DropdownTrigger, DropdownContent, DropdownItem } from '../../components/ui';
+import { StatCard, SkeletonStatCard, CustomSelect, Card, CardHeader, CardBody, Badge, Button, Dropdown, DropdownTrigger, DropdownContent, DropdownItem } from '../../components/ui';
 import { formatDistanceToNow, format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
@@ -143,14 +143,19 @@ export function AdminDashboard() {
                 </div>
                 <div className="page-header-actions">
                     <Dropdown>
-                        <DropdownTrigger>
-                            <Button 
-                                variant="outline" 
-                                disabled={exporting !== null}
-                                leftIcon={exporting ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
-                            >
-                                Xuất báo cáo
-                            </Button>
+                        <DropdownTrigger asChild>
+                            {({ onClick, 'aria-expanded': ariaExpanded }) => (
+                                <Button 
+                                    variant="outline" 
+                                    disabled={exporting !== null}
+                                    leftIcon={exporting ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
+                                    onClick={onClick}
+                                    aria-expanded={ariaExpanded}
+                                    aria-haspopup="menu"
+                                >
+                                    Xuất báo cáo
+                                </Button>
+                            )}
                         </DropdownTrigger>
                         <DropdownContent align="end">
                             <DropdownItem onClick={handleExportTopics}>
@@ -167,16 +172,15 @@ export function AdminDashboard() {
                             </DropdownItem>
                         </DropdownContent>
                     </Dropdown>
-                    <Select
+                    <CustomSelect
                         value={selectedSessionId || ''}
                         onChange={(e) => setSelectedSession(e.target.value || null)}
                         className="session-selector"
-                    >
-                        <option value="">-- Tất cả đợt --</option>
-                        {sessionOptions.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                    </Select>
+                        options={[
+                            { value: '', label: '-- Tất cả đợt --' },
+                            ...sessionOptions
+                        ]}
+                    />
                 </div>
             </div>
 

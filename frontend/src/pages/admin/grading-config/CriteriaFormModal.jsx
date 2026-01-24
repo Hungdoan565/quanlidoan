@@ -8,7 +8,7 @@ import {
     Modal,
     Button,
     Input,
-    Select
+    CustomSelect
 } from '../../../components/ui';
 import { GRADER_TYPES, GRADER_TYPE_LABELS } from '../../../lib/constants';
 import './GradingConfigPage.css';
@@ -180,19 +180,17 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultG
 
                 <div className="form-group">
                     <label htmlFor="grader_type">Người chấm *</label>
-                    <Select
+                    <CustomSelect
                         id="grader_type"
                         value={formData.grader_type}
                         onChange={(e) => handleChange('grader_type', e.target.value)}
-                    >
-                        {Object.entries(GRADER_TYPE_LABELS)
+                        options={Object.entries(GRADER_TYPE_LABELS)
                             .filter(([value]) => value !== 'reviewer')
-                            .map(([value, label]) => (
-                                <option key={value} value={value}>
-                                    {label}
-                                </option>
-                            ))}
-                    </Select>
+                            .map(([value, label]) => ({
+                                value,
+                                label
+                            }))}
+                    />
                 </div>
 
                 {errors.session && (
@@ -253,17 +251,18 @@ export function CopyCriteriaModal({ open, onClose, targetSessionId, sessions }) 
 
                 <div className="form-group">
                     <label>Đợt nguồn</label>
-                    <Select
+                    <CustomSelect
                         value={sourceSessionId}
                         onChange={(e) => setSourceSessionId(e.target.value)}
-                    >
-                        <option value="">-- Chọn đợt --</option>
-                        {availableSessions.map(session => (
-                            <option key={session.id} value={session.id}>
-                                {session.name} ({session.academic_year})
-                            </option>
-                        ))}
-                    </Select>
+                        placeholder="-- Chọn đợt --"
+                        options={[
+                            { value: '', label: '-- Chọn đợt --' },
+                            ...availableSessions.map(session => ({
+                                value: session.id,
+                                label: `${session.name} (${session.academic_year})`
+                            }))
+                        ]}
+                    />
                 </div>
 
                 {!targetSessionId && (

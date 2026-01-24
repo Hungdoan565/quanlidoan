@@ -8,10 +8,14 @@ export const topicsService = {
      * Lấy lớp học của sinh viên (để biết session_id)
      */
     getStudentClass: async (studentId) => {
+        console.log('[StudentClass] Query for studentId:', studentId);
+        
         const { data, error } = await supabase
             .from('class_students')
             .select(`
                 id,
+                student_id,
+                class_id,
                 class:classes(
                     id, 
                     name, 
@@ -33,9 +37,14 @@ export const topicsService = {
             .eq('student_id', studentId)
             .single();
 
+        console.log('[StudentClass] Result:', { data, error });
+
         if (error && error.code !== 'PGRST116') throw error;
 
-        if (!data) return null;
+        if (!data) {
+            console.warn('[StudentClass] No record found for studentId:', studentId);
+            return null;
+        }
 
         // Transform data - Unified Lecturer model (no reviewer)
         return {
@@ -237,14 +246,37 @@ export const topicsService = {
      * Kiểm tra thời hạn đăng ký
      */
     isRegistrationOpen: (session) => {
-        if (!session) return false;
+        console.log('[Registration] Checking session:', session);
+        
+        if (!session) {
+            console.log('[Registration] No session provided');
+            return false;
+        }
+        
         const now = new Date();
         const start = session.registration_start ? new Date(session.registration_start) : null;
         const end = session.registration_end ? new Date(session.registration_end) : null;
 
-        if (start && now < start) return false;
-        if (end && now > end) return false;
-        return session.status === 'open';
+        console.log('[Registration] Now:', now);
+        console.log('[Registration] Start:', start, '| Now >= Start:', start ? now >= start : 'no start');
+        console.log('[Registration] End:', end, '| Now <= End:', end ? now <= end : 'no end');
+        console.log('[Registration] Session status:', session.status);
+
+        if (start && now < start) {
+            console.log('[Registration] BLOCKED: Before start date');
+            return false;
+        }
+        if (end && now > end) {
+            console.log('[Registration] BLOCKED: After end date');
+            return false;
+        }
+        if (session.status !== 'open') {
+            console.log('[Registration] BLOCKED: Session status is not "open"');
+            return false;
+        }
+        
+        console.log('[Registration] ALLOWED');
+        return true;
     },
 };
 

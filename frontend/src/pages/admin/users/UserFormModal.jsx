@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { UserPlus, Mail, User, Phone, GraduationCap, UserCheck, Shield, Building, Key } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import { useAuthStore } from '../../../store/authStore';
-import { Modal, Button, Input, Select, Badge } from '../../../components/ui';
+import { Modal, Button, Input, CustomSelect, Badge } from '../../../components/ui';
 import { toast } from 'sonner';
 
 const ROLE_OPTIONS = [
@@ -279,7 +279,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
                 {/* Role Selection */}
                 <div className="form-group">
                     <label>Vai trò *</label>
-                    <Select
+                    <CustomSelect
                         name="role"
                         options={ROLE_OPTIONS}
                         value={formData.role}
@@ -418,7 +418,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
                             </div>
                             <div className="form-group">
                                 <label>Học hàm/Học vị</label>
-                                <Select
+                                <CustomSelect
                                     name="academic_rank"
                                     options={ACADEMIC_RANK_OPTIONS}
                                     value={formData.academic_rank}
@@ -428,7 +428,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
                         </div>
                         <div className="form-group">
                             <label>Khoa/Bộ môn</label>
-                            <Select
+                            <CustomSelect
                                 name="department"
                                 options={DEPARTMENT_OPTIONS}
                                 value={formData.department}

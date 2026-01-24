@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { format, addDays, addWeeks, addMonths } from 'date-fns';
 import { Calendar, Zap, ChevronRight } from 'lucide-react';
 import { useCreateSession, useUpdateSession } from '../../../hooks/useSessions';
-import { Modal, Button, Input, Select, Badge } from '../../../components/ui';
+import { Modal, Button, Input, CustomSelect, Badge } from '../../../components/ui';
 import './SessionFormModal.css';
 
 const SESSION_TYPE_OPTIONS = [
@@ -287,7 +287,7 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
                     />
 
                     <div className="form-row">
-                        <Select
+                        <CustomSelect
                             label="Năm học"
                             required
                             options={getAcademicYearOptions()}
@@ -295,7 +295,7 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
                             onChange={(e) => handleChange('academic_year', e.target.value)}
                             error={errors.academic_year}
                         />
-                        <Select
+                        <CustomSelect
                             label="Học kỳ"
                             required
                             options={SEMESTER_OPTIONS}
@@ -305,14 +305,14 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
                     </div>
 
                     <div className="form-row">
-                        <Select
+                        <CustomSelect
                             label="Loại đồ án"
                             required
                             options={SESSION_TYPE_OPTIONS}
                             value={formData.session_type}
                             onChange={(e) => handleChange('session_type', e.target.value)}
                         />
-                        <Select
+                        <CustomSelect
                             label="Trạng thái"
                             options={STATUS_OPTIONS}
                             value={formData.status}
@@ -325,7 +325,7 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
                 <div className="form-section">
                     <div className="form-section-header">
                         <h3 className="form-section-title">Các mốc thời gian</h3>
-                        <Select
+                        <CustomSelect
                             options={DATE_TEMPLATES}
                             value={selectedTemplate}
                             onChange={(e) => handleTemplateChange(e.target.value)}

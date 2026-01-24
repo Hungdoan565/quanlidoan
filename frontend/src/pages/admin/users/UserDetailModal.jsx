@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Mail, Phone, Calendar, Shield, UserCheck, GraduationCap, Building } from 'lucide-react';
 import { useUpdateUser, useChangeUserRole } from '../../../hooks/useUsers';
-import { Modal, Button, Input, Select, Badge, Avatar } from '../../../components/ui';
+import { Modal, Button, Input, CustomSelect, Badge, Avatar } from '../../../components/ui';
 import { formatDate } from '../../../lib/utils';
 
 const ROLE_OPTIONS = [
@@ -174,7 +174,7 @@ export function UserDetailModal({ isOpen, onClose, user }) {
                         {user.role !== 'admin' && (
                             <div className="role-change-section">
                                 <label>Thay đổi vai trò</label>
-                                <Select
+                                <CustomSelect
                                     options={ROLE_OPTIONS.filter(r => r.value !== 'admin')}
                                     value={user.role}
                                     onChange={(e) => handleRoleChange(e.target.value)}

@@ -36,6 +36,9 @@ import { MyTopicPage } from '../pages/student/MyTopicPage';
 import { LogbookPage } from '../pages/student/logbook/LogbookPage';
 import { ReportsPage } from '../pages/student/reports/ReportsPage';
 
+// Common Pages
+import { NotificationsPage } from '../pages/common/NotificationsPage';
+
 // Error Pages
 import { NotFoundPage } from '../pages/errors/NotFoundPage';
 import { ForbiddenPage } from '../pages/errors/ForbiddenPage';
@@ -162,8 +165,7 @@ export const router = createBrowserRouter([
         path: '/notifications',
         element: (
             <ProtectedRoute>
-                {/* TODO: <NotificationsPage /> */}
-                <div>Notifications Page - Coming Soon</div>
+                <NotificationsPage />
             </ProtectedRoute>
         ),
     },

@@ -5,7 +5,7 @@ import { useClasses } from '../../../hooks/useClasses';
 import {
     Button,
     Input,
-    Select,
+    CustomSelect,
     Card,
     CardHeader,
     CardBody,
@@ -249,13 +249,13 @@ export function UsersListPage() {
                                 />
                             </div>
                             <div className="filter-selects">
-                                <Select
+                                <CustomSelect
                                     options={ROLE_OPTIONS}
                                     value={effectiveRole}
                                     onChange={(e) => handleFilterChange('role', e.target.value)}
                                     disabled={!!selectedClassId}
                                 />
-                                <Select
+                                <CustomSelect
                                     options={STATUS_OPTIONS}
                                     value={filters.is_active}
                                     onChange={(e) => handleFilterChange('is_active', e.target.value)}

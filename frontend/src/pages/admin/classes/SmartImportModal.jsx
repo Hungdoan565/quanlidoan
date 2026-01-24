@@ -12,7 +12,7 @@ import {
     Users,
     Sparkles
 } from 'lucide-react';
-import { Modal, Button, Badge, Input, Select } from '../../../components/ui';
+import { Modal, Button, Badge, Input, CustomSelect } from '../../../components/ui';
 import { useSessions } from '../../../hooks/useSessions';
 import { useCreateClass } from '../../../hooks/useClasses';
 import classesService from '../../../services/classes.service';
@@ -398,16 +398,15 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                 {/* Session selection - always visible */}
                 <div className="form-group">
                     <label>Đợt đồ án <span className="required">*</span></label>
-                    <Select
+                    <CustomSelect
                         value={sessionId}
                         onChange={(e) => setSessionId(e.target.value)}
                         disabled={step === 'importing' || step === 'done'}
-                    >
-                        <option value="">-- Chọn đợt đồ án --</option>
-                        {sessionOptions.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                    </Select>
+                        options={[
+                            { value: '', label: '-- Chọn đợt đồ án --' },
+                            ...sessionOptions
+                        ]}
+                    />
                 </div>
 
                 {/* Upload step */}

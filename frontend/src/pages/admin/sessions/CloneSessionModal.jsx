@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Calendar } from 'lucide-react';
 import { useDuplicateSession } from '../../../hooks/useSessions';
-import { Modal, Select, Button, Input } from '../../../components/ui';
+import { Modal, CustomSelect, Button, Input } from '../../../components/ui';
 
 const CLONE_OPTIONS = [
     { value: '1_month', label: '+1 tháng' },
@@ -88,7 +88,7 @@ export function CloneSessionModal({ isOpen, onClose, session }) {
 
                 <div className="form-group">
                     <label>Chọn khoảng thời gian</label>
-                    <Select
+                    <CustomSelect
                         options={CLONE_OPTIONS}
                         value={cloneOption}
                         onChange={(e) => setCloneOption(e.target.value)}

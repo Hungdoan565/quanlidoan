@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BookOpen, Code, X } from 'lucide-react';
 import { useCreateSampleTopic, useUpdateSampleTopic } from '../../../hooks/useSampleTopics';
 import { useSessions } from '../../../hooks/useSessions';
-import { Modal, Input, Textarea, Select, Button, Badge } from '../../../components/ui';
+import { Modal, Input, Textarea, CustomSelect, Button, Badge } from '../../../components/ui';
 
 export function SampleTopicFormModal({ isOpen, onClose, onSuccess, topic = null }) {
     const isEdit = !!topic;
@@ -124,7 +124,7 @@ export function SampleTopicFormModal({ isOpen, onClose, onSuccess, topic = null 
             <form onSubmit={handleSubmit} className="sample-topic-form">
                 <div className="form-group">
                     <label>Đợt đồ án <span className="required">*</span></label>
-                    <Select
+                    <CustomSelect
                         options={sessionOptions}
                         value={formData.session_id}
                         onChange={(e) => handleChange('session_id', e.target.value)}
