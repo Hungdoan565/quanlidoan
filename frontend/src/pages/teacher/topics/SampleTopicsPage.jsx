@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit, Trash2, BookOpen, Users, ToggleLeft, ToggleRight, Code } from 'lucide-react';
+import { Plus, Edit, Trash2, BookOpen, Users, ToggleLeft, ToggleRight, Code, List, FileText } from 'lucide-react';
 import {
     useMySampleTopics,
     useDeleteSampleTopic,
@@ -26,6 +26,13 @@ import {
 } from '../../../components/ui';
 import { SampleTopicFormModal } from './SampleTopicFormModal';
 import './SampleTopicsPage.css';
+
+// Difficulty badge config
+const DIFFICULTY_CONFIG = {
+    easy: { label: 'Dễ', variant: 'success' },
+    medium: { label: 'TB', variant: 'warning' },
+    hard: { label: 'Khó', variant: 'danger' },
+};
 
 export function SampleTopicsPage() {
     // State
@@ -133,14 +140,16 @@ export function SampleTopicsPage() {
                         />
                     ) : (
                         <Table>
-                            <TableHeader>
+<TableHeader>
                                 <TableRow>
                                     <TableHead>Tên đề tài</TableHead>
                                     <TableHead>Đợt đồ án</TableHead>
+                                    <TableHead style={{ width: 80 }}>Độ khó</TableHead>
                                     <TableHead>Công nghệ</TableHead>
-                                    <TableHead style={{ width: 100 }}>Số SV</TableHead>
-                                    <TableHead style={{ width: 100 }}>Trạng thái</TableHead>
-                                    <TableHead style={{ width: 120 }}>Thao tác</TableHead>
+                                    <TableHead style={{ width: 80 }}>Yêu cầu</TableHead>
+                                    <TableHead style={{ width: 80 }}>Số SV</TableHead>
+                                    <TableHead style={{ width: 90 }}>Trạng thái</TableHead>
+                                    <TableHead style={{ width: 100 }}>Thao tác</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -160,9 +169,21 @@ export function SampleTopicsPage() {
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <span className="session-name">
+<span className="session-name">
                                                 {topic.session?.name || 'N/A'}
                                             </span>
+                                        </TableCell>
+                                        <TableCell>
+                                            {topic.difficulty ? (
+                                                <Badge 
+                                                    variant={DIFFICULTY_CONFIG[topic.difficulty]?.variant || 'default'} 
+                                                    size="sm"
+                                                >
+                                                    {DIFFICULTY_CONFIG[topic.difficulty]?.label || topic.difficulty}
+                                                </Badge>
+                                            ) : (
+                                                <span className="text-muted">—</span>
+                                            )}
                                         </TableCell>
                                         <TableCell>
                                             <div className="tech-badges">
@@ -176,8 +197,18 @@ export function SampleTopicsPage() {
                                                     <Badge variant="default" size="sm">
                                                         +{topic.technologies.length - 3}
                                                     </Badge>
-                                                )}
+)}
                                             </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            {(topic.requirements || []).length > 0 ? (
+                                                <div className="requirements-count" title={(topic.requirements || []).join('\n')}>
+                                                    <List size={14} aria-hidden="true" />
+                                                    <span>{topic.requirements.length}</span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-muted">—</span>
+                                            )}
                                         </TableCell>
                                         <TableCell>
 <div className="student-count">

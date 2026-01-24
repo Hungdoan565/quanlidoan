@@ -56,8 +56,11 @@ export const sampleTopicsService = {
                 session_id: data.session_id,
                 title: data.title,
                 description: data.description,
+                requirements: data.requirements || [],
                 technologies: data.technologies || [],
+                difficulty: data.difficulty || null,
                 max_students: data.max_students || 1,
+                notes: data.notes || null,
                 is_active: true,
             })
             .select()
@@ -76,8 +79,11 @@ export const sampleTopicsService = {
             .update({
                 title: data.title,
                 description: data.description,
+                requirements: data.requirements,
                 technologies: data.technologies,
+                difficulty: data.difficulty,
                 max_students: data.max_students,
+                notes: data.notes,
                 is_active: data.is_active,
             })
             .eq('id', id)

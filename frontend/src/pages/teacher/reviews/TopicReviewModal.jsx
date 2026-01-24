@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     X,
     CheckCircle,
@@ -8,8 +8,7 @@ import {
     BookOpen,
     Calendar,
     Code,
-    FileText,
-    Loader2
+    FileText
 } from 'lucide-react';
 import { useApproveTopic, useRequestRevision, useRejectTopic } from '../../../hooks/useTeacherReviews';
 import { Button } from '../../../components/ui/Button';
@@ -72,10 +71,32 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
         });
     };
 
+    // Handle Escape key
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener('keydown', handleEscape);
+        }
+
+        return () => {
+            document.removeEventListener('keydown', handleEscape);
+        };
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div 
+            className="modal-overlay" 
+            onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+        >
             <div className="topic-review-modal" onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div className="modal-header">
@@ -196,7 +217,7 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                     </div>
 
                     {/* Previous Revision Note */}
-{topic.revision_note && topic.status === 'revision' && (
+                    {topic.revision_note && topic.status === 'revision' && (
                         <div className="info-card warning-card">
                             <div className="info-header">
                                 <AlertCircle size={18} aria-hidden="true" />
@@ -205,41 +226,38 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                             <p className="revision-note">{topic.revision_note}</p>
                         </div>
                     )}
+                </div>
 
-                    {/* Action Forms */}
-                    {topic.status === 'pending' && (
-                        <div className="action-section">
-                            <h4>Thao tác</h4>
-
+                {/* Sticky Action Footer */}
+                <div className="modal-footer">
+                    {topic.status === 'pending' ? (
+                        <>
                             {/* Action Type Selection */}
                             {!actionType && (
-                                <div className="action-buttons">
+                                <div className="action-buttons-row">
                                     <Button
                                         variant="success"
                                         onClick={handleApprove}
+                                        loading={approveMutation.isPending}
                                         disabled={isLoading}
+                                        leftIcon={<CheckCircle size={18} />}
                                     >
-{approveMutation.isPending ? (
-                                            <Loader2 size={18} className="animate-spin" aria-hidden="true" />
-                                        ) : (
-                                            <CheckCircle size={18} aria-hidden="true" />
-                                        )}
                                         Phê duyệt
                                     </Button>
                                     <Button
                                         variant="warning"
                                         onClick={() => setActionType('revision')}
                                         disabled={isLoading}
+                                        leftIcon={<AlertCircle size={18} />}
                                     >
-                                        <AlertCircle size={18} aria-hidden="true" />
                                         Yêu cầu chỉnh sửa
                                     </Button>
                                     <Button
                                         variant="danger"
                                         onClick={() => setActionType('reject')}
                                         disabled={isLoading}
+                                        leftIcon={<XCircle size={18} />}
                                     >
-                                        <XCircle size={18} aria-hidden="true" />
                                         Từ chối
                                     </Button>
                                 </div>
@@ -247,18 +265,22 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
 
                             {/* Revision Form */}
                             {actionType === 'revision' && (
-                                <div className="action-form">
-                                    <label htmlFor="revision-note">Nội dung yêu cầu chỉnh sửa:</label>
+                                <div className="action-form-inline">
+                                    <div className="form-header">
+                                        <AlertCircle size={18} className="icon-warning" aria-hidden="true" />
+                                        <span>Yêu cầu chỉnh sửa</span>
+                                    </div>
                                     <textarea
                                         id="revision-note"
                                         value={revisionNote}
                                         onChange={(e) => setRevisionNote(e.target.value)}
                                         placeholder="Nhập nội dung yêu cầu sinh viên chỉnh sửa…"
-                                        rows={4}
+                                        rows={3}
+                                        aria-label="Nội dung yêu cầu chỉnh sửa"
                                     />
                                     <div className="form-actions">
                                         <Button
-                                            variant="outline"
+                                            variant="ghost"
                                             onClick={() => setActionType(null)}
                                             disabled={isLoading}
                                         >
@@ -267,13 +289,10 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                                         <Button
                                             variant="warning"
                                             onClick={handleRevision}
+                                            loading={revisionMutation.isPending}
                                             disabled={!revisionNote.trim() || isLoading}
+                                            leftIcon={<AlertCircle size={18} />}
                                         >
-{revisionMutation.isPending ? (
-                                                <Loader2 size={18} className="animate-spin" aria-hidden="true" />
-                                            ) : (
-                                                <AlertCircle size={18} aria-hidden="true" />
-                                            )}
                                             Gửi yêu cầu
                                         </Button>
                                     </div>
@@ -282,18 +301,22 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
 
                             {/* Reject Form */}
                             {actionType === 'reject' && (
-                                <div className="action-form">
-                                    <label htmlFor="reject-reason">Lý do từ chối:</label>
+                                <div className="action-form-inline">
+                                    <div className="form-header">
+                                        <XCircle size={18} className="icon-danger" aria-hidden="true" />
+                                        <span>Từ chối đề tài</span>
+                                    </div>
                                     <textarea
                                         id="reject-reason"
                                         value={rejectReason}
                                         onChange={(e) => setRejectReason(e.target.value)}
                                         placeholder="Nhập lý do từ chối đề tài…"
-                                        rows={4}
+                                        rows={3}
+                                        aria-label="Lý do từ chối đề tài"
                                     />
                                     <div className="form-actions">
                                         <Button
-                                            variant="outline"
+                                            variant="ghost"
                                             onClick={() => setActionType(null)}
                                             disabled={isLoading}
                                         >
@@ -302,30 +325,22 @@ export function TopicReviewModal({ topic, isOpen, onClose, onActionComplete }) {
                                         <Button
                                             variant="danger"
                                             onClick={handleReject}
+                                            loading={rejectMutation.isPending}
                                             disabled={!rejectReason.trim() || isLoading}
+                                            leftIcon={<XCircle size={18} />}
                                         >
-{rejectMutation.isPending ? (
-                                                <Loader2 size={18} className="animate-spin" aria-hidden="true" />
-                                            ) : (
-                                                <XCircle size={18} aria-hidden="true" />
-                                            )}
                                             Xác nhận từ chối
                                         </Button>
                                     </div>
                                 </div>
                             )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Footer for non-pending topics */}
-                {topic.status !== 'pending' && (
-                    <div className="modal-footer">
+                        </>
+                    ) : (
                         <Button variant="outline" onClick={onClose}>
                             Đóng
                         </Button>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );

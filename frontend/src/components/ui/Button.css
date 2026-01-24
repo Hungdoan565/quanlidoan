@@ -81,6 +81,30 @@
 
 .btn-danger:hover:not(:disabled) {
     background: var(--danger-700);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-success {
+    background: var(--success-600);
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: var(--success-700);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-warning {
+    background: var(--warning-500);
+    color: var(--warning-900);
+}
+
+.btn-warning:hover:not(:disabled) {
+    background: var(--warning-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-ghost {

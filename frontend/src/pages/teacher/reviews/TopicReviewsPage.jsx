@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     FileText,
     CheckCircle,
@@ -13,7 +14,7 @@ import {
     Square,
     Loader2
 } from 'lucide-react';
-import { usePendingTopics, useMyAllTopics, useBulkApproveTopics } from '../../../hooks/useTeacherReviews';
+import { usePendingTopics, useMyAllTopics, useBulkApproveTopics, useTopicForReview } from '../../../hooks/useTeacherReviews';
 import { TopicReviewModal } from './TopicReviewModal';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
@@ -40,11 +41,24 @@ const TABS = [
 ];
 
 export function TopicReviewsPage() {
+    const { topicId: urlTopicId } = useParams();
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('pending');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTopic, setSelectedTopic] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedIds, setSelectedIds] = useState(new Set());
+
+    // Fetch topic from URL param if present
+    const { data: urlTopic, isLoading: urlTopicLoading } = useTopicForReview(urlTopicId);
+
+    // Auto-open modal when navigating with topicId in URL
+    useEffect(() => {
+        if (urlTopicId && urlTopic && !urlTopicLoading) {
+            setSelectedTopic(urlTopic);
+            setIsModalOpen(true);
+        }
+    }, [urlTopicId, urlTopic, urlTopicLoading]);
 
     // Fetch data based on active tab
     const {
@@ -65,6 +79,20 @@ export function TopicReviewsPage() {
     // Determine which data to display
     const topics = activeTab === 'pending' ? pendingTopics : allTopics;
     const isLoading = activeTab === 'pending' ? pendingLoading : allLoading;
+
+    // Filter topics by search term (must be defined before selectableTopics)
+    const filteredTopics = useMemo(() => {
+        return topics?.filter(topic => {
+            if (!searchTerm) return true;
+            const search = searchTerm.toLowerCase();
+            return (
+                topic.title?.toLowerCase().includes(search) ||
+                topic.student?.full_name?.toLowerCase().includes(search) ||
+                topic.student?.student_code?.toLowerCase().includes(search) ||
+                topic.class?.name?.toLowerCase().includes(search)
+            );
+        }) || [];
+    }, [topics, searchTerm]);
 
     // Selectable topics (only pending or revision status)
     const selectableTopics = useMemo(() => 
@@ -105,28 +133,20 @@ export function TopicReviewsPage() {
         }
     };
 
-    // Filter topics by search term
-    const filteredTopics = topics?.filter(topic => {
-        if (!searchTerm) return true;
-        const search = searchTerm.toLowerCase();
-        return (
-            topic.title?.toLowerCase().includes(search) ||
-            topic.student?.full_name?.toLowerCase().includes(search) ||
-            topic.student?.student_code?.toLowerCase().includes(search) ||
-            topic.class?.name?.toLowerCase().includes(search)
-        );
-    }) || [];
-
     // Handle view topic
     const handleViewTopic = (topic) => {
         setSelectedTopic(topic);
         setIsModalOpen(true);
     };
 
-    // Handle modal close
+// Handle modal close
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedTopic(null);
+        // If we came from a direct URL, navigate back to the list
+        if (urlTopicId) {
+            navigate('/teacher/reviews', { replace: true });
+        }
     };
 
     // Handle action complete (refresh data)
@@ -304,9 +324,11 @@ export function TopicReviewsPage() {
                                                     <span className="student-code">{topic.student?.student_code}</span>
                                                 </div>
                                             </td>
-                                            <td>
+<td className="topic-title-cell">
                                                 <div className="topic-title">
-                                                    {topic.title}
+                                                    <span className="topic-title-text" title={topic.title}>
+                                                        {topic.title}
+                                                    </span>
                                                     {topic.sample_topic && (
                                                         <span className="topic-type-badge">Đề tài mẫu</span>
                                                     )}
@@ -324,13 +346,13 @@ export function TopicReviewsPage() {
                                             <td>
                                                 <span className="date">{formatDate(topic.created_at)}</span>
                                             </td>
-                                            <td>
+<td>
 <Button
                                                     variant="outline"
                                                     size="small"
                                                     onClick={() => handleViewTopic(topic)}
+                                                    leftIcon={<Eye size={14} aria-hidden="true" />}
                                                 >
-                                                    <Eye size={16} aria-hidden="true" />
                                                     Xem
                                                 </Button>
                                             </td>

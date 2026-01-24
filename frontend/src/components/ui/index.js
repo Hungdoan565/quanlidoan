@@ -7,6 +7,7 @@ export { Input } from './Input';
 export { Textarea } from './Textarea';
 export { Select } from './Select';
 export { default as CustomSelect } from './CustomSelect';
+export { RadioGroup, DifficultySelector, DIFFICULTY_OPTIONS } from './RadioGroup';
 export {
     Dropdown,
     DropdownTrigger,
@@ -24,6 +25,9 @@ export { StatCard } from './StatCard';
 export { Timeline, TimelineItem, ProgressTimeline } from './Timeline';
 export { Countdown, CountdownCard } from './Countdown';
 export { ProgressBar } from './ProgressBar';
+export { Accordion, AccordionItem, AccordionGroup } from './Accordion';
+export { TaskList, SimpleTaskList, ProgressTaskList } from './TaskList';
+export { FileUpload } from './FileUpload';
 
 // Feedback
 export { Modal, ConfirmModal } from './Modal';

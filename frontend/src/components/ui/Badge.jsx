@@ -47,6 +47,8 @@ const statusConfig = {
     open: { variant: 'success', label: 'Đang mở' },
     closed: { variant: 'default', label: 'Đã đóng' },
     archived: { variant: 'default', label: 'Lưu trữ' },
+    // Logbook entry status
+    needs_revision: { variant: 'warning', label: 'Cần sửa' },
 };
 
 function StatusBadge({ status, className, ...props }) {

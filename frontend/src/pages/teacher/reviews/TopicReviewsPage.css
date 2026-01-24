@@ -173,12 +173,24 @@
 }
 
 /* Topic Title */
+.topic-reviews-page .topic-title-cell {
+  max-width: 300px;
+}
+
 .topic-reviews-page .topic-title {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
+  flex-direction: column;
+  gap: 4px;
+}
+
+.topic-reviews-page .topic-title-text {
   font-weight: 500;
   color: var(--text-primary);
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 
 .topic-reviews-page .topic-type-badge {
@@ -188,6 +200,7 @@
   padding: 2px 6px;
   border-radius: var(--radius-sm);
   font-weight: 500;
+  width: fit-content;
 }
 
 /* Class Name */

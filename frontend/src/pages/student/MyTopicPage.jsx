@@ -164,15 +164,18 @@ export function MyTopicPage() {
 
     return (
         <div className="my-topic-page">
-            <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/student/dashboard')}
-                className="back-button"
-            >
-                <ArrowLeft size={18}  aria-hidden="true" />
-                Quay lại
-            </Button>
+            <div className="page-header">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('/student/dashboard')}
+                    className="back-button"
+                >
+                    <ArrowLeft size={18} aria-hidden="true" />
+                    Quay lại
+                </Button>
+                <span className="page-context">Chi tiết đề tài</span>
+            </div>
 
             <div className={`status-hero ${status.bgClass}`}>
                 <div className="status-hero-icon">
@@ -274,23 +277,27 @@ export function MyTopicPage() {
                             ) : (
                                 <div className="topic-details">
                                     <h1 className="topic-title">{topic.title}</h1>
+                                    
                                     {topic.description && (
-                                        <div className="topic-description">
-                                            <p>{topic.description}</p>
-                                        </div>
+                                        <>
+                                            <div className="section-label">MÔ TẢ CHI TIẾT</div>
+                                            <div className="topic-description">
+                                                <p>{topic.description}</p>
+                                            </div>
+                                        </>
                                     )}
+                                    
                                     {topic.technologies?.length > 0 && (
-                                        <div className="topic-technologies">
-                                            <div className="tech-label">
-                                                <Code size={16}  aria-hidden="true" />
-                                                <span>Công nghệ:</span>
+                                        <>
+                                            <div className="section-label">CÔNG NGHỆ</div>
+                                            <div className="topic-technologies">
+                                                <div className="tech-tags">
+                                                    {topic.technologies.map((tech, i) => (
+                                                        <span key={i} className="tech-tag">{tech}</span>
+                                                    ))}
+                                                </div>
                                             </div>
-                                            <div className="tech-tags">
-                                                {topic.technologies.map((tech, i) => (
-                                                    <span key={i} className="tech-tag">{tech}</span>
-                                                ))}
-                                            </div>
-                                        </div>
+                                        </>
                                     )}
                                     <div className="topic-meta">
                                         <div className="meta-item">

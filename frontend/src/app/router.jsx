@@ -124,6 +124,7 @@ export const router = createBrowserRouter([
             { path: 'dashboard', element: <TeacherDashboard /> },
             { path: 'topics', element: <SampleTopicsPage /> },
             { path: 'reviews', element: <TopicReviewsPage /> },
+            { path: 'reviews/:topicId', element: <TopicReviewsPage /> },
             { path: 'mentees', element: <MyClassesPage /> },
             { path: 'mentees/health', element: <MenteesKanbanPage /> },
             { path: 'mentees/:classId', element: <TeacherClassDetailPage /> },

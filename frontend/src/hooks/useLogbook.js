@@ -30,7 +30,7 @@ export function useLogbookEntries(topicId) {
 }
 
 /**
- * Hook để tạo logbook entry mới
+ * Hook để tạo logbook entry mới (structured)
  */
 export function useCreateLogbookEntry() {
     const queryClient = useQueryClient();
@@ -40,7 +40,10 @@ export function useCreateLogbookEntry() {
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['logbook-entries', variables.topicId] });
             queryClient.invalidateQueries({ queryKey: ['my-topic-logbook'] });
-            toast.success('Đã thêm nhật ký tuần ' + data.week_number);
+            const message = data.status === 'pending' 
+                ? 'Đã gửi nhật ký tuần ' + data.week_number 
+                : 'Đã lưu nháp nhật ký tuần ' + data.week_number;
+            toast.success(message);
         },
         onError: (error) => {
             toast.error(error.message || 'Không thể tạo nhật ký');
@@ -55,13 +58,78 @@ export function useUpdateLogbookEntry() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ entryId, updates, topicId }) => logbookService.updateEntry(entryId, updates),
+        mutationFn: ({ entryId, updates }) => logbookService.updateEntry(entryId, updates),
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['logbook-entries', variables.topicId] });
-            toast.success('Đã cập nhật nhật ký');
+            queryClient.invalidateQueries({ queryKey: ['my-topic-logbook'] });
+            const message = data.status === 'pending' 
+                ? 'Đã gửi nhật ký' 
+                : 'Đã cập nhật nhật ký';
+            toast.success(message);
         },
         onError: (error) => {
             toast.error(error.message || 'Không thể cập nhật nhật ký');
+        },
+    });
+}
+
+/**
+ * Hook để submit entry cho review
+ */
+export function useSubmitLogbookEntry() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ entryId }) => logbookService.submitEntry(entryId),
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['logbook-entries', variables.topicId] });
+            queryClient.invalidateQueries({ queryKey: ['my-topic-logbook'] });
+            toast.success('Đã gửi báo cáo cho giảng viên');
+        },
+        onError: (error) => {
+            toast.error(error.message || 'Không thể gửi báo cáo');
+        },
+    });
+}
+
+/**
+ * Hook để lưu nháp
+ */
+export function useSaveDraft() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ entryId, updates }) => logbookService.saveDraft(entryId, updates),
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['logbook-entries', variables.topicId] });
+            toast.success('Đã lưu nháp');
+        },
+        onError: (error) => {
+            toast.error(error.message || 'Không thể lưu nháp');
+        },
+    });
+}
+
+/**
+ * Hook để upload file đính kèm
+ */
+export function useUploadAttachment() {
+    return useMutation({
+        mutationFn: ({ topicId, file }) => logbookService.uploadAttachment(topicId, file),
+        onError: (error) => {
+            toast.error(error.message || 'Không thể tải tệp lên');
+        },
+    });
+}
+
+/**
+ * Hook để xóa file đính kèm
+ */
+export function useDeleteAttachment() {
+    return useMutation({
+        mutationFn: ({ filePath }) => logbookService.deleteAttachment(filePath),
+        onError: (error) => {
+            toast.error(error.message || 'Không thể xóa tệp');
         },
     });
 }
@@ -94,13 +162,73 @@ export function useTopicLogbookDetail(topicId) {
 }
 
 /**
- * Hook để thêm teacher note
+ * Hook để duyệt nhật ký
+ */
+export function useApproveEntry() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ entryId, feedback }) => logbookService.approveEntry(entryId, feedback),
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['topic-logbook-detail', variables.topicId] });
+            queryClient.invalidateQueries({ queryKey: ['students-logbook'] });
+            queryClient.invalidateQueries({ queryKey: ['logbook-entries', variables.topicId] });
+            toast.success('Đã duyệt nhật ký');
+        },
+        onError: (error) => {
+            toast.error(error.message || 'Không thể duyệt nhật ký');
+        },
+    });
+}
+
+/**
+ * Hook để yêu cầu sửa nhật ký
+ */
+export function useRequestRevision() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ entryId, feedback }) => logbookService.requestRevision(entryId, feedback),
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['topic-logbook-detail', variables.topicId] });
+            queryClient.invalidateQueries({ queryKey: ['students-logbook'] });
+            queryClient.invalidateQueries({ queryKey: ['logbook-entries', variables.topicId] });
+            toast.success('Đã yêu cầu sinh viên sửa nhật ký');
+        },
+        onError: (error) => {
+            toast.error(error.message || 'Không thể yêu cầu sửa');
+        },
+    });
+}
+
+/**
+ * Hook để thêm feedback (general)
+ */
+export function useAddFeedback() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ entryId, feedback, status }) => 
+            logbookService.addFeedback(entryId, feedback, status),
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['topic-logbook-detail', variables.topicId] });
+            queryClient.invalidateQueries({ queryKey: ['students-logbook'] });
+            toast.success('Đã thêm phản hồi');
+        },
+        onError: (error) => {
+            toast.error(error.message || 'Không thể thêm phản hồi');
+        },
+    });
+}
+
+/**
+ * Hook để thêm teacher note (legacy support)
  */
 export function useAddTeacherNote() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ entryId, note, topicId }) => logbookService.addTeacherNote(entryId, note),
+        mutationFn: ({ entryId, note }) => logbookService.addTeacherNote(entryId, note),
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['topic-logbook-detail', variables.topicId] });
             queryClient.invalidateQueries({ queryKey: ['students-logbook'] });
@@ -119,7 +247,7 @@ export function useConfirmMeeting() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ entryId, meetingDate, topicId }) =>
+        mutationFn: ({ entryId, meetingDate }) =>
             logbookService.confirmMeeting(entryId, meetingDate),
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['topic-logbook-detail', variables.topicId] });
@@ -140,7 +268,7 @@ export function useUnconfirmMeeting() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ entryId, topicId }) => logbookService.unconfirmMeeting(entryId),
+        mutationFn: ({ entryId }) => logbookService.unconfirmMeeting(entryId),
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['topic-logbook-detail', variables.topicId] });
             queryClient.invalidateQueries({ queryKey: ['students-logbook'] });

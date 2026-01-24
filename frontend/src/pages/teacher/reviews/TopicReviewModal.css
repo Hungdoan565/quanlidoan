@@ -13,6 +13,15 @@
     animation: fadeIn 0.2s ease;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .modal-overlay,
+    .topic-review-modal,
+    .animate-spin {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -34,6 +43,19 @@
     flex-direction: column;
     animation: slideUp 0.3s ease;
     overscroll-behavior: contain;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes slideUp {
@@ -112,6 +134,12 @@
     border-radius: var(--radius-lg);
     padding: var(--space-4);
     margin-bottom: var(--space-4);
+    border: 1px solid var(--border-light);
+    transition: border-color 0.2s ease;
+}
+
+.topic-review-modal .info-card:hover {
+    border-color: var(--border-default);
 }
 
 .topic-review-modal .info-card.warning-card {
@@ -119,17 +147,25 @@
     border: 1px solid var(--warning-200);
 }
 
+.topic-review-modal .info-card.warning-card:hover {
+    border-color: var(--warning-300);
+}
+
 .topic-review-modal .info-header {
     display: flex;
     align-items: center;
     gap: var(--space-2);
     font-weight: 600;
+    font-size: var(--text-sm);
     color: var(--text-primary);
     margin-bottom: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border-light);
 }
 
 .topic-review-modal .info-header svg {
     color: var(--primary-500);
+    flex-shrink: 0;
 }
 
 .topic-review-modal .info-grid {
@@ -211,22 +247,49 @@
     flex-wrap: wrap;
 }
 
-/* Action Form */
-.topic-review-modal .action-form {
+/* Sticky Footer with Actions */
+.topic-review-modal .modal-footer {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--border-default);
     background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    padding: var(--space-4);
+    flex-shrink: 0;
 }
 
-.topic-review-modal .action-form label {
-    display: block;
+.topic-review-modal .action-buttons-row {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Inline Action Forms in Footer */
+.topic-review-modal .action-form-inline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    width: 100%;
+}
+
+.topic-review-modal .action-form-inline .form-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: 600;
     font-size: var(--text-sm);
-    font-weight: 500;
     color: var(--text-primary);
-    margin-bottom: var(--space-2);
 }
 
-.topic-review-modal .action-form textarea {
+.topic-review-modal .action-form-inline .form-header .icon-warning {
+    color: var(--warning-600);
+}
+
+.topic-review-modal .action-form-inline .form-header .icon-danger {
+    color: var(--danger-600);
+}
+
+.topic-review-modal .action-form-inline textarea {
     width: 100%;
     padding: var(--space-3);
     border: 1px solid var(--border-default);
@@ -239,25 +302,16 @@
     transition: all 0.2s ease;
 }
 
-.topic-review-modal .action-form textarea:focus {
+.topic-review-modal .action-form-inline textarea:focus {
     outline: none;
     border-color: var(--primary-500);
     box-shadow: 0 0 0 3px var(--primary-100);
 }
 
-.topic-review-modal .form-actions {
+.topic-review-modal .action-form-inline .form-actions {
     display: flex;
     justify-content: flex-end;
     gap: var(--space-3);
-    margin-top: var(--space-4);
-}
-
-/* Footer */
-.topic-review-modal .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    padding: var(--space-4) var(--space-6);
-    border-top: 1px solid var(--border-default);
 }
 
 /* Responsive */
@@ -271,11 +325,21 @@
         grid-template-columns: 1fr;
     }
 
-    .topic-review-modal .action-buttons {
+    .topic-review-modal .action-buttons,
+    .topic-review-modal .action-buttons-row {
         flex-direction: column;
     }
 
-    .topic-review-modal .action-buttons button {
+    .topic-review-modal .action-buttons button,
+    .topic-review-modal .action-buttons-row button {
+        width: 100%;
+    }
+
+    .topic-review-modal .action-form-inline .form-actions {
+        flex-direction: column;
+    }
+
+    .topic-review-modal .action-form-inline .form-actions button {
         width: 100%;
     }
 }

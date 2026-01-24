@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     BookOpen, ArrowLeft, Calendar, CheckCircle, Clock,
-    MessageSquare, Send, User, AlertCircle, XCircle,
-    FileText, FileCheck, Presentation, Code, Download
+    MessageSquare, Send, AlertCircle, XCircle,
+    FileText, FileCheck, Presentation, Code, Download,
+    ListChecks, Loader, Target, AlertTriangle, Paperclip,
+    Users
 } from 'lucide-react';
 import {
     Button,
     Card,
     CardBody,
     Badge,
+    StatusBadge,
     Input,
     Textarea,
     Modal,
@@ -20,24 +23,35 @@ import {
 } from '../../../components/ui';
 import {
     useTopicLogbookDetail,
+    useApproveEntry,
+    useRequestRevision,
     useAddTeacherNote,
     useConfirmMeeting,
     useUnconfirmMeeting,
 } from '../../../hooks/useLogbook';
 import { useReportsByTopic, useDownloadReport } from '../../../hooks/useReports';
-import { reportsService } from '../../../services/reports.service';
 import './StudentLogbookDetailPage.css';
+
+// Status config for logbook entries
+const LOGBOOK_STATUS_CONFIG = {
+    draft: { variant: 'default', label: 'Bản nháp', icon: Clock },
+    pending: { variant: 'warning', label: 'Chờ duyệt', icon: Clock },
+    approved: { variant: 'success', label: 'Đã duyệt', icon: CheckCircle },
+    needs_revision: { variant: 'danger', label: 'Cần sửa', icon: AlertTriangle },
+};
 
 export function StudentLogbookDetailPage() {
     const { topicId } = useParams();
     const navigate = useNavigate();
-    const [noteModal, setNoteModal] = useState({ open: false, entryId: null, currentNote: '' });
+    const [feedbackModal, setFeedbackModal] = useState({ open: false, entryId: null, action: null });
+    const [feedbackText, setFeedbackText] = useState('');
     const [confirmModal, setConfirmModal] = useState({ open: false, entryId: null });
     const [meetingDate, setMeetingDate] = useState(new Date().toISOString().split('T')[0]);
-    const [noteText, setNoteText] = useState('');
 
     // Queries
     const { data: topic, isLoading, error, refetch } = useTopicLogbookDetail(topicId);
+    const approveEntry = useApproveEntry();
+    const requestRevision = useRequestRevision();
     const addNote = useAddTeacherNote();
     const confirmMeeting = useConfirmMeeting();
     const unconfirmMeeting = useUnconfirmMeeting();
@@ -95,24 +109,41 @@ export function StudentLogbookDetailPage() {
 
     const reportsSummary = getReportsSummary();
     const entries = topic?.logbook_entries || [];
-    const confirmedCount = entries.filter(e => e.teacher_confirmed).length;
+    const approvedCount = entries.filter(e => e.status === 'approved' || e.teacher_confirmed).length;
+    const pendingCount = entries.filter(e => e.status === 'pending').length;
 
-    // Handle add note
-    const handleOpenNoteModal = (entry) => {
-        setNoteText(entry.teacher_note || '');
-        setNoteModal({ open: true, entryId: entry.id, currentNote: entry.teacher_note || '' });
+    // Get status config for entry
+    const getStatusConfig = (entry) => {
+        const status = entry.status || (entry.teacher_confirmed ? 'approved' : 'pending');
+        return LOGBOOK_STATUS_CONFIG[status] || LOGBOOK_STATUS_CONFIG.pending;
     };
 
-    const handleSubmitNote = async () => {
-        await addNote.mutateAsync({
-            entryId: noteModal.entryId,
-            note: noteText,
+    // Handle approve
+    const handleApprove = async (entryId) => {
+        await approveEntry.mutateAsync({
+            entryId,
+            feedback: feedbackText || null,
             topicId,
         });
-        setNoteModal({ open: false, entryId: null, currentNote: '' });
+        setFeedbackModal({ open: false, entryId: null, action: null });
+        setFeedbackText('');
     };
 
-    // Handle confirm meeting
+    // Handle request revision
+    const handleRequestRevision = async (entryId) => {
+        if (!feedbackText.trim()) {
+            return; // Require feedback for revision
+        }
+        await requestRevision.mutateAsync({
+            entryId,
+            feedback: feedbackText,
+            topicId,
+        });
+        setFeedbackModal({ open: false, entryId: null, action: null });
+        setFeedbackText('');
+    };
+
+    // Handle confirm meeting (legacy support)
     const handleOpenConfirmModal = (entry) => {
         setMeetingDate(entry.meeting_date
             ? new Date(entry.meeting_date).toISOString().split('T')[0]
@@ -135,6 +166,31 @@ export function StudentLogbookDetailPage() {
         if (window.confirm('Bạn có chắc muốn hủy xác nhận buổi gặp này?')) {
             await unconfirmMeeting.mutateAsync({ entryId, topicId });
         }
+    };
+
+    // Render task list
+    const renderTaskList = (tasks, showProgress = false) => {
+        if (!tasks || tasks.length === 0) {
+            return <span className="no-tasks">Không có</span>;
+        }
+
+        return (
+            <ul className="task-display-list">
+                {tasks.map((task, index) => {
+                    const taskText = typeof task === 'string' ? task : task.task;
+                    const progress = typeof task === 'object' ? task.progress : null;
+                    
+                    return (
+                        <li key={index} className="task-display-item">
+                            <span className="task-text">{taskText}</span>
+                            {showProgress && progress !== null && (
+                                <span className="task-progress-badge">{progress}%</span>
+                            )}
+                        </li>
+                    );
+                })}
+            </ul>
+        );
     };
 
     if (isLoading) {
@@ -214,8 +270,12 @@ export function StudentLogbookDetailPage() {
                             <span className="stat-label">Nhật ký</span>
                         </div>
                         <div className="stat-item">
-                            <span className="stat-value">{confirmedCount}</span>
-                            <span className="stat-label">Đã xác nhận</span>
+                            <span className="stat-value">{approvedCount}</span>
+                            <span className="stat-label">Đã duyệt</span>
+                        </div>
+                        <div className="stat-item stat-highlight">
+                            <span className="stat-value">{pendingCount}</span>
+                            <span className="stat-label">Chờ duyệt</span>
                         </div>
                         <div className="stat-item">
                             <span className="stat-value">{reportsSummary.count}/{reportsSummary.total}</span>
@@ -293,6 +353,11 @@ export function StudentLogbookDetailPage() {
             <div className="entries-section">
                 <h2 className="section-title">
                     Nhật ký ({entries.length} entries)
+                    {pendingCount > 0 && (
+                        <Badge variant="warning" style={{ marginLeft: 8 }}>
+                            {pendingCount} chờ duyệt
+                        </Badge>
+                    )}
                 </h2>
 
                 {entries.length === 0 ? (
@@ -307,133 +372,270 @@ export function StudentLogbookDetailPage() {
                     </Card>
                 ) : (
                     <div className="entries-list">
-                        {entries.map((entry) => (
-                            <Card key={entry.id} className={`entry-card ${entry.teacher_confirmed ? 'confirmed' : ''}`}>
-                                <CardBody>
-                                    <div className="entry-header">
-                                        <div className="entry-week">
-                                            <span className="week-number">Tuần {entry.week_number}</span>
-                                            <span className="week-range">{getWeekDateRange(entry.week_number)}</span>
-                                        </div>
-                                        <div className="entry-status">
-                                            {entry.teacher_confirmed ? (
-                                                <Badge variant="success">
-                                                    <CheckCircle size={12} />
-                                                    Đã xác nhận
+                        {entries.map((entry) => {
+                            const statusConfig = getStatusConfig(entry);
+                            const StatusIcon = statusConfig.icon;
+                            const isApproved = entry.status === 'approved' || entry.teacher_confirmed;
+                            const isPending = entry.status === 'pending';
+                            const hasStructuredData = entry.completed_tasks || entry.in_progress_tasks || entry.planned_tasks;
+
+                            return (
+                                <Card key={entry.id} className={`entry-card entry-status-${entry.status || 'pending'}`}>
+                                    <CardBody>
+                                        <div className="entry-header">
+                                            <div className="entry-week">
+                                                <span className="week-number">Tuần {entry.week_number}</span>
+                                                <span className="week-range">{getWeekDateRange(entry.week_number)}</span>
+                                            </div>
+                                            <div className="entry-status">
+                                                <Badge variant={statusConfig.variant}>
+                                                    <StatusIcon size={12} />
+                                                    {statusConfig.label}
                                                 </Badge>
-                                            ) : (
-                                                <Badge variant="warning">
-                                                    <Clock size={12} />
-                                                    Chờ xác nhận
+                                            </div>
+                                        </div>
+
+                                        {/* Meeting Info */}
+                                        <div className="entry-meeting-info">
+                                            <div className="meta-item">
+                                                <Calendar size={14} />
+                                                <span>Ngày gặp: {formatDate(entry.meeting_date)}</span>
+                                            </div>
+                                            {entry.meeting_type && (
+                                                <Badge variant="default" size="sm">
+                                                    <Users size={12} />
+                                                    {entry.meeting_type === 'online' ? 'Online' : 'Trực tiếp'}
                                                 </Badge>
                                             )}
+                                            {entry.attachments?.length > 0 && (
+                                                <div className="meta-item">
+                                                    <Paperclip size={14} />
+                                                    <span>{entry.attachments.length} tệp</span>
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
 
-                                    <div className="entry-content">
-                                        <p className="content-text">
-                                            {entry.content}
-                                        </p>
-                                    </div>
+                                        {/* Structured Content Display */}
+                                        {hasStructuredData ? (
+                                            <div className="entry-structured-content">
+                                                {/* Completed Tasks */}
+                                                <div className="task-section">
+                                                    <div className="task-section-header">
+                                                        <ListChecks size={16} className="icon-success" />
+                                                        <span>Đã hoàn thành ({entry.completed_tasks?.length || 0})</span>
+                                                    </div>
+                                                    {renderTaskList(entry.completed_tasks)}
+                                                </div>
 
-                                    <div className="entry-meta">
-                                        <div className="meta-item">
-                                            <Calendar size={14} />
-                                            <span>SV báo gặp: {formatDate(entry.meeting_date)}</span>
-                                        </div>
-                                        <div className="meta-item">
-                                            <Clock size={14} />
-                                            <span>Tạo: {formatDate(entry.created_at)}</span>
-                                        </div>
-                                    </div>
+                                                {/* In Progress Tasks */}
+                                                <div className="task-section">
+                                                    <div className="task-section-header">
+                                                        <Loader size={16} className="icon-primary" />
+                                                        <span>Đang thực hiện ({entry.in_progress_tasks?.length || 0})</span>
+                                                    </div>
+                                                    {renderTaskList(entry.in_progress_tasks, true)}
+                                                </div>
 
-                                    {/* Teacher Note Section */}
-                                    <div className="teacher-section">
-                                        <label className="section-label">Ghi chú của GV:</label>
-                                        {entry.teacher_note ? (
-                                            <div className="teacher-note">
-                                                <MessageSquare size={14} />
-                                                <span>{entry.teacher_note}</span>
+                                                {/* Planned Tasks */}
+                                                <div className="task-section">
+                                                    <div className="task-section-header">
+                                                        <Target size={16} className="icon-warning" />
+                                                        <span>Kế hoạch tuần sau ({entry.planned_tasks?.length || 0})</span>
+                                                    </div>
+                                                    {renderTaskList(entry.planned_tasks)}
+                                                </div>
+
+                                                {/* Issues */}
+                                                {entry.issues && (
+                                                    <div className="task-section issues-section">
+                                                        <div className="task-section-header">
+                                                            <AlertTriangle size={16} className="icon-danger" />
+                                                            <span>Vấn đề & Khó khăn</span>
+                                                        </div>
+                                                        <p className="issues-text">{entry.issues}</p>
+                                                    </div>
+                                                )}
                                             </div>
                                         ) : (
-                                            <p className="no-note">Chưa có ghi chú</p>
+                                            /* Legacy content display */
+                                            <div className="entry-content">
+                                                <p className="content-text">{entry.content}</p>
+                                            </div>
                                         )}
-                                    </div>
 
-                                    {/* Actions */}
-                                    <div className="entry-actions">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            leftIcon={<MessageSquare size={14} />}
-                                            onClick={() => handleOpenNoteModal(entry)}
-                                        >
-                                            {entry.teacher_note ? 'Sửa ghi chú' : 'Thêm ghi chú'}
-                                        </Button>
+                                        {/* Teacher Feedback Section */}
+                                        <div className="teacher-section">
+                                            <label className="section-label">Phản hồi của GV:</label>
+                                            {entry.feedback_comment || entry.teacher_note ? (
+                                                <div className="teacher-note">
+                                                    <MessageSquare size={14} />
+                                                    <div>
+                                                        <span>{entry.feedback_comment || entry.teacher_note}</span>
+                                                        {entry.feedback_at && (
+                                                            <span className="feedback-time">
+                                                                {new Date(entry.feedback_at).toLocaleString('vi-VN')}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <p className="no-note">Chưa có phản hồi</p>
+                                            )}
+                                        </div>
 
-                                        {entry.teacher_confirmed ? (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                leftIcon={<XCircle size={14} />}
-                                                onClick={() => handleUnconfirm(entry.id)}
-                                            >
-                                                Hủy xác nhận
-                                            </Button>
-                                        ) : (
-                                            <Button
-                                                variant="primary"
-                                                size="sm"
-                                                leftIcon={<CheckCircle size={14} />}
-                                                onClick={() => handleOpenConfirmModal(entry)}
-                                            >
-                                                Xác nhận gặp
-                                            </Button>
-                                        )}
-                                    </div>
-                                </CardBody>
-                            </Card>
-                        ))}
+                                        {/* Actions */}
+                                        <div className="entry-actions">
+                                            {isPending && (
+                                                <>
+                                                    <Button
+                                                        variant="danger"
+                                                        size="sm"
+                                                        leftIcon={<AlertTriangle size={14} />}
+                                                        onClick={() => setFeedbackModal({ 
+                                                            open: true, 
+                                                            entryId: entry.id, 
+                                                            action: 'revision' 
+                                                        })}
+                                                    >
+                                                        Yêu cầu sửa
+                                                    </Button>
+                                                    <Button
+                                                        variant="primary"
+                                                        size="sm"
+                                                        leftIcon={<CheckCircle size={14} />}
+                                                        onClick={() => setFeedbackModal({ 
+                                                            open: true, 
+                                                            entryId: entry.id, 
+                                                            action: 'approve' 
+                                                        })}
+                                                    >
+                                                        Duyệt
+                                                    </Button>
+                                                </>
+                                            )}
+
+                                            {isApproved && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    leftIcon={<XCircle size={14} />}
+                                                    onClick={() => handleUnconfirm(entry.id)}
+                                                >
+                                                    Hủy duyệt
+                                                </Button>
+                                            )}
+
+                                            {!isApproved && !isPending && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    leftIcon={<MessageSquare size={14} />}
+                                                    onClick={() => setFeedbackModal({ 
+                                                        open: true, 
+                                                        entryId: entry.id, 
+                                                        action: 'note' 
+                                                    })}
+                                                >
+                                                    Thêm ghi chú
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </CardBody>
+                                </Card>
+                            );
+                        })}
                     </div>
                 )}
             </div>
 
-            {/* Note Modal */}
+            {/* Feedback Modal */}
             <Modal
-                isOpen={noteModal.open}
-                onClose={() => setNoteModal({ open: false, entryId: null, currentNote: '' })}
-                title="Ghi chú cho Sinh viên"
+                isOpen={feedbackModal.open}
+                onClose={() => {
+                    setFeedbackModal({ open: false, entryId: null, action: null });
+                    setFeedbackText('');
+                }}
+                title={
+                    feedbackModal.action === 'approve' ? 'Duyệt Nhật ký' :
+                    feedbackModal.action === 'revision' ? 'Yêu cầu Sinh viên sửa' :
+                    'Thêm ghi chú'
+                }
                 size="md"
             >
-                <div className="note-form">
+                <div className="feedback-form">
                     <Textarea
-                        value={noteText}
-                        onChange={(e) => setNoteText(e.target.value)}
-                        placeholder="Nhập ghi chú, phản hồi cho sinh viên về tiến độ tuần này…"
-                        rows={5}
+                        value={feedbackText}
+                        onChange={(e) => setFeedbackText(e.target.value)}
+                        placeholder={
+                            feedbackModal.action === 'approve' 
+                                ? 'Nhận xét (không bắt buộc)...'
+                                : feedbackModal.action === 'revision'
+                                    ? 'Nhập lý do yêu cầu sửa (bắt buộc)...'
+                                    : 'Nhập ghi chú cho sinh viên...'
+                        }
+                        rows={4}
                     />
+                    {feedbackModal.action === 'revision' && !feedbackText.trim() && (
+                        <p className="form-error">Vui lòng nhập lý do yêu cầu sửa</p>
+                    )}
                     <p className="form-hint">
-                        Ghi chú sẽ hiển thị cho sinh viên xem.
+                        {feedbackModal.action === 'approve' 
+                            ? 'Bạn có thể thêm nhận xét hoặc để trống.'
+                            : 'Phản hồi sẽ hiển thị cho sinh viên xem.'
+                        }
                     </p>
                     <div className="form-actions">
                         <Button
                             variant="ghost"
-                            onClick={() => setNoteModal({ open: false, entryId: null, currentNote: '' })}
+                            onClick={() => {
+                                setFeedbackModal({ open: false, entryId: null, action: null });
+                                setFeedbackText('');
+                            }}
                         >
                             Hủy
                         </Button>
-                        <Button
-                            leftIcon={<Send size={16} />}
-                            onClick={handleSubmitNote}
-                            loading={addNote.isPending}
-                        >
-                            Lưu ghi chú
-                        </Button>
+                        {feedbackModal.action === 'approve' && (
+                            <Button
+                                leftIcon={<CheckCircle size={16} />}
+                                onClick={() => handleApprove(feedbackModal.entryId)}
+                                loading={approveEntry.isPending}
+                            >
+                                Duyệt
+                            </Button>
+                        )}
+                        {feedbackModal.action === 'revision' && (
+                            <Button
+                                variant="danger"
+                                leftIcon={<AlertTriangle size={16} />}
+                                onClick={() => handleRequestRevision(feedbackModal.entryId)}
+                                loading={requestRevision.isPending}
+                                disabled={!feedbackText.trim()}
+                            >
+                                Yêu cầu sửa
+                            </Button>
+                        )}
+                        {feedbackModal.action === 'note' && (
+                            <Button
+                                leftIcon={<Send size={16} />}
+                                onClick={async () => {
+                                    await addNote.mutateAsync({
+                                        entryId: feedbackModal.entryId,
+                                        note: feedbackText,
+                                        topicId,
+                                    });
+                                    setFeedbackModal({ open: false, entryId: null, action: null });
+                                    setFeedbackText('');
+                                }}
+                                loading={addNote.isPending}
+                            >
+                                Lưu ghi chú
+                            </Button>
+                        )}
                     </div>
                 </div>
             </Modal>
 
-            {/* Confirm Meeting Modal */}
+            {/* Confirm Meeting Modal (legacy) */}
             <Modal
                 isOpen={confirmModal.open}
                 onClose={() => setConfirmModal({ open: false, entryId: null })}

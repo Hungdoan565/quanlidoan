@@ -7,7 +7,7 @@ import './Button.css';
  * Button Component
  * 
  * @param {Object} props
- * @param {'primary' | 'secondary' | 'danger' | 'ghost' | 'outline'} props.variant
+ * @param {'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'ghost' | 'outline'} props.variant
  * @param {'sm' | 'md' | 'lg'} props.size
  * @param {boolean} props.loading
  * @param {boolean} props.fullWidth

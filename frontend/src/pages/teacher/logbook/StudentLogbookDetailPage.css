@@ -420,9 +420,168 @@
     flex-shrink: 0;
 }
 
+/* ========================================
+   Structured Content Display
+   ======================================== */
+
+/* Status-based entry styling */
+.logbook-detail-page .entry-card.entry-status-approved {
+    border-left: 4px solid var(--success-500);
+}
+
+.logbook-detail-page .entry-card.entry-status-pending {
+    border-left: 4px solid var(--warning-500);
+}
+
+.logbook-detail-page .entry-card.entry-status-needs_revision {
+    border-left: 4px solid var(--danger-500);
+}
+
+.logbook-detail-page .entry-card.entry-status-draft {
+    border-left: 4px solid var(--border-default);
+}
+
+/* Meeting Info Row */
+.entry-meeting-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 8px 0;
+    margin-bottom: 12px;
+}
+
+/* Stat highlight */
+.stat-item.stat-highlight .stat-value {
+    color: var(--warning-600);
+}
+
+/* Structured Content */
+.entry-structured-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.task-section {
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.task-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.task-section-header .icon-success { color: var(--success-600); }
+.task-section-header .icon-primary { color: var(--primary-600); }
+.task-section-header .icon-warning { color: var(--warning-600); }
+.task-section-header .icon-danger { color: var(--danger-600); }
+
+.task-display-list {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.task-display-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.task-text {
+    flex: 1;
+}
+
+.task-progress-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    padding: 2px 8px;
+    background: var(--primary-100);
+    color: var(--primary-700);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+}
+
+.no-tasks {
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 0.85rem;
+}
+
+.issues-section {
+    background: var(--danger-50);
+}
+
+.issues-section .task-section-header {
+    color: var(--danger-700);
+}
+
+.issues-text {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+}
+
+/* Feedback Form */
+.feedback-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.feedback-form .form-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.feedback-form .form-error {
+    font-size: 0.75rem;
+    color: var(--danger-600);
+    margin: 0;
+}
+
+.feedback-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+}
+
+/* Feedback time in teacher note */
+.teacher-note .feedback-time {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Section title with badge */
+.section-title .badge {
+    vertical-align: middle;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
     .logbook-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
     }
     
@@ -451,5 +610,17 @@
     
     .report-actions button {
         width: 100%;
+    }
+
+    .entry-meeting-info {
+        gap: 8px;
+    }
+
+    .entry-structured-content {
+        gap: 8px;
+    }
+
+    .task-section {
+        padding: 10px;
     }
 }
