@@ -28,6 +28,72 @@
 .mentees-kanban-page .page-actions {
   display: flex;
   gap: 12px;
+  align-items: center;
+}
+
+/* Class Filter Dropdown */
+.class-filter-wrapper {
+  position: relative;
+}
+
+.class-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+  justify-content: space-between;
+}
+
+.dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+}
+
+.class-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+  min-width: 280px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.class-dropdown .dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  transition: background 0.15s ease;
+}
+
+.class-dropdown .dropdown-item:hover {
+  background: var(--bg-secondary);
+}
+
+.class-dropdown .dropdown-item.active {
+  background: var(--primary-50);
+  color: var(--primary-700);
+  font-weight: 500;
+}
+
+.class-dropdown .dropdown-item:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.class-dropdown .dropdown-item:last-child {
+  border-radius: 0 0 8px 8px;
 }
 
 .mentees-kanban-page .search-input {
@@ -82,12 +148,18 @@
 /* Kanban Board */
 .kanban-board {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   min-height: 500px;
 }
 
 @media (max-width: 1024px) {
+  .kanban-board {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
   .kanban-board {
     grid-template-columns: 1fr;
   }
@@ -113,6 +185,16 @@
 
 .kanban-column.success {
   border-top: 3px solid var(--success);
+}
+
+.kanban-column.muted {
+  border-top: 3px solid var(--text-muted);
+}
+
+.summary-item.muted {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-muted);
 }
 
 .column-header {
@@ -141,6 +223,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 600px;
+  scroll-behavior: smooth;
 }
 
 .column-empty {
@@ -189,6 +273,19 @@
   margin-bottom: 10px;
 }
 
+.mentee-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.class-badge {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+}
+
 .mentee-avatar {
   width: 40px;
   height: 40px;
@@ -231,6 +328,22 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.4;
+}
+
+.mentee-topic.no-topic-text {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* No topic card style */
+.mentee-card.no-topic {
+  border-style: dashed;
+  opacity: 0.85;
+}
+
+.mentee-card.no-topic .mentee-avatar {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
 }
 
 /* Signals */
