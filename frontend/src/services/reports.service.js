@@ -168,15 +168,14 @@ export const reportsService = {
             ? existingReports[0].version + 1 
             : 1;
 
-        // Generate file path
-        const sessionId = topic.class?.session_id;
-        const classId = topic.class?.id;
+        // Generate file path - topic_id MUST be first folder for RLS policy
         const fileExt = file.name.split('.').pop();
         const timestamp = Date.now();
         const safeName = `${phase}_v${nextVersion}_${timestamp}.${fileExt}`;
         
-        // Path: session/{session_id}/class/{class_id}/topic/{topic_id}/{phase}/v{version}/{filename}
-        const filePath = `session/${sessionId}/class/${classId}/topic/${topicId}/${phase}/v${nextVersion}/${safeName}`;
+        // Path: {topic_id}/{phase}/v{version}/{filename}
+        // RLS policy expects topic_id as first folder segment
+        const filePath = `${topicId}/${phase}/v${nextVersion}/${safeName}`;
 
         // Upload to storage
         const { error: uploadError } = await supabase.storage

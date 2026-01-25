@@ -8,14 +8,45 @@
 
 import { supabase } from '../lib/supabase';
 
+/**
+ * Default grading criteria templates
+ * Used when a session has no criteria configured
+ */
+const DEFAULT_CRITERIA = {
+    advisor: [
+        { name: "Điểm danh, thái độ làm việc", weight: 0.10, max_score: 10, description: "Tham gia đầy đủ các buổi hướng dẫn, thái độ tích cực" },
+        { name: "Tiến độ thực hiện", weight: 0.15, max_score: 10, description: "Hoàn thành đúng tiến độ đề ra" },
+        { name: "Chất lượng báo cáo", weight: 0.25, max_score: 10, description: "Nội dung báo cáo đầy đủ, rõ ràng" },
+        { name: "Demo sản phẩm", weight: 0.35, max_score: 10, description: "Sản phẩm hoạt động đúng yêu cầu" },
+        { name: "Khả năng tự nghiên cứu", weight: 0.15, max_score: 10, description: "Chủ động tìm hiểu, giải quyết vấn đề" }
+    ],
+    reviewer: [
+        { name: "Nội dung đề tài", weight: 0.35, max_score: 10, description: "Đề tài có tính thực tiễn, giải quyết vấn đề cụ thể" },
+        { name: "Phương pháp thực hiện", weight: 0.25, max_score: 10, description: "Phương pháp phù hợp, khoa học" },
+        { name: "Kết quả đạt được", weight: 0.25, max_score: 10, description: "Kết quả đáp ứng mục tiêu đề ra" },
+        { name: "Hình thức báo cáo", weight: 0.15, max_score: 10, description: "Trình bày rõ ràng, đúng quy cách" }
+    ],
+    council: [
+        { name: "Trình bày", weight: 0.20, max_score: 10, description: "Trình bày rõ ràng, logic, đúng thời gian" },
+        { name: "Trả lời câu hỏi", weight: 0.30, max_score: 10, description: "Trả lời đúng, đầy đủ các câu hỏi" },
+        { name: "Hiểu biết chuyên môn", weight: 0.30, max_score: 10, description: "Nắm vững kiến thức liên quan" },
+        { name: "Tổng thể đồ án", weight: 0.20, max_score: 10, description: "Đánh giá tổng thể chất lượng đồ án" }
+    ]
+};
+
 export const gradingService = {
     /**
      * Get grading criteria for a session
      * Returns object with criteria grouped by grader_role
+     * Auto-creates default criteria if none exist for the session
      * @param {string} sessionId - Session UUID
      * @returns {Promise<Object>} { advisor: [...], reviewer: [...], council: [...] }
      */
     async getCriteriaBySession(sessionId) {
+        if (!sessionId) {
+            return { advisor: [], reviewer: [], council: [] };
+        }
+
         const { data, error } = await supabase
             .from('grading_criteria')
             .select('*')
@@ -37,7 +68,53 @@ export const gradingService = {
             }
         });
 
+        // If no criteria exist, auto-create defaults
+        const hasAnyCriteria = grouped.advisor.length > 0 || grouped.reviewer.length > 0 || grouped.council.length > 0;
+        if (!hasAnyCriteria) {
+            console.log(`No grading criteria for session ${sessionId}, creating defaults...`);
+            try {
+                await this.createDefaultCriteria(sessionId);
+                // Return defaults immediately (don't wait for re-fetch)
+                return {
+                    advisor: DEFAULT_CRITERIA.advisor,
+                    reviewer: DEFAULT_CRITERIA.reviewer,
+                    council: DEFAULT_CRITERIA.council
+                };
+            } catch (createError) {
+                console.warn('Could not auto-create criteria:', createError.message);
+                // Return defaults even if insert failed (read-only fallback)
+                return {
+                    advisor: DEFAULT_CRITERIA.advisor,
+                    reviewer: DEFAULT_CRITERIA.reviewer,
+                    council: DEFAULT_CRITERIA.council
+                };
+            }
+        }
+
         return grouped;
+    },
+
+    /**
+     * Create default grading criteria for a session
+     * @param {string} sessionId - Session UUID
+     */
+    async createDefaultCriteria(sessionId) {
+        const inserts = [
+            { session_id: sessionId, grader_role: 'advisor', criteria: DEFAULT_CRITERIA.advisor },
+            { session_id: sessionId, grader_role: 'reviewer', criteria: DEFAULT_CRITERIA.reviewer },
+            { session_id: sessionId, grader_role: 'council', criteria: DEFAULT_CRITERIA.council }
+        ];
+
+        const { error } = await supabase
+            .from('grading_criteria')
+            .insert(inserts);
+
+        if (error) {
+            // Ignore duplicate key errors (criteria already exist)
+            if (!error.message?.includes('duplicate') && error.code !== '23505') {
+                throw error;
+            }
+        }
     },
 
     /**
@@ -246,7 +323,7 @@ export const gradingService = {
                     session:session_id(id, name, academic_year, semester)
                 )
             `)
-            .in('status', ['in_progress', 'submitted', 'defended', 'completed']);
+            .in('status', ['approved', 'in_progress', 'submitted', 'defended', 'completed']);
 
         if (role === 'advisor') {
             query = query.eq('advisor_id', teacherId);
@@ -297,19 +374,31 @@ export const gradingService = {
      * Get all grades for a topic
      */
     async getTopicGrades(topicId, graderId = null) {
-        let query = supabase
-            .from('topic_grades')
-            .select('*')
-            .eq('topic_id', topicId);
+        try {
+            let query = supabase
+                .from('topic_grades')
+                .select('*')
+                .eq('topic_id', topicId);
 
-        if (graderId) {
-            query = query.eq('graded_by', graderId);
+            if (graderId) {
+                query = query.eq('graded_by', graderId);
+            }
+
+            const { data, error } = await query.order('created_at');
+
+            if (error) {
+                // If table doesn't exist, return empty array gracefully
+                if (error.message?.includes('does not exist') || error.code === 'PGRST116') {
+                    console.warn('topic_grades table may not exist yet:', error.message);
+                    return [];
+                }
+                throw error;
+            }
+            return data || [];
+        } catch (e) {
+            console.warn('Error fetching topic grades:', e.message);
+            return [];
         }
-
-        const { data, error } = await query.order('created_at');
-
-        if (error) throw error;
-        return data || [];
     },
 
     /**

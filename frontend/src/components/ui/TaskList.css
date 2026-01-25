@@ -116,6 +116,56 @@
     margin-top: 4px;
 }
 
+/* Progress status buttons - replaces confusing % slider */
+.task-progress-status {
+    display: flex;
+    gap: 6px;
+    padding-left: 20px;
+    margin-top: 6px;
+    width: 100%;
+}
+
+.progress-status-btn {
+    padding: 4px 10px;
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.progress-status-btn:hover:not(:disabled) {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+}
+
+.progress-status-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Active states for each progress level */
+.progress-status-btn.progress-status-active {
+    border-color: transparent;
+    color: white;
+}
+
+.progress-status-start.progress-status-active {
+    background: var(--warning-500);
+}
+
+.progress-status-working.progress-status-active {
+    background: var(--primary-500);
+}
+
+.progress-status-almost.progress-status-active {
+    background: var(--success-500);
+}
+
 .task-progress-slider {
     flex: 1;
     height: 6px;
@@ -278,6 +328,16 @@
 @media (max-width: 640px) {
     .task-progress {
         padding-left: 0;
+    }
+    
+    .task-progress-status {
+        padding-left: 0;
+        flex-wrap: wrap;
+    }
+    
+    .progress-status-btn {
+        padding: 3px 8px;
+        font-size: 0.7rem;
     }
     
     .task-item {

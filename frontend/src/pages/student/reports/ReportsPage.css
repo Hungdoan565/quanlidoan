@@ -24,17 +24,23 @@
 /* Progress Card */
 .progress-card {
   margin-bottom: 24px;
+  border: 1px solid var(--border-color);
+}
+
+.progress-card .card-body {
+  padding: 20px 24px;
 }
 
 .progress-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .progress-label {
   font-weight: 600;
+  font-size: 0.9375rem;
   color: var(--text-primary);
 }
 

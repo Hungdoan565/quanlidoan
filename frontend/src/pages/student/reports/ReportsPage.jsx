@@ -224,7 +224,11 @@ export function ReportsPage() {
                             {submittedPhases}/{reportPhases.length}
                         </Badge>
                     </div>
-                    <ProgressBar value={submittedPhases} max={reportPhases.length} variant="primary" showLabel />
+                    <ProgressBar 
+                        value={submittedPhases} 
+                        max={reportPhases.length} 
+                        variant={submittedPhases === reportPhases.length ? 'success' : 'primary'} 
+                    />
                 </CardBody>
             </Card>
 

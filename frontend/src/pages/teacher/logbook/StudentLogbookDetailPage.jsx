@@ -1,25 +1,24 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import {
     BookOpen, ArrowLeft, Calendar, CheckCircle, Clock,
     MessageSquare, Send, AlertCircle, XCircle,
     FileText, FileCheck, Presentation, Code, Download,
     ListChecks, Loader, Target, AlertTriangle, Paperclip,
-    Users
+    Users, Github, ExternalLink, ChevronDown
 } from 'lucide-react';
 import {
     Button,
     Card,
     CardBody,
     Badge,
-    StatusBadge,
     Input,
     Textarea,
     Modal,
     SkeletonText,
     NoDataState,
     ErrorState,
-    ProgressBar,
 } from '../../../components/ui';
 import {
     useTopicLogbookDetail,
@@ -30,6 +29,7 @@ import {
     useUnconfirmMeeting,
 } from '../../../hooks/useLogbook';
 import { useReportsByTopic, useDownloadReport } from '../../../hooks/useReports';
+import { logbookService } from '../../../services/logbook.service';
 import './StudentLogbookDetailPage.css';
 
 // Status config for logbook entries
@@ -47,6 +47,8 @@ export function StudentLogbookDetailPage() {
     const [feedbackText, setFeedbackText] = useState('');
     const [confirmModal, setConfirmModal] = useState({ open: false, entryId: null });
     const [meetingDate, setMeetingDate] = useState(new Date().toISOString().split('T')[0]);
+    const [downloadingAttachment, setDownloadingAttachment] = useState(null);
+    const [expandedEntries, setExpandedEntries] = useState(new Set());
 
     // Queries
     const { data: topic, isLoading, error, refetch } = useTopicLogbookDetail(topicId);
@@ -59,6 +61,20 @@ export function StudentLogbookDetailPage() {
     // Reports data
     const { data: reports = [], isLoading: reportsLoading } = useReportsByTopic(topicId);
     const downloadReport = useDownloadReport();
+
+    // Handle attachment download
+    const handleDownloadAttachment = async (attachment) => {
+        try {
+            setDownloadingAttachment(attachment.path || attachment.name);
+            await logbookService.downloadAttachment(attachment);
+            toast.success('Đã tải tệp: ' + attachment.name);
+        } catch (err) {
+            console.error('Download error:', err);
+            toast.error('Không thể tải tệp: ' + (err.message || 'Lỗi không xác định'));
+        } finally {
+            setDownloadingAttachment(null);
+        }
+    };
 
     // Format date
     const formatDate = (date) => {
@@ -282,6 +298,25 @@ export function StudentLogbookDetailPage() {
                             <span className="stat-label">Báo cáo</span>
                         </div>
                     </div>
+
+                    {/* Repository URL Section */}
+                    {topic.repo_url && (
+                        <div className="repo-url-section">
+                            <div className="repo-url-header">
+                                <Github size={18} />
+                                <span>Repository mã nguồn</span>
+                            </div>
+                            <a 
+                                href={topic.repo_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="repo-url-link"
+                            >
+                                {topic.repo_url}
+                                <ExternalLink size={14} />
+                            </a>
+                        </div>
+                    )}
                 </CardBody>
             </Card>
 
@@ -293,14 +328,12 @@ export function StudentLogbookDetailPage() {
                             <FileText size={20} />
                             Báo cáo tiến độ
                         </h2>
-                        <div className="progress-wrapper">
-                            <ProgressBar 
-                                value={reportsSummary.count} 
-                                max={reportsSummary.total} 
-                                variant={reportsSummary.count === reportsSummary.total ? 'success' : 'primary'}
-                                showLabel 
-                            />
-                        </div>
+                        <Badge 
+                            variant={reportsSummary.count === reportsSummary.total ? 'success' : 'info'}
+                            size="lg"
+                        >
+                            {reportsSummary.count}/{reportsSummary.total} đã nộp
+                        </Badge>
                     </div>
                     
                     <div className="reports-grid">
@@ -371,177 +404,267 @@ export function StudentLogbookDetailPage() {
                         </CardBody>
                     </Card>
                 ) : (
-                    <div className="entries-list">
+                    <div className="entries-list entries-accordion">
                         {entries.map((entry) => {
                             const statusConfig = getStatusConfig(entry);
                             const StatusIcon = statusConfig.icon;
                             const isApproved = entry.status === 'approved' || entry.teacher_confirmed;
                             const isPending = entry.status === 'pending';
                             const hasStructuredData = entry.completed_tasks || entry.in_progress_tasks || entry.planned_tasks;
+                            const isExpanded = expandedEntries.has(entry.id);
+                            
+                            // Calculate task counts for summary
+                            const completedCount = entry.completed_tasks?.length || 0;
+                            const inProgressCount = entry.in_progress_tasks?.length || 0;
+                            const plannedCount = entry.planned_tasks?.length || 0;
+                            const totalTasks = completedCount + inProgressCount + plannedCount;
+                            
+                            const toggleExpand = () => {
+                                setExpandedEntries(prev => {
+                                    const next = new Set(prev);
+                                    if (next.has(entry.id)) {
+                                        next.delete(entry.id);
+                                    } else {
+                                        next.add(entry.id);
+                                    }
+                                    return next;
+                                });
+                            };
 
                             return (
-                                <Card key={entry.id} className={`entry-card entry-status-${entry.status || 'pending'}`}>
-                                    <CardBody>
-                                        <div className="entry-header">
-                                            <div className="entry-week">
-                                                <span className="week-number">Tuần {entry.week_number}</span>
-                                                <span className="week-range">{getWeekDateRange(entry.week_number)}</span>
-                                            </div>
-                                            <div className="entry-status">
-                                                <Badge variant={statusConfig.variant}>
-                                                    <StatusIcon size={12} />
-                                                    {statusConfig.label}
-                                                </Badge>
-                                            </div>
+                                <div 
+                                    key={entry.id} 
+                                    className={`entry-accordion-card entry-status-${entry.status || 'pending'} ${isExpanded ? 'expanded' : ''}`}
+                                >
+                                    {/* Collapsed Header - Always Visible */}
+                                    <button 
+                                        type="button"
+                                        className="entry-accordion-header"
+                                        onClick={toggleExpand}
+                                        aria-expanded={isExpanded}
+                                    >
+                                        <div className="entry-accordion-left">
+                                            <span className="entry-week-badge">Tuần {entry.week_number}</span>
+                                            <span className="entry-date-range">{getWeekDateRange(entry.week_number)}</span>
                                         </div>
-
-                                        {/* Meeting Info */}
-                                        <div className="entry-meeting-info">
-                                            <div className="meta-item">
-                                                <Calendar size={14} />
-                                                <span>Ngày gặp: {formatDate(entry.meeting_date)}</span>
-                                            </div>
-                                            {entry.meeting_type && (
-                                                <Badge variant="default" size="sm">
-                                                    <Users size={12} />
-                                                    {entry.meeting_type === 'online' ? 'Online' : 'Trực tiếp'}
-                                                </Badge>
+                                        
+                                        <div className="entry-accordion-right">
+                                            {/* Task counts summary */}
+                                            {totalTasks > 0 && (
+                                                <div className="entry-task-summary">
+                                                    <span className="task-count completed" title="Đã hoàn thành">
+                                                        <ListChecks size={12} />
+                                                        {completedCount}
+                                                    </span>
+                                                    <span className="task-count in-progress" title="Đang thực hiện">
+                                                        <Loader size={12} />
+                                                        {inProgressCount}
+                                                    </span>
+                                                    <span className="task-count planned" title="Kế hoạch">
+                                                        <Target size={12} />
+                                                        {plannedCount}
+                                                    </span>
+                                                </div>
                                             )}
-                                            {entry.attachments?.length > 0 && (
+                                            
+                                            {/* Status badge */}
+                                            <Badge variant={statusConfig.variant} size="sm">
+                                                <StatusIcon size={12} />
+                                                {statusConfig.label}
+                                            </Badge>
+                                            
+                                            {/* Expand chevron */}
+                                            <span className={`entry-chevron ${isExpanded ? 'rotated' : ''}`}>
+                                                <ChevronDown size={18} />
+                                            </span>
+                                        </div>
+                                    </button>
+                                    
+                                    {/* Expandable Content */}
+                                    <div className={`entry-accordion-content ${isExpanded ? 'expanded' : ''}`}>
+                                        <div className="entry-accordion-body">
+                                            {/* Meeting Info */}
+                                            <div className="entry-meeting-info">
                                                 <div className="meta-item">
-                                                    <Paperclip size={14} />
-                                                    <span>{entry.attachments.length} tệp</span>
+                                                    <Calendar size={14} />
+                                                    <span>Ngày gặp: {formatDate(entry.meeting_date)}</span>
                                                 </div>
-                                            )}
-                                        </div>
-
-                                        {/* Structured Content Display */}
-                                        {hasStructuredData ? (
-                                            <div className="entry-structured-content">
-                                                {/* Completed Tasks */}
-                                                <div className="task-section">
-                                                    <div className="task-section-header">
-                                                        <ListChecks size={16} className="icon-success" />
-                                                        <span>Đã hoàn thành ({entry.completed_tasks?.length || 0})</span>
-                                                    </div>
-                                                    {renderTaskList(entry.completed_tasks)}
-                                                </div>
-
-                                                {/* In Progress Tasks */}
-                                                <div className="task-section">
-                                                    <div className="task-section-header">
-                                                        <Loader size={16} className="icon-primary" />
-                                                        <span>Đang thực hiện ({entry.in_progress_tasks?.length || 0})</span>
-                                                    </div>
-                                                    {renderTaskList(entry.in_progress_tasks, true)}
-                                                </div>
-
-                                                {/* Planned Tasks */}
-                                                <div className="task-section">
-                                                    <div className="task-section-header">
-                                                        <Target size={16} className="icon-warning" />
-                                                        <span>Kế hoạch tuần sau ({entry.planned_tasks?.length || 0})</span>
-                                                    </div>
-                                                    {renderTaskList(entry.planned_tasks)}
-                                                </div>
-
-                                                {/* Issues */}
-                                                {entry.issues && (
-                                                    <div className="task-section issues-section">
-                                                        <div className="task-section-header">
-                                                            <AlertTriangle size={16} className="icon-danger" />
-                                                            <span>Vấn đề & Khó khăn</span>
-                                                        </div>
-                                                        <p className="issues-text">{entry.issues}</p>
+                                                {entry.meeting_type && (
+                                                    <Badge variant="default" size="sm">
+                                                        <Users size={12} />
+                                                        {entry.meeting_type === 'online' ? 'Online' : 'Trực tiếp'}
+                                                    </Badge>
+                                                )}
+                                                {entry.attachments?.length > 0 && (
+                                                    <div className="meta-item">
+                                                        <Paperclip size={14} />
+                                                        <span>{entry.attachments.length} tệp</span>
                                                     </div>
                                                 )}
                                             </div>
-                                        ) : (
-                                            /* Legacy content display */
-                                            <div className="entry-content">
-                                                <p className="content-text">{entry.content}</p>
-                                            </div>
-                                        )}
 
-                                        {/* Teacher Feedback Section */}
-                                        <div className="teacher-section">
-                                            <label className="section-label">Phản hồi của GV:</label>
-                                            {entry.feedback_comment || entry.teacher_note ? (
-                                                <div className="teacher-note">
-                                                    <MessageSquare size={14} />
-                                                    <div>
-                                                        <span>{entry.feedback_comment || entry.teacher_note}</span>
-                                                        {entry.feedback_at && (
-                                                            <span className="feedback-time">
-                                                                {new Date(entry.feedback_at).toLocaleString('vi-VN')}
-                                                            </span>
-                                                        )}
+                                            {/* Attachments List - Downloadable */}
+                                            {entry.attachments?.length > 0 && (
+                                                <div className="entry-attachments">
+                                                    <div className="attachments-header">
+                                                        <Paperclip size={16} />
+                                                        <span>Tệp đính kèm ({entry.attachments.length})</span>
                                                     </div>
+                                                    <ul className="attachments-list">
+                                                        {entry.attachments.map((attachment, idx) => (
+                                                            <li key={idx} className="attachment-item">
+                                                                <div className="attachment-info">
+                                                                    <FileText size={14} />
+                                                                    <span className="attachment-name">{attachment.name}</span>
+                                                                    {attachment.size && (
+                                                                        <span className="attachment-size">
+                                                                            ({(attachment.size / 1024).toFixed(1)} KB)
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    leftIcon={<Download size={14} />}
+                                                                    onClick={() => handleDownloadAttachment(attachment)}
+                                                                    loading={downloadingAttachment === (attachment.path || attachment.name)}
+                                                                >
+                                                                    Tải
+                                                                </Button>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            {/* Structured Content Display */}
+                                            {hasStructuredData ? (
+                                                <div className="entry-structured-content">
+                                                    {/* Completed Tasks */}
+                                                    <div className="task-section">
+                                                        <div className="task-section-header">
+                                                            <ListChecks size={16} className="icon-success" />
+                                                            <span>Đã hoàn thành ({completedCount})</span>
+                                                        </div>
+                                                        {renderTaskList(entry.completed_tasks)}
+                                                    </div>
+
+                                                    {/* In Progress Tasks */}
+                                                    <div className="task-section">
+                                                        <div className="task-section-header">
+                                                            <Loader size={16} className="icon-primary" />
+                                                            <span>Đang thực hiện ({inProgressCount})</span>
+                                                        </div>
+                                                        {renderTaskList(entry.in_progress_tasks, true)}
+                                                    </div>
+
+                                                    {/* Planned Tasks */}
+                                                    <div className="task-section">
+                                                        <div className="task-section-header">
+                                                            <Target size={16} className="icon-warning" />
+                                                            <span>Kế hoạch tuần sau ({plannedCount})</span>
+                                                        </div>
+                                                        {renderTaskList(entry.planned_tasks)}
+                                                    </div>
+
+                                                    {/* Issues */}
+                                                    {entry.issues && (
+                                                        <div className="task-section issues-section">
+                                                            <div className="task-section-header">
+                                                                <AlertTriangle size={16} className="icon-danger" />
+                                                                <span>Vấn đề & Khó khăn</span>
+                                                            </div>
+                                                            <p className="issues-text">{entry.issues}</p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ) : (
-                                                <p className="no-note">Chưa có phản hồi</p>
+                                                /* Legacy content display */
+                                                <div className="entry-content">
+                                                    <p className="content-text">{entry.content}</p>
+                                                </div>
                                             )}
-                                        </div>
 
-                                        {/* Actions */}
-                                        <div className="entry-actions">
-                                            {isPending && (
-                                                <>
+                                            {/* Teacher Feedback Section */}
+                                            <div className="teacher-section">
+                                                <label className="section-label">Phản hồi của GV:</label>
+                                                {entry.feedback_comment || entry.teacher_note ? (
+                                                    <div className="teacher-note">
+                                                        <MessageSquare size={14} />
+                                                        <div>
+                                                            <span>{entry.feedback_comment || entry.teacher_note}</span>
+                                                            {entry.feedback_at && (
+                                                                <span className="feedback-time">
+                                                                    {new Date(entry.feedback_at).toLocaleString('vi-VN')}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <p className="no-note">Chưa có phản hồi</p>
+                                                )}
+                                            </div>
+
+                                            {/* Actions */}
+                                            <div className="entry-actions">
+                                                {isPending && (
+                                                    <>
+                                                        <Button
+                                                            variant="danger"
+                                                            size="sm"
+                                                            leftIcon={<AlertTriangle size={14} />}
+                                                            onClick={() => setFeedbackModal({ 
+                                                                open: true, 
+                                                                entryId: entry.id, 
+                                                                action: 'revision' 
+                                                            })}
+                                                        >
+                                                            Yêu cầu sửa
+                                                        </Button>
+                                                        <Button
+                                                            variant="primary"
+                                                            size="sm"
+                                                            leftIcon={<CheckCircle size={14} />}
+                                                            onClick={() => setFeedbackModal({ 
+                                                                open: true, 
+                                                                entryId: entry.id, 
+                                                                action: 'approve' 
+                                                            })}
+                                                        >
+                                                            Duyệt
+                                                        </Button>
+                                                    </>
+                                                )}
+
+                                                {isApproved && (
                                                     <Button
-                                                        variant="danger"
+                                                        variant="ghost"
                                                         size="sm"
-                                                        leftIcon={<AlertTriangle size={14} />}
+                                                        leftIcon={<XCircle size={14} />}
+                                                        onClick={() => handleUnconfirm(entry.id)}
+                                                    >
+                                                        Hủy duyệt
+                                                    </Button>
+                                                )}
+
+                                                {!isApproved && !isPending && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        leftIcon={<MessageSquare size={14} />}
                                                         onClick={() => setFeedbackModal({ 
                                                             open: true, 
                                                             entryId: entry.id, 
-                                                            action: 'revision' 
+                                                            action: 'note' 
                                                         })}
                                                     >
-                                                        Yêu cầu sửa
+                                                        Thêm ghi chú
                                                     </Button>
-                                                    <Button
-                                                        variant="primary"
-                                                        size="sm"
-                                                        leftIcon={<CheckCircle size={14} />}
-                                                        onClick={() => setFeedbackModal({ 
-                                                            open: true, 
-                                                            entryId: entry.id, 
-                                                            action: 'approve' 
-                                                        })}
-                                                    >
-                                                        Duyệt
-                                                    </Button>
-                                                </>
-                                            )}
-
-                                            {isApproved && (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    leftIcon={<XCircle size={14} />}
-                                                    onClick={() => handleUnconfirm(entry.id)}
-                                                >
-                                                    Hủy duyệt
-                                                </Button>
-                                            )}
-
-                                            {!isApproved && !isPending && (
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    leftIcon={<MessageSquare size={14} />}
-                                                    onClick={() => setFeedbackModal({ 
-                                                        open: true, 
-                                                        entryId: entry.id, 
-                                                        action: 'note' 
-                                                    })}
-                                                >
-                                                    Thêm ghi chú
-                                                </Button>
-                                            )}
+                                                )}
+                                            </div>
                                         </div>
-                                    </CardBody>
-                                </Card>
+                                    </div>
+                                </div>
                             );
                         })}
                     </div>

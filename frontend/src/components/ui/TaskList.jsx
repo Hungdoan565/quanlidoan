@@ -1,10 +1,17 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, memo } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { Plus, X, GripVertical } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from './Button';
 import './TaskList.css';
+
+// Progress status options - more intuitive than raw percentages
+const PROGRESS_STATUS_OPTIONS = [
+    { value: 0, label: 'Mới bắt đầu', className: 'progress-status-start' },
+    { value: 50, label: 'Đang làm', className: 'progress-status-working' },
+    { value: 80, label: 'Gần xong', className: 'progress-status-almost' },
+];
 
 /**
  * TaskList - Dynamic list of tasks with add/remove functionality
@@ -129,19 +136,24 @@ function TaskList({
                 aria-label={`Công việc ${index + 1}`}
             />
             {showProgress && (
-                <div className="task-progress">
-                    <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="5"
-                        value={item.progress}
-                        onChange={(e) => handleProgressChange(index, e.target.value)}
-                        disabled={disabled}
-                        className="task-progress-slider"
-                        aria-label={`Tiến độ công việc ${index + 1}`}
-                    />
-                    <span className="task-progress-value">{item.progress}%</span>
+                <div className="task-progress-status">
+                    {PROGRESS_STATUS_OPTIONS.map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            className={cn(
+                                'progress-status-btn',
+                                option.className,
+                                item.progress === option.value && 'progress-status-active'
+                            )}
+                            onClick={() => handleProgressChange(index, option.value)}
+                            disabled={disabled}
+                            aria-label={`Đặt tiến độ: ${option.label}`}
+                            aria-pressed={item.progress === option.value}
+                        >
+                            {option.label}
+                        </button>
+                    ))}
                 </div>
             )}
             {!disabled && (
@@ -263,16 +275,21 @@ function TaskList({
 
 /**
  * SimpleTaskList - Simpler version for just strings, no progress
+ * Memoized to prevent unnecessary re-renders
  */
-function SimpleTaskList(props) {
+const SimpleTaskList = memo(function SimpleTaskList(props) {
     return <TaskList {...props} showProgress={false} />;
-}
+});
 
 /**
  * ProgressTaskList - Version with progress tracking
+ * Memoized to prevent unnecessary re-renders
  */
-function ProgressTaskList(props) {
+const ProgressTaskList = memo(function ProgressTaskList(props) {
     return <TaskList {...props} showProgress={true} />;
-}
+});
 
-export { TaskList, SimpleTaskList, ProgressTaskList };
+// Memoize the main TaskList component
+const MemoizedTaskList = memo(TaskList);
+
+export { MemoizedTaskList as TaskList, SimpleTaskList, ProgressTaskList };

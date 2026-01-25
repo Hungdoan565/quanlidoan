@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
     BookOpen, Plus, Calendar, CheckCircle, Clock, Users,
     Edit2, MessageSquare, AlertCircle, Send, Save, ChevronRight,
-    ListChecks, Loader, Target, AlertTriangle, Paperclip
+    ListChecks, Loader, Target, AlertTriangle, Paperclip, Mail, GraduationCap
 } from 'lucide-react';
 import {
     Button,
@@ -72,7 +72,10 @@ export function LogbookPage() {
     // Generate week options
     const weekOptions = useMemo(() => {
         const options = [];
-        for (let i = currentWeek; i >= 1; i--) {
+        // Always show at least current week + some buffer
+        const maxWeek = Math.max(currentWeek, 16); // At least 16 weeks for semester
+        for (let i = maxWeek; i >= 1; i--) {
+            // Show if: not existing OR is the entry being edited
             if (!existingWeeks.includes(i) || editingEntry?.week_number === i) {
                 const { startDate, endDate } = logbookService.getWeekDateRange(topic?.approved_at, i);
                 options.push({
@@ -82,6 +85,16 @@ export function LogbookPage() {
                     endDate,
                 });
             }
+        }
+        // If no options (all weeks taken), at least show current week for new entry
+        if (options.length === 0 && !editingEntry) {
+            const { startDate, endDate } = logbookService.getWeekDateRange(topic?.approved_at, currentWeek);
+            options.push({
+                value: currentWeek,
+                label: `Tuần ${currentWeek} (${formatDate(startDate)} - ${formatDate(endDate)})`,
+                startDate,
+                endDate,
+            });
         }
         return options;
     }, [currentWeek, existingWeeks, topic?.approved_at, editingEntry]);
@@ -95,6 +108,19 @@ export function LogbookPage() {
             ? Math.round(formData.inProgressTasks.reduce((sum, t) => sum + (t.progress || 0), 0) / formData.inProgressTasks.length)
             : 0,
     }), [formData.completedTasks, formData.inProgressTasks, formData.plannedTasks]);
+
+    // Stable callbacks for task list changes (prevents jittering from re-renders)
+    const handleCompletedTasksChange = useCallback((items) => {
+        setFormData(prev => ({ ...prev, completedTasks: items }));
+    }, []);
+
+    const handleInProgressTasksChange = useCallback((items) => {
+        setFormData(prev => ({ ...prev, inProgressTasks: items }));
+    }, []);
+
+    const handlePlannedTasksChange = useCallback((items) => {
+        setFormData(prev => ({ ...prev, plannedTasks: items }));
+    }, []);
 
     function getEmptyFormData() {
         return {
@@ -305,33 +331,77 @@ export function LogbookPage() {
                 </Button>
             </div>
 
-            {/* Topic Info Card */}
-            <Card className="topic-info-card">
-                <CardBody>
-                    <div className="topic-info-grid">
-                        <div className="info-item">
-                            <span className="info-label">Đợt / Lớp</span>
-                            <span className="info-value">
-                                {topic.class?.session?.name} / {topic.class?.name}
-                            </span>
+            {/* Topic & Advisor Info Section */}
+            <div className="logbook-info-section">
+                {/* Advisor Card */}
+                <Card className="advisor-card">
+                    <CardBody className="advisor-card-body">
+                        <div className="advisor-header-label">
+                            <GraduationCap size={16} />
+                            <span>Giảng viên hướng dẫn</span>
                         </div>
-                        <div className="info-item">
-                            <span className="info-label">GV Hướng dẫn</span>
-                            <span className="info-value">{topic.advisor?.full_name || 'Chưa phân công'}</span>
+                        
+                        <div className="advisor-profile">
+                            <div className="advisor-avatar">
+                                {topic.advisor?.full_name?.charAt(0) || 'G'}
+                                <span className="advisor-status-dot"></span>
+                            </div>
+                            <h3 className="advisor-name">{topic.advisor?.full_name || 'Chưa phân công'}</h3>
+                            {topic.advisor?.teacher_code && (
+                                <span className="advisor-code">{topic.advisor.teacher_code}</span>
+                            )}
+                            
+                            {topic.advisor?.email && (
+                                <div className="advisor-email">
+                                    <Mail size={14} />
+                                    <span>{topic.advisor.email}</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="info-item">
-                            <span className="info-label">Tuần hiện tại</span>
-                            <span className="info-value highlight">Tuần {currentWeek}</span>
+                    </CardBody>
+                </Card>
+
+                {/* Class & Topic Info Card */}
+                <Card className="class-info-card">
+                    <CardBody className="class-info-body">
+                        <div className="info-group">
+                            <div className="info-header">
+                                <Users size={16} className="text-primary" />
+                                <span className="info-title">Thông tin lớp</span>
+                            </div>
+                            <div className="info-row">
+                                <span className="info-label">Lớp đồ án:</span>
+                                <span className="info-value text-primary font-medium">{topic.class?.name}</span>
+                            </div>
+                            <div className="info-row">
+                                <span className="info-label">Đợt:</span>
+                                <span className="info-value">{topic.class?.session?.name}</span>
+                            </div>
                         </div>
-                        <div className="info-item">
-                            <span className="info-label">Số entries</span>
-                            <span className="info-value">
-                                {entries?.length || 0} / {currentWeek} tuần
-                            </span>
+                        
+                        <div className="info-divider"></div>
+                        
+                        <div className="info-group">
+                            <div className="info-header">
+                                <Target size={16} className="text-success" />
+                                <span className="info-title">Trạng thái</span>
+                            </div>
+                            <div className="info-grid-2">
+                                <div className="mini-stat">
+                                    <span className="mini-stat-label">Tuần hiện tại</span>
+                                    <span className="mini-stat-value highlight">Tuần {currentWeek}</span>
+                                </div>
+                                <div className="mini-stat">
+                                    <span className="mini-stat-label">Đã nộp</span>
+                                    <span className="mini-stat-value">
+                                        {entries?.length || 0} / {currentWeek}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </CardBody>
-            </Card>
+                    </CardBody>
+                </Card>
+            </div>
 
             {/* Entries List */}
             <div className="entries-section">
@@ -565,10 +635,7 @@ export function LogbookPage() {
                         >
                             <TaskList
                                 items={formData.completedTasks}
-                                onChange={(items) => setFormData(prev => ({
-                                    ...prev,
-                                    completedTasks: items
-                                }))}
+                                onChange={handleCompletedTasksChange}
                                 placeholder="Mô tả công việc đã hoàn thành..."
                                 emptyMessage="Thêm các công việc đã hoàn thành trong tuần"
                                 disabled={!canEdit}
@@ -587,10 +654,7 @@ export function LogbookPage() {
                         >
                             <ProgressTaskList
                                 items={formData.inProgressTasks}
-                                onChange={(items) => setFormData(prev => ({
-                                    ...prev,
-                                    inProgressTasks: items
-                                }))}
+                                onChange={handleInProgressTasksChange}
                                 placeholder="Mô tả công việc đang làm..."
                                 emptyMessage="Thêm các công việc đang thực hiện"
                                 disabled={!canEdit}
@@ -609,10 +673,7 @@ export function LogbookPage() {
                         >
                             <TaskList
                                 items={formData.plannedTasks}
-                                onChange={(items) => setFormData(prev => ({
-                                    ...prev,
-                                    plannedTasks: items
-                                }))}
+                                onChange={handlePlannedTasksChange}
                                 placeholder="Mô tả kế hoạch tuần sau..."
                                 emptyMessage="Thêm các công việc dự định làm tuần sau"
                                 disabled={!canEdit}

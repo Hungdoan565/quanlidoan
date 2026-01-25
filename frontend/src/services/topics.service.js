@@ -216,14 +216,14 @@ export const topicsService = {
 
     /**
      * Cập nhật repo URL của topic
+     * Uses RPC function to bypass RLS (students can update repo_url regardless of topic status)
      */
     updateRepoUrl: async (topicId, repoUrl) => {
         const { data, error } = await supabase
-            .from('topics')
-            .update({ repo_url: repoUrl })
-            .eq('id', topicId)
-            .select()
-            .single();
+            .rpc('update_topic_repo_url', {
+                p_topic_id: topicId,
+                p_repo_url: repoUrl || null,
+            });
 
         if (error) throw error;
         return data;
@@ -268,6 +268,34 @@ export const topicsService = {
             .maybeSingle();
 
         if (error && error.code !== 'PGRST116') throw error;
+        return data;
+    },
+
+    /**
+     * Lấy chi tiết đề tài theo ID
+     * Dùng cho trang chấm điểm chi tiết
+     */
+    getById: async (topicId) => {
+        if (!topicId) return null;
+
+        const { data, error } = await supabase
+            .from('topics')
+            .select(`
+                *,
+                student:student_id(id, full_name, email, student_code),
+                advisor:advisor_id(id, full_name, teacher_code),
+                reviewer:reviewer_id(id, full_name, teacher_code),
+                class:class_id(
+                    id, 
+                    name,
+                    session_id,
+                    session:session_id(id, name, academic_year, semester)
+                )
+            `)
+            .eq('id', topicId)
+            .maybeSingle();
+
+        if (error) throw error;
         return data;
     },
 

@@ -33,41 +33,259 @@
     margin: 0;
 }
 
-/* Topic Info Card */
-.topic-info-card {
-    margin-bottom: 24px;
-    background: linear-gradient(135deg, var(--primary-50), var(--bg-secondary));
-    border: 1px solid var(--primary-100);
-}
-
-.topic-info-grid {
+/* Topic & Advisor Info Section */
+.logbook-info-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
 }
 
-.topic-info-grid .info-item {
+/* Advisor Card */
+.advisor-card {
+    height: 100%;
+    overflow: visible;
+}
+
+.advisor-card-body {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    padding: 24px;
+    position: relative;
 }
 
-.topic-info-grid .info-label {
+.advisor-header-label {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 0.75rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    z-index: 10;
+    border: 1px solid var(--border-light);
 }
 
-.topic-info-grid .info-value {
-    font-size: 0.95rem;
+.advisor-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.advisor-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    position: relative;
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+}
+
+.advisor-status-dot {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 16px;
+    height: 16px;
+    background: var(--success-500);
+    border: 3px solid #fff;
+    border-radius: 50%;
+}
+
+.advisor-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 4px 0;
+    text-align: center;
+}
+
+.advisor-code {
+    font-size: 0.75rem;
+    background: var(--primary-50);
+    color: var(--primary-700);
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-bottom: 12px;
     font-weight: 500;
+}
+
+.advisor-email {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-secondary);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    width: 100%;
+    justify-content: center;
+    border: 1px solid var(--border-light);
+    transition: all 0.2s ease;
+}
+
+.advisor-email:hover {
+    border-color: var(--primary-200);
+    color: var(--primary-600);
+    background: var(--primary-50);
+}
+
+/* Class Info Card */
+.class-info-card {
+    height: 100%;
+}
+
+.class-info-body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.info-group {
+    padding: 20px;
+    flex: 1;
+}
+
+.info-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.info-title {
+    font-size: 0.95rem;
+    font-weight: 600;
     color: var(--text-primary);
 }
 
-.topic-info-grid .info-value.highlight {
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+}
+
+.info-label {
+    color: var(--text-secondary);
+}
+
+.info-value {
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: right;
+}
+
+.info-divider {
+    height: 1px;
+    background: var(--border-light);
+    width: 100%;
+}
+
+.info-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.mini-stat {
+    background: var(--bg-secondary);
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid var(--border-light);
+}
+
+.mini-stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.mini-stat-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.mini-stat-value.highlight {
     color: var(--primary-600);
-    font-weight: 600;
+}
+
+/* Text Utilities */
+.text-primary { color: var(--primary-600); }
+.text-success { color: var(--success-600); }
+.font-medium { font-weight: 500; }
+
+/* Responsive adjustments for info section */
+@media (max-width: 768px) {
+    .logbook-info-section {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .advisor-header-label {
+        position: static;
+        transform: none;
+        display: inline-flex;
+        margin-bottom: 16px;
+        background: var(--bg-secondary);
+    }
+    
+    .advisor-card-body {
+        align-items: flex-start;
+    }
+    
+    .advisor-profile {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        margin-top: 0;
+    }
+    
+    .advisor-avatar {
+        margin-bottom: 0;
+        width: 64px;
+        height: 64px;
+        font-size: 1.5rem;
+    }
+    
+    .advisor-details-wrapper {
+        flex: 1;
+    }
+    
+    .advisor-email {
+        margin-top: 12px;
+        width: 100%;
+    }
 }
 
 /* Entries Section */

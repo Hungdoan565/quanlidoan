@@ -177,7 +177,7 @@ export function MyTopicPage() {
                 <span className="page-context">Chi tiết đề tài</span>
             </div>
 
-            <div className={`status-hero ${status.bgClass}`}>
+            <div className={`status-hero ${status.bgClass}`} role="status" aria-label={`Trạng thái: ${status.label}`}>
                 <div className="status-hero-icon">
                     <StatusIcon size={28}  aria-hidden="true" />
                 </div>

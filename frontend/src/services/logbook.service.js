@@ -110,7 +110,7 @@ export const logbookService = {
 
         const insertData = {
             topic_id: topicId,
-            student_id: user.id,
+            // student_id is derived from topic, not needed in insert
             week_number: weekNumber,
             start_date: startDate || null,
             end_date: endDate || null,
@@ -345,6 +345,45 @@ export const logbookService = {
         return true;
     },
 
+    /**
+     * Download attachment file (using signed URL for private bucket)
+     */
+    downloadAttachment: async (attachment) => {
+        const { path, name } = attachment;
+        
+        if (!path) {
+            // If no path, try using the URL directly (legacy support)
+            if (attachment.url) {
+                const link = document.createElement('a');
+                link.href = attachment.url;
+                link.download = name || 'attachment';
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                return true;
+            }
+            throw new Error('Không tìm thấy đường dẫn tệp');
+        }
+
+        // Generate signed URL (1 hour expiry)
+        const { data, error } = await supabase.storage
+            .from('logbook-attachments')
+            .createSignedUrl(path, 3600);
+
+        if (error) throw error;
+
+        // Trigger browser download
+        const link = document.createElement('a');
+        link.href = data.signedUrl;
+        link.download = name || 'attachment';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        return true;
+    },
+
     // =====================================================
     // TEACHER METHODS
     // =====================================================
@@ -416,7 +455,7 @@ export const logbookService = {
      * Get detailed logbook for a specific topic (teacher view)
      */
     getTopicLogbookDetail: async (topicId) => {
-        // Get topic first
+        // Get topic first (including repo_url for teacher view)
         const { data: topic, error } = await supabase
             .from('topics')
             .select(`
@@ -424,6 +463,7 @@ export const logbookService = {
                 title,
                 status,
                 approved_at,
+                repo_url,
                 student:student_id(id, full_name, student_code, email),
                 class:class_id(name)
             `)
