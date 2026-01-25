@@ -1,38 +1,45 @@
 /**
- * GradingDetailPage - Score entry form for a specific topic
+ * GradingDetailPage - Simplified for Single Grading Flow
  * 
- * NOTE: 1 GV kiêm cả GVHD + GVPB, nên chấm cả 2 loại tiêu chí cùng lúc
+ * Design:
+ * - Single section: Bảng chấm điểm (Advisor criteria only)
+ * - Columns: # | Tiêu chí | Điểm nhập | Trọng số | Thành phần | Notes
+ * - Total Score calculated directly from weighted criteria
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft,
     Save,
     CheckCircle,
+    AlertTriangle,
     User,
     BookOpen,
+    MessageSquare,
+    ChevronDown,
+    ClipboardCheck,
+    Calculator,
 } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
 import { useGradingCriteria, useTopicGrades, useSaveGrades, useSubmitGrades } from '../../../hooks/useGrading';
 import { topicsService } from '../../../services/topics.service';
 import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
     Card,
-    CardHeader,
     CardBody,
-    CardFooter,
     Button,
     Input,
     Textarea,
-    Badge,
     StatusBadge,
     SkeletonCard,
     EmptyState,
     ConfirmModal
 } from '../../../components/ui';
-import { GRADER_TYPE_LABELS } from '../../../lib/constants';
 import './GradingDetailPage.css';
+
+const SCORE_INPUT_PATTERN = /^\d*(?:[.,]\d*)?$/;
 
 export function GradingDetailPage() {
     const { topicId } = useParams();
@@ -42,6 +49,7 @@ export function GradingDetailPage() {
     // State for scores - keyed by "graderRole_criterionName"
     const [scores, setScores] = useState({});
     const [notes, setNotes] = useState({});
+    const [expandedNotes, setExpandedNotes] = useState(new Set());
     const [isDirty, setIsDirty] = useState(false);
     const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
 
@@ -56,7 +64,7 @@ export function GradingDetailPage() {
     const sessionId = topic?.class?.session_id || topic?.class?.session?.id;
 
     // Fetch criteria (grouped by role)
-    const { data: criteriaGroups = { advisor: [], reviewer: [], council: [] }, isLoading: criteriaLoading } = useGradingCriteria(sessionId);
+    const { data: criteriaGroups = { advisor: [] }, isLoading: criteriaLoading } = useGradingCriteria(sessionId);
 
     // Fetch existing grades
     const { data: existingGrades = [], isLoading: gradesLoading } = useTopicGrades(topicId, profile?.id);
@@ -65,79 +73,188 @@ export function GradingDetailPage() {
     const saveGradesMutation = useSaveGrades();
     const submitGradesMutation = useSubmitGrades();
 
-    // Combine advisor and reviewer criteria (since 1 GV does both)
-    const allCriteria = useMemo(() => {
-        const result = [];
-        
-        // Add advisor criteria
-        (criteriaGroups.advisor || []).forEach((c, index) => {
-            result.push({
-                ...c,
-                graderRole: 'advisor',
-                key: `advisor_${c.name}`,
-                index,
-            });
-        });
-        
-        // Add reviewer criteria
-        (criteriaGroups.reviewer || []).forEach((c, index) => {
-            result.push({
-                ...c,
-                graderRole: 'reviewer',
-                key: `reviewer_${c.name}`,
-                index,
-            });
-        });
-        
-        return result;
-    }, [criteriaGroups]);
+    // Prepare criteria with keys - ONLY ADVISOR
+    const criteria = useMemo(() => {
+        return (criteriaGroups.advisor || []).map((c, index) => ({
+            ...c,
+            graderRole: 'advisor',
+            key: `advisor_${c.name}`,
+            index,
+        }));
+    }, [criteriaGroups.advisor]);
 
     // Initialize scores from existing grades
     useEffect(() => {
         if (existingGrades.length > 0) {
             const initialScores = {};
             const initialNotes = {};
+            const notesWithContent = new Set();
+            
             existingGrades.forEach(grade => {
-                const key = `${grade.grader_role}_${grade.criterion_name}`;
-                initialScores[key] = grade.score?.toString() || '';
-                initialNotes[key] = grade.notes || '';
+                // Ensure we only load advisor grades if any stray reviewer grades exist
+                if (grade.grader_role === 'advisor') {
+                    const key = `${grade.grader_role}_${grade.criterion_name}`;
+                    initialScores[key] = grade.score?.toString() || '';
+                    initialNotes[key] = grade.notes || '';
+                    if (grade.notes) {
+                        notesWithContent.add(key);
+                    }
+                }
             });
             setScores(initialScores);
             setNotes(initialNotes);
+            setExpandedNotes(notesWithContent);
         }
     }, [existingGrades]);
 
+    const parseScoreValue = useCallback((rawValue, maxScore) => {
+        if (rawValue === '' || rawValue === null || rawValue === undefined) {
+            return null;
+        }
+
+        const normalized = rawValue.toString().replace(',', '.');
+        const numValue = Number(normalized);
+
+        if (Number.isNaN(numValue)) return null;
+        if (numValue < 0 || numValue > maxScore) return null;
+
+        return numValue;
+    }, []);
+
     // Handle score change
-    const handleScoreChange = (key, value, maxScore) => {
-        const numValue = parseFloat(value);
-        if (value === '' || (numValue >= 0 && numValue <= maxScore)) {
+    const handleScoreChange = useCallback((key, value) => {
+        if (value === '' || SCORE_INPUT_PATTERN.test(value)) {
             setScores(prev => ({ ...prev, [key]: value }));
             setIsDirty(true);
         }
-    };
+    }, []);
+
+    const handleScoreBlur = useCallback((key, maxScore) => {
+        let didUpdate = false;
+        setScores(prev => {
+            const rawValue = prev[key];
+            if (rawValue === '' || rawValue === null || rawValue === undefined) {
+                return prev;
+            }
+
+            const normalized = rawValue.toString().replace(',', '.');
+            const numValue = Number(normalized);
+            if (Number.isNaN(numValue)) {
+                didUpdate = true;
+                return { ...prev, [key]: '' };
+            }
+
+            const clamped = Math.min(Math.max(numValue, 0), maxScore);
+            const rounded = Math.round(clamped * 100) / 100;
+            const formatted = Number.isInteger(rounded)
+                ? rounded.toString()
+                : rounded.toFixed(2).replace(/\.?0+$/, '');
+
+            if (formatted === rawValue) {
+                return prev;
+            }
+
+            didUpdate = true;
+            return { ...prev, [key]: formatted };
+        });
+        if (didUpdate) {
+            setIsDirty(true);
+        }
+    }, []);
 
     // Handle notes change
-    const handleNotesChange = (key, value) => {
+    const handleNotesChange = useCallback((key, value) => {
         setNotes(prev => ({ ...prev, [key]: value }));
         setIsDirty(true);
-    };
+    }, []);
+
+    // Toggle notes expansion
+    const toggleNotes = useCallback((key) => {
+        setExpandedNotes(prev => {
+            const next = new Set(prev);
+            if (next.has(key)) {
+                next.delete(key);
+            } else {
+                next.add(key);
+            }
+            return next;
+        });
+    }, []);
+
+    const getScoreValue = useCallback((criterion) => {
+        const maxScore = Number(criterion.max_score || 10);
+        return parseScoreValue(scores[criterion.key], maxScore);
+    }, [scores, parseScoreValue]);
+
+    // Calculate component score for a criterion
+    const getComponentScore = useCallback((criterion) => {
+        const scoreValue = getScoreValue(criterion);
+        if (scoreValue === null) return null;
+        const maxScore = Number(criterion.max_score || 10);
+        const weight = criterion.weight || 0;
+        // Component score = (điểm nhập / max) * trọng số * 10
+        return (scoreValue / maxScore) * weight * 10;
+    }, [getScoreValue]);
+
+    // Calculate subtotal
+    const calculateSubtotal = useCallback((criteriaList) => {
+        let sum = 0;
+        let filledCount = 0;
+        criteriaList.forEach(c => {
+            const component = getComponentScore(c);
+            if (component !== null) {
+                sum += component;
+                filledCount++;
+            }
+        });
+        return { sum, filledCount, total: criteriaList.length };
+    }, [getComponentScore]);
+
+    // Result
+    const result = useMemo(() => calculateSubtotal(criteria), [calculateSubtotal, criteria]);
+
+    const allFilled = result.total > 0 && result.filledCount === result.total;
+    const weightTotal = useMemo(
+        () => criteria.reduce((sum, criterion) => sum + Number(criterion.weight || 0), 0),
+        [criteria]
+    );
+    const maxTotal = weightTotal * 10;
+    const isWeightValid = Math.abs(weightTotal - 1) < 0.01;
+
+    const invalidScores = useMemo(() => {
+        return criteria.filter(criterion => {
+            const rawValue = scores[criterion.key];
+            if (rawValue === '' || rawValue === undefined || rawValue === null) {
+                return false;
+            }
+            return getScoreValue(criterion) === null;
+        });
+    }, [criteria, scores, getScoreValue]);
+
+    const hasInvalidScores = invalidScores.length > 0;
+    const canSubmit = allFilled && isWeightValid && !hasInvalidScores;
 
     // Save all scores
     const handleSave = async () => {
-        const gradesToSave = allCriteria
+        if (hasInvalidScores) {
+            const firstInvalid = invalidScores[0];
+            const maxScore = Number(firstInvalid?.max_score || 10);
+            toast.error(`Äiá»ƒm khÃ´ng há»£p lá»‡: ${firstInvalid?.name}. Vui lÃ²ng nháº­p trong khoáº£ng 0 - ${maxScore}.`);
+            return;
+        }
+
+        const gradesToSave = criteria
             .filter(c => scores[c.key] !== '' && scores[c.key] !== undefined)
             .map(c => ({
                 topicId,
                 criterionName: c.name,
-                score: parseFloat(scores[c.key]),
+                score: parseScoreValue(scores[c.key], Number(c.max_score || 10)),
                 notes: notes[c.key] || '',
                 gradedBy: profile.id,
                 graderRole: c.graderRole,
             }));
 
-        if (gradesToSave.length === 0) {
-            return;
-        }
+        if (gradesToSave.length === 0) return;
 
         await saveGradesMutation.mutateAsync(gradesToSave);
         setIsDirty(false);
@@ -145,36 +262,13 @@ export function GradingDetailPage() {
 
     // Submit final grades
     const handleSubmit = async () => {
-        // First save any pending changes
         await handleSave();
-        
-        // Mark as final for both roles (since 1 GV does both)
-        await submitGradesMutation.mutateAsync({
-            topicId,
-            graderType: 'advisor',
-        });
-        await submitGradesMutation.mutateAsync({
-            topicId,
-            graderType: 'reviewer',
-        });
+        // Only submit for advisor
+        await submitGradesMutation.mutateAsync({ topicId, graderType: 'advisor' });
         
         setShowConfirmSubmit(false);
         navigate('/teacher/grading');
     };
-
-    // Calculate progress
-    const progress = useMemo(() => {
-        const total = allCriteria.length;
-        const filled = allCriteria.filter(c => scores[c.key] !== '' && scores[c.key] !== undefined).length;
-        return {
-            total,
-            completed: filled,
-            percentage: total > 0 ? Math.round((filled / total) * 100) : 0,
-        };
-    }, [allCriteria, scores]);
-
-    // Check if all criteria are filled
-    const allFilled = progress.completed === progress.total && progress.total > 0;
 
     const isLoading = topicLoading || criteriaLoading || gradesLoading;
 
@@ -195,7 +289,7 @@ export function GradingDetailPage() {
                     title="Không tìm thấy đề tài"
                     description="Đề tài không tồn tại hoặc bạn không có quyền truy cập"
                     action={
-<Button onClick={() => navigate('/teacher/grading')}>
+                        <Button onClick={() => navigate('/teacher/grading')}>
                             <ArrowLeft size={16} aria-hidden="true" />
                             Quay lại
                         </Button>
@@ -204,10 +298,6 @@ export function GradingDetailPage() {
             </div>
         );
     }
-
-    // Group criteria by role for display
-    const advisorCriteria = allCriteria.filter(c => c.graderRole === 'advisor');
-    const reviewerCriteria = allCriteria.filter(c => c.graderRole === 'reviewer');
 
     return (
         <div className="page grading-detail-page">
@@ -230,137 +320,122 @@ export function GradingDetailPage() {
 
             <div className="grading-detail-content">
                 {/* Topic Info Card */}
-                <Card className="topic-info-card">
+                <Card className="topic-info-card compact">
                     <CardBody>
-                        <div className="topic-info-header">
-                            <h2 className="topic-title">{topic.title}</h2>
-                            <StatusBadge status={topic.status} />
-                        </div>
-
-                        <div className="topic-info-grid">
-<div className="topic-info-item">
-                                <User size={16} aria-hidden="true" />
-                                <div>
-                                    <span className="label">Sinh viên</span>
-                                    <span className="value">
-                                        {topic.student?.full_name}
-                                        {topic.student?.student_code && ` (${topic.student.student_code})`}
-                                    </span>
-                                </div>
+                        <div className="topic-info-compact">
+                            <div className="topic-main-info">
+                                <h2 className="topic-title">{topic.title}</h2>
+                                <StatusBadge status={topic.status} />
                             </div>
-
-<div className="topic-info-item">
-                                <BookOpen size={16} aria-hidden="true" />
-                                <div>
-                                    <span className="label">Lớp</span>
-                                    <span className="value">{topic.class?.name}</span>
-                                </div>
+                            <div className="topic-meta-row">
+                                <span className="meta-item">
+                                    <User size={14} aria-hidden="true" />
+                                    {topic.student?.full_name}
+                                    {topic.student?.student_code && ` (${topic.student.student_code})`}
+                                </span>
+                                <span className="meta-item">
+                                    <BookOpen size={14} aria-hidden="true" />
+                                    {topic.class?.name}
+                                </span>
                             </div>
                         </div>
                     </CardBody>
                 </Card>
 
-                {/* Grading Form */}
-                <Card className="grading-form-card">
-                    <CardHeader>
-                        <div className="grading-form-header">
-                            <h3>Bảng chấm điểm</h3>
-                            <div className="grading-progress-info">
-                                <span>Tiến độ: {progress.completed}/{progress.total}</span>
-                                <div className="grading-progress-bar-large">
-                                    <div 
-                                        className="grading-progress-fill-large"
-                                        style={{ width: `${progress.percentage}%` }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </CardHeader>
-
-                    <CardBody>
-                        {allCriteria.length === 0 ? (
+                {criteria.length === 0 ? (
+                    <Card>
+                        <CardBody>
                             <EmptyState
                                 title="Chưa có tiêu chí chấm điểm"
                                 description="Admin cần cấu hình tiêu chí chấm điểm cho đợt này"
                             />
-                        ) : (
-                            <div className="grading-sections">
-                                {/* Advisor Criteria */}
-                                {advisorCriteria.length > 0 && (
-                                    <div className="grading-section">
-                                        <h4 className="section-title">
-                                            <Badge variant="primary">GVHD</Badge>
-                                            Tiêu chí hướng dẫn
-                                        </h4>
-                                        <div className="grading-criteria-list">
-                                            {advisorCriteria.map((criterion, idx) => (
-                                                <CriterionRow
-                                                    key={criterion.key}
-                                                    index={idx + 1}
-                                                    criterion={criterion}
-                                                    score={scores[criterion.key] ?? ''}
-                                                    notes={notes[criterion.key] ?? ''}
-                                                    onScoreChange={(value) => handleScoreChange(criterion.key, value, criterion.max_score || 10)}
-                                                    onNotesChange={(value) => handleNotesChange(criterion.key, value)}
-                                                    existingGrade={existingGrades.find(g => g.criterion_name === criterion.name && g.grader_role === 'advisor')}
-                                                />
-                                            ))}
-                                        </div>
+                        </CardBody>
+                    </Card>
+                ) : (
+                    <>
+                        <GradingSection
+                            label="Bảng chấm điểm"
+                            criteria={criteria}
+                            scores={scores}
+                            notes={notes}
+                            expandedNotes={expandedNotes}
+                            existingGrades={existingGrades}
+                            onScoreChange={handleScoreChange}
+                            onScoreBlur={handleScoreBlur}
+                            onNotesChange={handleNotesChange}
+                            onToggleNotes={toggleNotes}
+                            getComponentScore={getComponentScore}
+                            getScoreValue={getScoreValue}
+                            subtotal={result.sum}
+                            filledCount={result.filledCount}
+                            totalCount={result.total}
+                            weightTotal={weightTotal}
+                            maxTotal={maxTotal}
+                            isWeightValid={isWeightValid}
+                        />
+
+                        {/* Summary Card */}
+                        <Card className="score-summary-card">
+                            <CardBody>
+                                <div className="summary-header">
+                                    <Calculator size={20} aria-hidden="true" />
+                                    <h3>TỔNG KẾT</h3>
+                                </div>
+
+                                <div className="summary-breakdown">
+                                    <div className="summary-row final">
+                                        <span className="row-label">TỔNG ĐIỂM</span>
+                                        <span className="final-score">
+                                            {result.filledCount > 0 ? result.sum.toFixed(2) : '—'}
+                                        </span>
+                                        <span className="final-max">/{maxTotal > 0 ? maxTotal.toFixed(2) : 'â€”'}</span>
+                                    </div>
+                                </div>
+
+                                {(!isWeightValid || hasInvalidScores) && (
+                                    <div className="summary-alerts">
+                                        {!isWeightValid && (
+                                            <div className="summary-alert warning">
+                                                <AlertTriangle size={16} aria-hidden="true" />
+                                                <span>
+                                                    Tá»•ng trá»ng sá»‘ hiá»‡n táº¡i: {(weightTotal * 100).toFixed(0)}%. Vui lÃ²ng kiá»ƒm tra láº¡i.
+                                                </span>
+                                            </div>
+                                        )}
+                                        {hasInvalidScores && (
+                                            <div className="summary-alert danger">
+                                                <AlertTriangle size={16} aria-hidden="true" />
+                                                <span>CÃ³ Ä‘iá»ƒm nháº­p khÃ´ng há»£p lá»‡. Vui lÃ²ng kiá»ƒm tra cá»™t Ä‘iá»ƒm.</span>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
+                            </CardBody>
+                        </Card>
 
-                                {/* Reviewer Criteria */}
-                                {reviewerCriteria.length > 0 && (
-                                    <div className="grading-section">
-                                        <h4 className="section-title">
-                                            <Badge variant="warning">GVPB</Badge>
-                                            Tiêu chí phản biện
-                                        </h4>
-                                        <div className="grading-criteria-list">
-                                            {reviewerCriteria.map((criterion, idx) => (
-                                                <CriterionRow
-                                                    key={criterion.key}
-                                                    index={idx + 1}
-                                                    criterion={criterion}
-                                                    score={scores[criterion.key] ?? ''}
-                                                    notes={notes[criterion.key] ?? ''}
-                                                    onScoreChange={(value) => handleScoreChange(criterion.key, value, criterion.max_score || 10)}
-                                                    onNotesChange={(value) => handleNotesChange(criterion.key, value)}
-                                                    existingGrade={existingGrades.find(g => g.criterion_name === criterion.name && g.grader_role === 'reviewer')}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </CardBody>
+                        {/* Actions */}
+                        <div className="grading-actions">
+                            <Button
+                                variant="outline"
+                                onClick={handleSave}
+                                disabled={!isDirty || hasInvalidScores || saveGradesMutation.isPending}
+                                loading={saveGradesMutation.isPending}
+                            >
+                                <Save size={16} aria-hidden="true" />
+                                Lưu nháp
+                            </Button>
 
-                    {allCriteria.length > 0 && (
-                        <CardFooter className="grading-form-footer">
-                            <div className="action-buttons">
-<Button
-                                    variant="outline"
-                                    onClick={handleSave}
-                                    disabled={!isDirty || saveGradesMutation.isPending}
-                                    loading={saveGradesMutation.isPending}
-                                >
-                                    <Save size={16} aria-hidden="true" />
-                                    Lưu nháp
-                                </Button>
-
-                                <Button
-                                    variant="primary"
-                                    onClick={() => setShowConfirmSubmit(true)}
-                                    disabled={!allFilled || submitGradesMutation.isPending}
-                                >
-                                    <CheckCircle size={16} aria-hidden="true" />
-                                    Hoàn thành chấm điểm
-                                </Button>
-                            </div>
-                        </CardFooter>
-                    )}
-                </Card>
+                            <Button
+                                variant="primary"
+                                onClick={() => setShowConfirmSubmit(true)}
+                                disabled={!canSubmit || submitGradesMutation.isPending}
+                            >
+                                <CheckCircle size={16} aria-hidden="true" />
+                                Hoàn thành chấm điểm
+                            </Button>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Confirm Submit Modal */}
@@ -379,59 +454,159 @@ export function GradingDetailPage() {
 }
 
 /**
- * Criterion Row Component
+ * GradingSection Component
+ * Displays grading criteria with header, table, and subtotal
  */
-function CriterionRow({ index, criterion, score, notes, onScoreChange, onNotesChange, existingGrade }) {
+function GradingSection({
+    label,
+    criteria,
+    scores,
+    notes,
+    expandedNotes,
+    existingGrades,
+    onScoreChange,
+    onScoreBlur,
+    onNotesChange,
+    onToggleNotes,
+    getComponentScore,
+    getScoreValue,
+    subtotal,
+    filledCount,
+    totalCount,
+    weightTotal,
+    maxTotal,
+    isWeightValid,
+}) {
+    const isComplete = filledCount === totalCount && totalCount > 0;
+    
     return (
-        <div className="grading-criteria-item">
-            <div className="criteria-header">
-                <div className="criteria-info">
-                    <span className="criteria-index">{index}</span>
-                    <div>
-                        <h4 className="criteria-name">{criterion.name}</h4>
-                    </div>
-                </div>
-                <div className="criteria-weight">
-                    <span className="weight-value">
-                        {((criterion.weight || 0) * 100).toFixed(0)}%
+        <Card className="grading-section-card">
+            {/* Section Header */}
+            <div className="grading-section-header">
+                <ClipboardCheck size={20} aria-hidden="true" />
+                <h3>{label}</h3>
+                <div className="section-meta">
+                    <span className="section-progress">
+                        {filledCount}/{totalCount}
                     </span>
-                    <span className="weight-label">Trọng số</span>
+                    <span
+                        className={`section-weight ${isWeightValid ? 'valid' : 'invalid'}`}
+                        title={`Tá»•ng trá»ng sá»‘: ${(weightTotal * 100).toFixed(0)}%`}
+                    >
+                        {isWeightValid ? (
+                            <CheckCircle size={14} aria-hidden="true" />
+                        ) : (
+                            <AlertTriangle size={14} aria-hidden="true" />
+                        )}
+                        {(weightTotal * 100).toFixed(0)}%
+                    </span>
                 </div>
             </div>
 
-            <div className="criteria-input-row">
-                <div className="score-input-group">
-                    <Input
-                        type="number"
-                        min="0"
-                        max={criterion.max_score || 10}
-                        step="0.5"
-                        value={score}
-                        onChange={(e) => onScoreChange(e.target.value)}
-                        placeholder="0"
-                        className="score-input"
-                    />
-                    <span className="score-max">
-                        / {criterion.max_score || 10}
-                    </span>
+            {/* Criteria Table */}
+            <div className="grading-table">
+                <div className="grading-table-row header">
+                    <div className="col-index">#</div>
+                    <div className="col-name">Tiêu chí</div>
+                    <div className="col-input">Điểm nhập</div>
+                    <div className="col-weight">Trọng số</div>
+                    <div className="col-component">Thành phần</div>
+                    <div className="col-notes"></div>
                 </div>
 
-                <Textarea
-                    placeholder="Ghi chú (tùy chọn)..."
-                    value={notes}
-                    onChange={(e) => onNotesChange(e.target.value)}
-                    rows={2}
-                    className="notes-input"
-                />
+                {criteria.map((criterion, idx) => {
+                    const key = criterion.key;
+                    const hasNotes = notes[key]?.trim();
+                    const isExpanded = expandedNotes.has(key);
+                    const componentScore = getComponentScore(criterion);
+                    const existingGrade = existingGrades.find(
+                        g => g.criterion_name === criterion.name && g.grader_role === 'advisor'
+                    );
+                    const maxScore = Number(criterion.max_score || 10);
+                    const rawValue = scores[key];
+                    const scoreValue = getScoreValue(criterion);
+                    const isInvalidScore = rawValue !== '' && rawValue !== undefined && rawValue !== null && scoreValue === null;
+
+                    return (
+                        <div key={key} className="grading-table-row-wrapper">
+                            <div className={`grading-table-row ${existingGrade ? 'saved' : ''}`}>
+                                <div className="col-index">{idx + 1}</div>
+                                <div className="col-name">
+                                    <span className="criterion-name">{criterion.name}</span>
+                                    {criterion.description && (
+                                        <span className="criterion-desc">{criterion.description}</span>
+                                    )}
+                                </div>
+                                <div className="col-input">
+                                    <div className="score-input-compact">
+                                        <Input
+                                            type="text"
+                                            inputMode="decimal"
+                                            pattern="\\d*(?:[.,]\\d*)?"
+                                            value={scores[key] ?? ''}
+                                            onChange={(e) => onScoreChange(key, e.target.value)}
+                                            onBlur={() => onScoreBlur(key, maxScore)}
+                                            placeholder="—"
+                                            className={`score-input ${isInvalidScore ? 'is-invalid' : ''}`}
+                                            aria-invalid={isInvalidScore}
+                                            title={`Nháº­p Ä‘iá»ƒm 0 - ${maxScore}`}
+                                        />
+                                        <span className="score-max">/{maxScore}</span>
+                                    </div>
+                                </div>
+                                <div className="col-weight">
+                                    <span className="weight-badge">
+                                        {((criterion.weight || 0) * 100).toFixed(0)}%
+                                    </span>
+                                </div>
+                                <div className="col-component">
+                                    <span className="component-score">
+                                        {componentScore !== null ? componentScore.toFixed(2) : '—'}
+                                    </span>
+                                </div>
+                                <div className="col-notes">
+                                    <button
+                                        type="button"
+                                        className={`notes-toggle ${hasNotes ? 'has-content' : ''} ${isExpanded ? 'expanded' : ''}`}
+                                        onClick={() => onToggleNotes(key)}
+                                        aria-expanded={isExpanded}
+                                        aria-label={isExpanded ? 'Ẩn ghi chú' : 'Thêm ghi chú'}
+                                    >
+                                        <MessageSquare size={16} />
+                                        <ChevronDown size={14} className="chevron" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Expandable Notes */}
+                            {isExpanded && (
+                                <div className="notes-expanded">
+                                    <Textarea
+                                        placeholder="Nhập ghi chú cho tiêu chí này..."
+                                        value={notes[key] ?? ''}
+                                        onChange={(e) => onNotesChange(key, e.target.value)}
+                                        rows={2}
+                                        className="notes-textarea"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
 
-{existingGrade && (
-                <div className="criteria-saved-indicator">
-                    <CheckCircle size={12} aria-hidden="true" />
-                    Đã lưu
-                </div>
-            )}
-        </div>
+            {/* Section Subtotal */}
+            <div className="section-subtotal">
+                <span className="subtotal-label">
+                    Tổng điểm:
+                </span>
+                <span className="subtotal-value">
+                    {filledCount > 0 ? subtotal.toFixed(2) : '—'}
+                </span>
+                <span className="subtotal-max">/{maxTotal > 0 ? maxTotal.toFixed(2) : 'â€”'}</span>
+                {isComplete && <CheckCircle size={18} className="subtotal-check" />}
+            </div>
+        </Card>
     );
 }
 

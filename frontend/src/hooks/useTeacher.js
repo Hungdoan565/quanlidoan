@@ -93,3 +93,19 @@ export function useMyClassStudents(classId) {
         staleTime: 2 * 60 * 1000,
     });
 }
+
+/**
+ * Hook để lấy TẤT CẢ sinh viên từ các lớp phụ trách
+ * Bao gồm cả SV chưa đăng ký đề tài - dùng cho Kanban sức khỏe
+ */
+export function useAllMyStudents() {
+    const { profile } = useAuthStore();
+    const teacherId = profile?.id;
+
+    return useQuery({
+        queryKey: ['all-my-students', teacherId],
+        queryFn: () => teacherService.getAllMyStudents(teacherId),
+        enabled: !!teacherId,
+        staleTime: 2 * 60 * 1000,
+    });
+}

@@ -413,7 +413,7 @@ WHERE EXISTS (SELECT 1 FROM public.profiles WHERE email = 'student7@dnc.edu.vn')
 -- Xóa data cũ
 DELETE FROM public.grading_criteria WHERE session_id = 'a1111111-1111-1111-1111-111111111111';
 
--- Tiêu chí cho GVHD
+-- Tiêu chí cho Giảng viên (Advisor)
 INSERT INTO public.grading_criteria (session_id, grader_role, criteria) VALUES
 ('a1111111-1111-1111-1111-111111111111', 'advisor', '[
     {"name": "Điểm danh, thái độ làm việc", "weight": 0.10, "max_score": 10, "description": "Tham gia đầy đủ các buổi hướng dẫn, thái độ tích cực"},
@@ -423,7 +423,7 @@ INSERT INTO public.grading_criteria (session_id, grader_role, criteria) VALUES
     {"name": "Khả năng tự nghiên cứu", "weight": 0.15, "max_score": 10, "description": "Chủ động tìm hiểu, giải quyết vấn đề"}
 ]'::jsonb);
 
--- Tiêu chí cho GVPB
+-- Tiêu chí cho Giảng viên phản biện (Reviewer - legacy)
 INSERT INTO public.grading_criteria (session_id, grader_role, criteria) VALUES
 ('a1111111-1111-1111-1111-111111111111', 'reviewer', '[
     {"name": "Nội dung đề tài", "weight": 0.35, "max_score": 10, "description": "Đề tài có tính thực tiễn, giải quyết vấn đề cụ thể"},

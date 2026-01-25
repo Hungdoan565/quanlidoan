@@ -177,9 +177,9 @@ export function GradingConfigPage() {
                 </Card>
             ) : (
                 <div className="criteria-sections">
-                    {/* GVHD Section */}
+                    {/* Advisor Section */}
                     <CriteriaSection
-                        title="Tiêu chí GVHD"
+                        title="Tiêu chí Giảng viên"
                         type="advisor"
                         criteria={groupedCriteria.advisor}
                         totalWeight={weightTotals.advisor}
@@ -246,7 +246,9 @@ function CriteriaSection({ title, type, criteria, totalWeight, onEdit, onDelete,
                 <div className="criteria-section-header">
                     <div className="criteria-section-title">
                         <h3>{title}</h3>
-                        <Badge variant="outline">{GRADER_TYPE_LABELS[type]}</Badge>
+                        <Badge variant="outline">
+                            {type === 'advisor' ? 'Giảng viên' : (type === 'reviewer' ? 'Phản biện' : GRADER_TYPE_LABELS[type])}
+                        </Badge>
                         <Badge variant="default" size="sm">{criteria.length} tiêu chí</Badge>
                     </div>
                     <div className="criteria-section-actions">

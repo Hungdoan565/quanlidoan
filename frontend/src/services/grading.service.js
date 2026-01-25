@@ -14,24 +14,33 @@ import { supabase } from '../lib/supabase';
  */
 const DEFAULT_CRITERIA = {
     advisor: [
-        { name: "Điểm danh, thái độ làm việc", weight: 0.10, max_score: 10, description: "Tham gia đầy đủ các buổi hướng dẫn, thái độ tích cực" },
-        { name: "Tiến độ thực hiện", weight: 0.15, max_score: 10, description: "Hoàn thành đúng tiến độ đề ra" },
-        { name: "Chất lượng báo cáo", weight: 0.25, max_score: 10, description: "Nội dung báo cáo đầy đủ, rõ ràng" },
-        { name: "Demo sản phẩm", weight: 0.35, max_score: 10, description: "Sản phẩm hoạt động đúng yêu cầu" },
-        { name: "Khả năng tự nghiên cứu", weight: 0.15, max_score: 10, description: "Chủ động tìm hiểu, giải quyết vấn đề" }
+        { 
+            name: "Báo cáo/Tài liệu", 
+            weight: 0.25, 
+            max_score: 10, 
+            description: "Trình bày rõ ràng, phân tích bài toán đầy đủ, thiết kế hệ thống hợp lý, tài liệu hướng dẫn" 
+        },
+        { 
+            name: "Sản phẩm/Code", 
+            weight: 0.40, 
+            max_score: 10, 
+            description: "Chức năng hoạt động đúng, UI thân thiện, code sạch có cấu trúc, xử lý lỗi, bảo mật cơ bản" 
+        },
+        { 
+            name: "Thuyết trình/Demo", 
+            weight: 0.25, 
+            max_score: 10, 
+            description: "Trình bày tự tin rõ ràng, demo mượt mà, giải thích quy trình, trả lời câu hỏi tốt" 
+        },
+        { 
+            name: "Tiến độ & Thái độ", 
+            weight: 0.10, 
+            max_score: 10, 
+            description: "Hoàn thành đúng hạn, thái độ tích cực, chủ động trong công việc" 
+        }
     ],
-    reviewer: [
-        { name: "Nội dung đề tài", weight: 0.35, max_score: 10, description: "Đề tài có tính thực tiễn, giải quyết vấn đề cụ thể" },
-        { name: "Phương pháp thực hiện", weight: 0.25, max_score: 10, description: "Phương pháp phù hợp, khoa học" },
-        { name: "Kết quả đạt được", weight: 0.25, max_score: 10, description: "Kết quả đáp ứng mục tiêu đề ra" },
-        { name: "Hình thức báo cáo", weight: 0.15, max_score: 10, description: "Trình bày rõ ràng, đúng quy cách" }
-    ],
-    council: [
-        { name: "Trình bày", weight: 0.20, max_score: 10, description: "Trình bày rõ ràng, logic, đúng thời gian" },
-        { name: "Trả lời câu hỏi", weight: 0.30, max_score: 10, description: "Trả lời đúng, đầy đủ các câu hỏi" },
-        { name: "Hiểu biết chuyên môn", weight: 0.30, max_score: 10, description: "Nắm vững kiến thức liên quan" },
-        { name: "Tổng thể đồ án", weight: 0.20, max_score: 10, description: "Đánh giá tổng thể chất lượng đồ án" }
-    ]
+    reviewer: [],
+    council: []
 };
 
 export const gradingService = {

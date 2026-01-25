@@ -36,39 +36,40 @@
 /* Topic & Advisor Info Section */
 .logbook-info-section {
     display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 24px;
-    margin-bottom: 32px;
+    grid-template-columns: 320px 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
 }
 
 /* Advisor Card */
 .advisor-card {
     height: 100%;
-    overflow: visible;
+    overflow: visible !important; /* Allow floating label to be visible */
 }
 
 .advisor-card-body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px;
+    padding: var(--space-8) var(--space-6) var(--space-6);
     position: relative;
+    height: 100%;
 }
 
 .advisor-header-label {
     position: absolute;
-    top: -12px;
+    top: -14px;
     left: 50%;
     transform: translateX(-50%);
     background: #fff;
-    padding: 4px 12px;
+    padding: var(--space-1) var(--space-4);
     border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: var(--font-semibold);
     color: var(--text-secondary);
     white-space: nowrap;
     z-index: 10;
@@ -80,22 +81,25 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-top: 8px;
+    margin-top: var(--space-4);
+}
+
+.advisor-avatar-wrapper {
+    position: relative;
+    margin-bottom: var(--space-4);
 }
 
 .advisor-avatar {
     width: 80px;
     height: 80px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    position: relative;
+    font-weight: var(--font-bold);
     box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
 }
 
@@ -103,50 +107,57 @@
     position: absolute;
     bottom: -2px;
     right: -2px;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     background: var(--success-500);
     border: 3px solid #fff;
     border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.advisor-info {
+    text-align: center;
+    margin-bottom: var(--space-4);
 }
 
 .advisor-name {
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
     color: var(--text-primary);
-    margin: 0 0 4px 0;
-    text-align: center;
+    margin: 0 0 var(--space-1) 0;
 }
 
 .advisor-code {
-    font-size: 0.75rem;
-    background: var(--primary-50);
-    color: var(--primary-700);
+    display: inline-block;
+    font-size: var(--text-xs);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
     padding: 2px 8px;
     border-radius: 12px;
-    margin-bottom: 12px;
-    font-weight: 500;
+    font-weight: var(--font-medium);
+    border: 1px solid var(--border-light);
 }
 
 .advisor-email {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: var(--bg-secondary);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
+    gap: var(--space-2);
+    background: var(--primary-50);
+    padding: var(--space-2) var(--space-4);
+    border-radius: 20px;
+    font-size: var(--text-sm);
+    color: var(--primary-700);
     width: 100%;
     justify-content: center;
-    border: 1px solid var(--border-light);
+    border: 1px solid transparent;
     transition: all 0.2s ease;
+    text-decoration: none;
 }
 
 .advisor-email:hover {
+    background: var(--primary-100);
     border-color: var(--primary-200);
-    color: var(--primary-600);
-    background: var(--primary-50);
+    color: var(--primary-800);
 }
 
 /* Class Info Card */
@@ -156,39 +167,55 @@
 
 .class-info-body {
     padding: 0;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     height: 100%;
+    align-items: stretch;
 }
 
-.info-group {
-    padding: 20px;
+.info-section {
+    padding: var(--space-6);
     flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .info-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
 }
 
+.info-icon-wrapper {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.text-primary-bg { background: var(--primary-50); }
+.text-success-bg { background: var(--success-50); }
+
 .info-title {
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
     color: var(--text-primary);
+}
+
+.info-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
 }
 
 .info-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
-    font-size: 0.9rem;
-}
-
-.info-row:last-child {
-    margin-bottom: 0;
+    font-size: var(--text-sm);
 }
 
 .info-label {
@@ -196,42 +223,53 @@
 }
 
 .info-value {
-    font-weight: 500;
+    font-weight: var(--font-medium);
     color: var(--text-primary);
     text-align: right;
 }
 
-.info-divider {
-    height: 1px;
-    background: var(--border-light);
-    width: 100%;
+.info-value.highlight {
+    color: var(--primary-600);
+    font-weight: var(--font-semibold);
 }
 
-.info-grid-2 {
+.info-divider {
+    width: 1px;
+    height: auto;
+    background: var(--border-light);
+    margin: var(--space-6) 0;
+}
+
+.stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: var(--space-3);
 }
 
 .mini-stat {
     background: var(--bg-secondary);
-    padding: 12px;
-    border-radius: 8px;
+    padding: var(--space-3);
+    border-radius: var(--radius-lg);
     text-align: center;
     border: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
 }
 
 .mini-stat-label {
     display: block;
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
     color: var(--text-muted);
-    margin-bottom: 4px;
+    margin-bottom: var(--space-1);
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .mini-stat-value {
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
     color: var(--text-primary);
 }
 
@@ -239,52 +277,63 @@
     color: var(--primary-600);
 }
 
-/* Text Utilities */
-.text-primary { color: var(--primary-600); }
-.text-success { color: var(--success-600); }
-.font-medium { font-weight: 500; }
+.mini-stat-value .text-muted {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-muted);
+}
 
-/* Responsive adjustments for info section */
-@media (max-width: 768px) {
+/* Responsive adjustments */
+@media (max-width: 900px) {
     .logbook-info-section {
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: var(--space-6);
+    }
+
+    .class-info-body {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
     }
     
-    .advisor-header-label {
-        position: static;
-        transform: none;
-        display: inline-flex;
-        margin-bottom: 16px;
-        background: var(--bg-secondary);
+    .info-divider {
+        width: 100%;
+        height: 1px;
+        margin: 0;
     }
-    
-    .advisor-card-body {
-        align-items: flex-start;
-    }
-    
+}
+
+@media (max-width: 640px) {
     .advisor-profile {
         flex-direction: row;
-        flex-wrap: wrap;
-        gap: 16px;
+        gap: var(--space-4);
         align-items: center;
-        margin-top: 0;
+        text-align: left;
+    }
+    
+    .advisor-avatar-wrapper {
+        margin-bottom: 0;
     }
     
     .advisor-avatar {
-        margin-bottom: 0;
         width: 64px;
         height: 64px;
         font-size: 1.5rem;
     }
     
-    .advisor-details-wrapper {
+    .advisor-info {
+        text-align: left;
+        margin-bottom: 0;
         flex: 1;
     }
     
     .advisor-email {
-        margin-top: 12px;
-        width: 100%;
+        width: auto;
+        margin-top: var(--space-3);
+    }
+
+    /* Wrap advisor profile into columns on very small screens if needed */
+    .advisor-card-body {
+        align-items: flex-start;
     }
 }
 

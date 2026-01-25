@@ -1,8 +1,6 @@
 /**
  * GradingPage - Teacher's grading dashboard
  * Shows list of topics to grade
- * 
- * NOTE: 1 GV kiêm cả GVHD + GVPB (advisor_id = reviewer_id)
  */
 
 import { useNavigate } from 'react-router-dom';

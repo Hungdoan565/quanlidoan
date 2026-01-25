@@ -492,6 +492,88 @@ export const teacherService = {
     },
 
     /**
+     * Lấy TẤT CẢ sinh viên từ các lớp mà teacher phụ trách
+     * Bao gồm cả sinh viên chưa đăng ký đề tài
+     * Dùng cho trang Kanban theo dõi sức khỏe
+     */
+    getAllMyStudents: async (teacherId) => {
+        try {
+            // 1. Get all classes where teacher is advisor
+            const { data: classes, error: classError } = await supabase
+                .from('classes')
+                .select(`
+                    id, code, name,
+                    session:sessions(id, name, academic_year, semester)
+                `)
+                .eq('advisor_id', teacherId);
+
+            if (classError) throw classError;
+            if (!classes || classes.length === 0) return { students: [], classes: [] };
+
+            const classIds = classes.map(c => c.id);
+            const classMap = {};
+            classes.forEach(c => { classMap[c.id] = c; });
+
+            // 2. Get all students in those classes
+            const { data: classStudents, error: csError } = await supabase
+                .from('class_students')
+                .select(`
+                    class_id,
+                    student:profiles(
+                        id, full_name, student_code, email, phone, class_name
+                    )
+                `)
+                .in('class_id', classIds);
+
+            if (csError) throw csError;
+
+            // 3. Get all topics for those classes
+            const { data: topics, error: topicError } = await supabase
+                .from('topics')
+                .select(`
+                    id, title, status, repo_url, updated_at, created_at,
+                    student_id, class_id
+                `)
+                .in('class_id', classIds);
+
+            if (topicError) throw topicError;
+
+            // Build topic map by student_id
+            const topicMap = {};
+            topics?.forEach(t => {
+                topicMap[t.student_id] = t;
+            });
+
+            // 4. Transform data - combine students with their topics and class info
+            const students = classStudents?.map(cs => {
+                const topic = topicMap[cs.student?.id] || null;
+                const classInfo = classMap[cs.class_id];
+                return {
+                    ...cs.student,
+                    class_id: cs.class_id,
+                    class: classInfo,
+                    topic: topic,
+                    // Normalized fields for Kanban page compatibility
+                    id: topic?.id || `no-topic-${cs.student?.id}`,
+                    title: topic?.title || null,
+                    status: topic?.status || null,
+                    repo_url: topic?.repo_url || null,
+                    updated_at: topic?.updated_at || null,
+                    student: cs.student, // Keep student reference for card display
+                };
+            }).filter(s => s.student?.id) || [];
+
+            return {
+                students,
+                classes: classes.map(c => ({ id: c.id, code: c.code, name: c.name })),
+            };
+        } catch (error) {
+            console.error('Error fetching all my students:', error);
+            return { students: [], classes: [] };
+        }
+    },
+
+    /**
      * Get topic statistics for current teacher
      */
     getMyTopicStats: async () => {

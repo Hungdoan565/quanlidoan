@@ -60,8 +60,8 @@ export const GRADER_TYPES = {
 };
 
 export const GRADER_TYPE_LABELS = {
-    advisor: 'GVHD',
-    reviewer: 'GVPB',
+    advisor: 'Giảng viên',
+    reviewer: 'Giảng viên',
     council: 'Hội đồng',
 };
 

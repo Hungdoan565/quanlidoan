@@ -334,22 +334,27 @@ export function LogbookPage() {
             {/* Topic & Advisor Info Section */}
             <div className="logbook-info-section">
                 {/* Advisor Card */}
-                <Card className="advisor-card">
-                    <CardBody className="advisor-card-body">
+                <Card className="advisor-card" padding="none">
+                    <div className="advisor-card-body">
                         <div className="advisor-header-label">
-                            <GraduationCap size={16} />
+                            <GraduationCap size={18} />
                             <span>Giảng viên hướng dẫn</span>
                         </div>
                         
                         <div className="advisor-profile">
-                            <div className="advisor-avatar">
-                                {topic.advisor?.full_name?.charAt(0) || 'G'}
-                                <span className="advisor-status-dot"></span>
+                            <div className="advisor-avatar-wrapper">
+                                <div className="advisor-avatar">
+                                    {topic.advisor?.full_name?.charAt(0) || 'G'}
+                                </div>
+                                <div className="advisor-status-dot"></div>
                             </div>
-                            <h3 className="advisor-name">{topic.advisor?.full_name || 'Chưa phân công'}</h3>
-                            {topic.advisor?.teacher_code && (
-                                <span className="advisor-code">{topic.advisor.teacher_code}</span>
-                            )}
+                            
+                            <div className="advisor-info">
+                                <h3 className="advisor-name">{topic.advisor?.full_name || 'Chưa phân công'}</h3>
+                                {topic.advisor?.teacher_code && (
+                                    <span className="advisor-code">{topic.advisor.teacher_code}</span>
+                                )}
+                            </div>
                             
                             {topic.advisor?.email && (
                                 <div className="advisor-email">
@@ -358,48 +363,54 @@ export function LogbookPage() {
                                 </div>
                             )}
                         </div>
-                    </CardBody>
+                    </div>
                 </Card>
 
                 {/* Class & Topic Info Card */}
-                <Card className="class-info-card">
-                    <CardBody className="class-info-body">
-                        <div className="info-group">
+                <Card className="class-info-card" padding="none">
+                    <div className="class-info-body">
+                        <div className="info-section">
                             <div className="info-header">
-                                <Users size={16} className="text-primary" />
+                                <div className="info-icon-wrapper text-primary-bg">
+                                    <Users size={18} className="text-primary" />
+                                </div>
                                 <span className="info-title">Thông tin lớp</span>
                             </div>
-                            <div className="info-row">
-                                <span className="info-label">Lớp đồ án:</span>
-                                <span className="info-value text-primary font-medium">{topic.class?.name}</span>
-                            </div>
-                            <div className="info-row">
-                                <span className="info-label">Đợt:</span>
-                                <span className="info-value">{topic.class?.session?.name}</span>
+                            <div className="info-content">
+                                <div className="info-row">
+                                    <span className="info-label">Lớp đồ án</span>
+                                    <span className="info-value highlight">{topic.class?.name}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="info-label">Đợt thực hiện</span>
+                                    <span className="info-value">{topic.class?.session?.name}</span>
+                                </div>
                             </div>
                         </div>
                         
                         <div className="info-divider"></div>
                         
-                        <div className="info-group">
+                        <div className="info-section">
                             <div className="info-header">
-                                <Target size={16} className="text-success" />
+                                <div className="info-icon-wrapper text-success-bg">
+                                    <Target size={18} className="text-success" />
+                                </div>
                                 <span className="info-title">Trạng thái</span>
                             </div>
-                            <div className="info-grid-2">
+                            <div className="stats-grid">
                                 <div className="mini-stat">
                                     <span className="mini-stat-label">Tuần hiện tại</span>
                                     <span className="mini-stat-value highlight">Tuần {currentWeek}</span>
                                 </div>
                                 <div className="mini-stat">
-                                    <span className="mini-stat-label">Đã nộp</span>
+                                    <span className="mini-stat-label">Đã nộp báo cáo</span>
                                     <span className="mini-stat-value">
-                                        {entries?.length || 0} / {currentWeek}
+                                        {entries?.length || 0} <span className="text-muted">/ {currentWeek}</span>
                                     </span>
                                 </div>
                             </div>
                         </div>
-                    </CardBody>
+                    </div>
                 </Card>
             </div>
 
