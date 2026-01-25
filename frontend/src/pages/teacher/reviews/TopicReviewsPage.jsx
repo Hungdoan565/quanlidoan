@@ -86,10 +86,10 @@ export function TopicReviewsPage() {
             if (!searchTerm) return true;
             const search = searchTerm.toLowerCase();
             return (
-                topic.title?.toLowerCase().includes(search) ||
-                topic.student?.full_name?.toLowerCase().includes(search) ||
-                topic.student?.student_code?.toLowerCase().includes(search) ||
-                topic.class?.name?.toLowerCase().includes(search)
+                (topic.title || '').toLowerCase().includes(search) ||
+                (topic.student?.full_name || '').toLowerCase().includes(search) ||
+                (topic.student?.student_code || '').toLowerCase().includes(search) ||
+                (topic.class?.name || '').toLowerCase().includes(search)
             );
         }) || [];
     }, [topics, searchTerm]);

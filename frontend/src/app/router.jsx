@@ -41,6 +41,7 @@ import { GradesPage } from '../pages/student/grades/GradesPage';
 
 // Common Pages
 import { NotificationsPage } from '../pages/common/NotificationsPage';
+import { ProfilePage } from '../pages/profile';
 
 // Error Pages
 import { NotFoundPage } from '../pages/errors/NotFoundPage';
@@ -163,10 +164,12 @@ export const router = createBrowserRouter([
         path: '/profile',
         element: (
             <ProtectedRoute>
-                {/* TODO: <ProfilePage /> */}
-                <div>Profile Page - Coming Soon</div>
+                <DashboardLayout />
             </ProtectedRoute>
         ),
+        children: [
+            { index: true, element: <ProfilePage /> },
+        ],
     },
     {
         path: '/notifications',

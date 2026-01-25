@@ -10,3 +10,4 @@ export { teacherService } from './teacher.service';
 export { logbookService } from './logbook.service';
 export { sampleTopicsService } from './sampleTopics.service';
 export { exportService } from './export.service';
+export { profileService } from './profile.service';

@@ -76,6 +76,12 @@
     pointer-events: none;
 }
 
+/* Allow interactive elements inside icons (e.g., visibility toggle buttons) */
+.input-icon button,
+.input-icon a {
+    pointer-events: auto;
+}
+
 .input-icon-left {
     left: var(--space-3);
 }

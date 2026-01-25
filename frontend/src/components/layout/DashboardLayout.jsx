@@ -143,6 +143,7 @@ export function DashboardLayout({ role }) {
                             <DropdownTrigger>
                                 <div className="user-menu-trigger">
                                     <Avatar
+                                        src={profile?.avatar_url}
                                         name={profile?.full_name}
                                         size="sm"
                                     />
