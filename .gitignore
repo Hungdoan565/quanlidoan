@@ -3,3 +3,5 @@ node_modules/
 skill/
 excel
 docs
+.sisyphus/
+nul
