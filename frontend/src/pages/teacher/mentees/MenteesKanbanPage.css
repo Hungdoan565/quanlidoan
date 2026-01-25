@@ -432,3 +432,54 @@
     flex-direction: column;
   }
 }
+
+/* Collapsible Card Group */
+.collapsible-card-group {
+  margin-bottom: 16px;
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  background: var(--bg-secondary);
+  z-index: 1;
+}
+
+.group-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.group-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.group-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.expand-toggle-btn {
+  width: 100%;
+  margin-top: 12px;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.expand-toggle-btn:hover {
+  color: var(--primary-600);
+}
