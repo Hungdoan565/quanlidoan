@@ -483,3 +483,105 @@
 .expand-toggle-btn:hover {
   color: var(--primary-600);
 }
+
+/* Class Selection Overlay */
+.class-selection-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.class-selection-modal {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.class-selection-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.class-selection-desc {
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.class-selection-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.class-select-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 1rem;
+}
+
+.class-btn-name {
+  font-weight: 500;
+}
+
+.view-all-btn {
+  margin-top: 8px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+  justify-content: center;
+}
+
+/* Drag Handle Styles */
+.reorder-item {
+  list-style: none;
+}
+
+.card-with-handle {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 12px;
+  color: var(--text-muted);
+  cursor: grab;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.drag-handle:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+  color: var(--primary-600);
+}
+
+.card-content {
+  flex: 1;
+  min-width: 0;
+}

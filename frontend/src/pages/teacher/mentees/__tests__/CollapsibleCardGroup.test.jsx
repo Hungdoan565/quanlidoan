@@ -86,4 +86,61 @@ describe('CollapsibleCardGroup', () => {
 
     expect(container.firstChild).toBeNull();
   });
+
+  describe('Reordering', () => {
+    it('resets order when students prop changes', async () => {
+      const { rerender } = render(
+        <CollapsibleCardGroup
+          title="Test Class"
+          students={mockStudents.slice(0, 3)}
+          threshold={8}
+          renderCard={renderCard}
+          reorderable={true}
+        />
+      );
+
+      // Rerender with different students
+      const newStudents = [{ id: 99, student: { full_name: 'New Student' } }];
+      rerender(
+        <CollapsibleCardGroup
+          title="Test Class"
+          students={newStudents}
+          threshold={8}
+          renderCard={renderCard}
+          reorderable={true}
+        />
+      );
+
+      expect(screen.getByTestId('card-99')).toBeInTheDocument();
+      expect(screen.queryByTestId('card-1')).not.toBeInTheDocument();
+    });
+
+    it('renders drag handles when reorderable is true', () => {
+      render(
+        <CollapsibleCardGroup
+          title="Test Class"
+          students={mockStudents.slice(0, 3)}
+          threshold={8}
+          renderCard={renderCard}
+          reorderable={true}
+        />
+      );
+
+      expect(screen.getAllByLabelText('Kéo để sắp xếp lại')).toHaveLength(3);
+    });
+
+    it('does not render drag handles when reorderable is false', () => {
+      render(
+        <CollapsibleCardGroup
+          title="Test Class"
+          students={mockStudents.slice(0, 3)}
+          threshold={8}
+          renderCard={renderCard}
+          reorderable={false}
+        />
+      );
+
+      expect(screen.queryByLabelText('Kéo để sắp xếp lại')).not.toBeInTheDocument();
+    });
+  });
 });
