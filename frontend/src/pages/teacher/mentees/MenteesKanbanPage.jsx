@@ -6,6 +6,8 @@ import {
     BookOpen, FileText, Clock, ChevronDown,
     Search, ExternalLink, Copy, UserX
 } from 'lucide-react';
+import { CollapsibleCardGroup } from './CollapsibleCardGroup';
+import { groupStudentsByClass } from './utils/groupStudentsByClass';
 import {
     Card,
     CardBody,
@@ -202,6 +204,14 @@ export function MenteesKanbanPage() {
         return result;
     }, [students, logbookMap, searchTerm, selectedClass]);
 
+    // Group students by class
+    const groupedMentees = useMemo(() => {
+        if (classes.length <= 1) {
+            return null; // No grouping needed for single class
+        }
+        return groupStudentsByClass(categorizedMentees);
+    }, [categorizedMentees, classes.length]);
+
     // Total filtered count
     const totalFiltered = useMemo(() => {
         return Object.values(categorizedMentees).reduce((sum, arr) => sum + arr.length, 0);
@@ -233,6 +243,120 @@ export function MenteesKanbanPage() {
         e.stopPropagation();
         navigate(`/teacher/logbook/${topicId}`);
     };
+
+    // Render mentee card
+    const renderMenteeCard = (mentee) => (
+        <Card 
+            key={mentee.id} 
+            className={`mentee-card ${!mentee.topic ? 'no-topic' : ''}`}
+            onClick={() => handleCardClick(mentee)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => handleCardKeyDown(e, mentee)}
+            aria-label={`${mentee.student?.full_name} - ${mentee.title || 'Chưa đăng ký đề tài'}`}
+        >
+            <CardBody>
+                {/* Student Info with Class Badge */}
+                <div className="mentee-header">
+                    <div className="mentee-avatar">
+                        {mentee.student?.full_name?.charAt(0) || 'S'}
+                    </div>
+                    <div className="mentee-info">
+                        <span className="mentee-name">
+                            {mentee.student?.full_name}
+                        </span>
+                        <span className="mentee-code">
+                            {mentee.student?.student_code}
+                        </span>
+                    </div>
+                    {/* Class Badge */}
+                    {classes.length > 1 && mentee.class && (
+                        <Badge variant="outline" className="class-badge">
+                            {mentee.class.code}
+                        </Badge>
+                    )}
+                </div>
+
+                {/* Topic or No Topic Message */}
+                {mentee.title ? (
+                    <p className="mentee-topic" title={mentee.title}>
+                        {mentee.title}
+                    </p>
+                ) : (
+                    <p className="mentee-topic no-topic-text">
+                        Chưa đăng ký đề tài
+                    </p>
+                )}
+
+                {/* Signals */}
+                {mentee.signals.length > 0 && (
+                    <div className="mentee-signals">
+                        {mentee.signals.map((signal, idx) => {
+                            const SigIcon = signal.icon;
+                            return (
+                                <div 
+                                    key={idx} 
+                                    className={`signal signal-${signal.type}`}
+                                    title={signal.text}
+                                >
+                                    <SigIcon size={12} aria-hidden="true" />
+                                    <span>{signal.text}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {/* Logbook Progress (if has topic) */}
+                {mentee.logbookStats && (
+                    <div className="mentee-progress">
+                        <div className="progress-info">
+                            <BookOpen size={12} aria-hidden="true" />
+                            <span>
+                                {mentee.logbookStats.total_entries}/{mentee.logbookStats.expected_weeks} tuần
+                            </span>
+                        </div>
+                        <div className="progress-bar-mini">
+                            <div 
+                                className="progress-fill"
+                                style={{
+                                    width: `${Math.min(100, (mentee.logbookStats.total_entries / Math.max(1, mentee.logbookStats.expected_weeks)) * 100)}%`
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Quick Actions */}
+                <div className="mentee-actions">
+                    {mentee.topic?.id && (
+                        <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={(e) => handleViewLogbook(e, mentee.topic.id)}
+                        >
+                            <BookOpen size={14} aria-hidden="true" />
+                            Nhật ký
+                        </Button>
+                    )}
+                    {mentee.student?.email && (
+                        <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={async (e) => {
+                                e.stopPropagation();
+                                await navigator.clipboard.writeText(mentee.student.email);
+                                toast.success(`Đã copy: ${mentee.student.email}`);
+                            }}
+                            aria-label={`Copy email ${mentee.student.full_name}`}
+                        >
+                            <Copy size={14} aria-hidden="true" />
+                        </Button>
+                    )}
+                </div>
+            </CardBody>
+        </Card>
+    );
 
     // Get selected class name for display
     const selectedClassName = selectedClass === 'all' 
@@ -428,118 +552,31 @@ export function MenteesKanbanPage() {
                                         <span>Không có sinh viên</span>
                                     </div>
                                 ) : (
-                                    mentees.map(mentee => (
-                                        <Card 
-                                            key={mentee.id} 
-                                            className={`mentee-card ${!mentee.topic ? 'no-topic' : ''}`}
-                                            onClick={() => handleCardClick(mentee)}
-                                            role="button"
-                                            tabIndex={0}
-                                            onKeyDown={(e) => handleCardKeyDown(e, mentee)}
-                                            aria-label={`${mentee.student?.full_name} - ${mentee.title || 'Chưa đăng ký đề tài'}`}
-                                        >
-                                            <CardBody>
-                                                {/* Student Info with Class Badge */}
-                                                <div className="mentee-header">
-                                                    <div className="mentee-avatar">
-                                                        {mentee.student?.full_name?.charAt(0) || 'S'}
-                                                    </div>
-                                                    <div className="mentee-info">
-                                                        <span className="mentee-name">
-                                                            {mentee.student?.full_name}
-                                                        </span>
-                                                        <span className="mentee-code">
-                                                            {mentee.student?.student_code}
-                                                        </span>
-                                                    </div>
-                                                    {/* Class Badge */}
-                                                    {classes.length > 1 && mentee.class && (
-                                                        <Badge variant="outline" className="class-badge">
-                                                            {mentee.class.code}
-                                                        </Badge>
-                                                    )}
-                                                </div>
-
-                                                {/* Topic or No Topic Message */}
-                                                {mentee.title ? (
-                                                    <p className="mentee-topic" title={mentee.title}>
-                                                        {mentee.title}
-                                                    </p>
-                                                ) : (
-                                                    <p className="mentee-topic no-topic-text">
-                                                        Chưa đăng ký đề tài
-                                                    </p>
-                                                )}
-
-                                                {/* Signals */}
-                                                {mentee.signals.length > 0 && (
-                                                    <div className="mentee-signals">
-                                                        {mentee.signals.map((signal, idx) => {
-                                                            const SigIcon = signal.icon;
-                                                            return (
-                                                                <div 
-                                                                    key={idx} 
-                                                                    className={`signal signal-${signal.type}`}
-                                                                    title={signal.text}
-                                                                >
-                                                                    <SigIcon size={12} aria-hidden="true" />
-                                                                    <span>{signal.text}</span>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                )}
-
-                                                {/* Logbook Progress (if has topic) */}
-                                                {mentee.logbookStats && (
-                                                    <div className="mentee-progress">
-                                                        <div className="progress-info">
-                                                            <BookOpen size={12} aria-hidden="true" />
-                                                            <span>
-                                                                {mentee.logbookStats.total_entries}/{mentee.logbookStats.expected_weeks} tuần
-                                                            </span>
-                                                        </div>
-                                                        <div className="progress-bar-mini">
-                                                            <div 
-                                                                className="progress-fill"
-                                                                style={{
-                                                                    width: `${Math.min(100, (mentee.logbookStats.total_entries / Math.max(1, mentee.logbookStats.expected_weeks)) * 100)}%`
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {/* Quick Actions */}
-                                                <div className="mentee-actions">
-                                                    {mentee.topic?.id && (
-                                                        <Button 
-                                                            variant="ghost" 
-                                                            size="sm"
-                                                            onClick={(e) => handleViewLogbook(e, mentee.topic.id)}
-                                                        >
-                                                            <BookOpen size={14} aria-hidden="true" />
-                                                            Nhật ký
-                                                        </Button>
-                                                    )}
-                                                    {mentee.student?.email && (
-                                                        <Button 
-                                                            variant="ghost" 
-                                                            size="sm"
-                                                            onClick={async (e) => {
-                                                                e.stopPropagation();
-                                                                await navigator.clipboard.writeText(mentee.student.email);
-                                                                toast.success(`Đã copy: ${mentee.student.email}`);
-                                                            }}
-                                                            aria-label={`Copy email ${mentee.student.full_name}`}
-                                                        >
-                                                            <Copy size={14} aria-hidden="true" />
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            </CardBody>
-                                        </Card>
-                                    ))
+                                    <>
+                                        {classes.length > 1 && groupedMentees ? (
+                                            // Grouped by class
+                                            Object.entries(groupedMentees[col.id] || {}).map(([classCode, classStudents]) => (
+                                                classStudents.length > 0 && (
+                                                    <CollapsibleCardGroup
+                                                        key={classCode}
+                                                        title={classCode}
+                                                        students={classStudents}
+                                                        threshold={8}
+                                                        reorderable={true}
+                                                        renderCard={renderMenteeCard}
+                                                    />
+                                                )
+                                            ))
+                                        ) : (
+                                            // No grouping - single class or filtered
+                                            <CollapsibleCardGroup
+                                                students={mentees}
+                                                threshold={8}
+                                                reorderable={true}
+                                                renderCard={renderMenteeCard}
+                                            />
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </div>
