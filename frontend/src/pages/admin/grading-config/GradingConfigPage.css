@@ -157,6 +157,11 @@
   color: var(--danger, #ef4444);
 }
 
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
 .form-error-global {
   padding: 0.75rem;
   background: rgba(239, 68, 68, 0.1);

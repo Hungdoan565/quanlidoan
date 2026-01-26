@@ -2,18 +2,26 @@
  * CriteriaFormModal - Form to create/edit grading criteria
  */
 
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useCreateCriteria, useUpdateCriteria, useCopyCriteria } from '../../../hooks/useGrading';
 import {
     Modal,
     Button,
     Input,
-    CustomSelect
+    CustomSelect,
+    Textarea
 } from '../../../components/ui';
 import { GRADER_TYPES, GRADER_TYPE_LABELS } from '../../../lib/constants';
 import './GradingConfigPage.css';
 
-export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultGraderType = 'advisor' }) {
+export function CriteriaFormModal({
+    open,
+    onClose,
+    criteria,
+    sessionId,
+    defaultGraderType = 'advisor',
+    criteriaList = []
+}) {
     const isEdit = !!criteria;
 
     // Form state
@@ -22,6 +30,7 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultG
         weight: '',
         max_score: '10',
         grader_type: 'advisor',
+        description: '',
     });
     const [errors, setErrors] = useState({});
 
@@ -37,6 +46,7 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultG
                 weight: criteria.weight ? (criteria.weight * 100).toString() : '',
                 max_score: criteria.max_score?.toString() || '10',
                 grader_type: criteria.grader_type || 'advisor',
+                description: criteria.description || '',
             });
         } else {
             setFormData({
@@ -44,6 +54,7 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultG
                 weight: '',
                 max_score: '10',
                 grader_type: defaultGraderType,
+                description: '',
             });
         }
         setErrors({});
@@ -58,6 +69,13 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultG
         }
     };
 
+    const remainingWeightPercent = useMemo(() => {
+        const totalWeight = (criteriaList || []).reduce((sum, item) => sum + (item.weight || 0), 0);
+        const currentWeight = isEdit ? (criteria?.weight || 0) : 0;
+        const remaining = 1 - (totalWeight - currentWeight);
+        return Math.max(0, remaining * 100);
+    }, [criteriaList, criteria, isEdit]);
+
     // Validate form
     const validate = () => {
         const newErrors = {};
@@ -71,6 +89,8 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultG
             newErrors.weight = 'Vui lòng nhập trọng số';
         } else if (weight <= 0 || weight > 100) {
             newErrors.weight = 'Trọng số phải từ 1-100%';
+        } else if (weight > remainingWeightPercent + 0.001) {
+            newErrors.weight = `Trọng số vượt quá phần còn lại (${remainingWeightPercent.toFixed(0)}%)`;
         }
 
         const maxScore = parseFloat(formData.max_score);
@@ -105,6 +125,7 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultG
                         name: formData.name.trim(),
                         weight: parseFloat(formData.weight) / 100,
                         max_score: parseFloat(formData.max_score),
+                        description: formData.description.trim(),
                     },
                 });
             } else {
@@ -115,6 +136,7 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultG
                     name: formData.name.trim(),
                     weight: parseFloat(formData.weight) / 100,
                     max_score: parseFloat(formData.max_score),
+                    description: formData.description.trim(),
                 });
             }
             onClose();
@@ -160,6 +182,7 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultG
                             error={errors.weight}
                         />
                         {errors.weight && <span className="form-error">{errors.weight}</span>}
+                        <span className="form-hint">Còn lại: {remainingWeightPercent.toFixed(0)}%</span>
                     </div>
 
                     <div className="form-group">
@@ -176,6 +199,17 @@ export function CriteriaFormModal({ open, onClose, criteria, sessionId, defaultG
                         />
                         {errors.max_score && <span className="form-error">{errors.max_score}</span>}
                     </div>
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="description">Mô tả / Rubric</label>
+                    <Textarea
+                        id="description"
+                        rows={3}
+                        value={formData.description}
+                        onChange={(e) => handleChange('description', e.target.value)}
+                        placeholder="Mô tả tiêu chí, mức độ hoàn thành mong đợi..."
+                    />
                 </div>
 
                 <div className="form-group">

@@ -110,7 +110,6 @@ export const gradingService = {
     async createDefaultCriteria(sessionId) {
         const inserts = [
             { session_id: sessionId, grader_role: 'advisor', criteria: DEFAULT_CRITERIA.advisor },
-            { session_id: sessionId, grader_role: 'reviewer', criteria: DEFAULT_CRITERIA.reviewer },
             { session_id: sessionId, grader_role: 'council', criteria: DEFAULT_CRITERIA.council }
         ];
 
@@ -163,6 +162,7 @@ export const gradingService = {
                     name: criterion.name,
                     weight: criterion.weight,
                     max_score: criterion.max_score || 10,
+                    description: criterion.description || '',
                 });
             });
         });
@@ -210,7 +210,8 @@ export const gradingService = {
         const newCriteria = [...(config.criteria || []), {
             name: criterion.name,
             weight: criterion.weight,
-            max_score: criterion.max_score || 10
+            max_score: criterion.max_score || 10,
+            description: criterion.description || ''
         }];
 
         // Update

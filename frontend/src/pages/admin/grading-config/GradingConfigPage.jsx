@@ -211,6 +211,11 @@ export function GradingConfigPage() {
                 criteria={selectedCriteria}
                 sessionId={selectedSessionId}
                 defaultGraderType={defaultGraderType}
+                criteriaList={
+                    selectedCriteria?.grader_type
+                        ? groupedCriteria[selectedCriteria.grader_type]
+                        : groupedCriteria[defaultGraderType]
+                }
             />
 
             <CopyCriteriaModal
