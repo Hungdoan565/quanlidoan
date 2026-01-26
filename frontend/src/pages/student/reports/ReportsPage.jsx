@@ -139,15 +139,34 @@ export function ReportsPage() {
         return getLatestReport(phaseId) ? 'submitted' : 'pending';
     };
 
-    const getPhaseDeadline = (phaseId) => {
-        if (!topic?.class?.session) return null;
+    const getPhaseWindow = (phaseId) => {
+        if (!topic?.class?.session) return { openAt: null, deadline: null };
         const session = topic.class.session;
         switch (phaseId) {
-            case 'report1': return session.report1_deadline;
-            case 'report2': return session.report2_deadline;
-            case 'final': return session.final_deadline;
-            default: return session.final_deadline;
+            case 'report1':
+                return { openAt: session.registration_end, deadline: session.report1_deadline };
+            case 'report2':
+                return { openAt: session.report1_deadline, deadline: session.report2_deadline };
+            case 'final':
+            case 'slide':
+            case 'source_code':
+                return { openAt: session.report2_deadline, deadline: session.final_deadline };
+            default:
+                return { openAt: null, deadline: session.final_deadline };
         }
+    };
+
+    const getPhaseAvailability = (phaseId) => {
+        const { openAt, deadline } = getPhaseWindow(phaseId);
+        const now = new Date();
+        const openDate = openAt ? new Date(openAt) : null;
+        const deadlineDate = deadline ? new Date(deadline) : null;
+        return {
+            openAt: openDate,
+            deadline: deadlineDate,
+            isBeforeOpen: openDate ? now < openDate : false,
+            isAfterClose: deadlineDate ? now > deadlineDate : false,
+        };
     };
 
     const formatDate = (date) => {
@@ -165,8 +184,6 @@ export function ReportsPage() {
         if (!date) return 'Chưa xác định';
         return new Date(date).toLocaleDateString('vi-VN');
     };
-
-    const isOverdue = (deadline) => deadline && new Date() > new Date(deadline);
 
     const formatFileSize = (bytes) => {
         if (!bytes) return '0 KB';
@@ -266,11 +283,13 @@ export function ReportsPage() {
             <div className="phases-grid">
                 {reportPhases.map((phase) => {
                     const status = getPhaseStatus(phase.id);
-                    const deadline = getPhaseDeadline(phase.id);
-                    const overdue = isOverdue(deadline) && status === 'pending';
+                    const { openAt, deadline, isBeforeOpen, isAfterClose } = getPhaseAvailability(phase.id);
+                    const overdue = isAfterClose && status === 'pending';
                     const latestReport = getLatestReport(phase.id);
                     const phaseReports = getPhaseReports(phase.id);
                     const PhaseIcon = phase.icon;
+                    const canSubmitPhase = canSubmit && !isBeforeOpen;
+                    const isEarlySubmission = status === 'submitted' && isBeforeOpen;
 
                     return (
                         <Card key={phase.id} className={`phase-card ${status} ${overdue ? 'overdue' : ''}`}>
@@ -280,7 +299,11 @@ export function ReportsPage() {
                                         <PhaseIcon size={22}  aria-hidden="true" />
                                     </div>
                                     {status === 'submitted' ? (
-                                        <Badge variant="success"><CheckCircle size={12}  aria-hidden="true" /> Đã nộp</Badge>
+                                        <Badge variant={isEarlySubmission ? 'info' : 'success'}>
+                                            <CheckCircle size={12}  aria-hidden="true" /> {isEarlySubmission ? 'Nộp sớm' : 'Đã nộp'}
+                                        </Badge>
+                                    ) : isBeforeOpen ? (
+                                        <Badge variant="info"><Calendar size={12}  aria-hidden="true" /> Chưa mở</Badge>
                                     ) : overdue ? (
                                         <Badge variant="danger"><AlertCircle size={12}  aria-hidden="true" /> Quá hạn</Badge>
                                     ) : (
@@ -290,6 +313,13 @@ export function ReportsPage() {
 
                                 <h3 className="phase-name">{phase.name}</h3>
                                 <p className="phase-desc">{phase.description}</p>
+
+                                {openAt && isBeforeOpen && (
+                                    <div className="phase-open">
+                                        <Calendar size={14}  aria-hidden="true" />
+                                        <span>Mở từ: {formatDateShort(openAt)}</span>
+                                    </div>
+                                )}
 
                                 {deadline && (
                                     <div className={`phase-deadline ${overdue ? 'text-danger' : ''}`}>
@@ -324,18 +354,25 @@ export function ReportsPage() {
                                             >
                                                 Tải về
                                             </Button>
-                                            {canSubmit && (
+                                            {canSubmitPhase && (
                                                 <Button variant="outline" size="sm" leftIcon={<Upload size={14} aria-hidden="true" />}
                                                     onClick={() => setUploadModal({ open: true, phase: phase.id })}>
                                                     Nộp lại (v{latestReport.version + 1})
                                                 </Button>
                                             )}
+                                            {!canSubmitPhase && isBeforeOpen && (
+                                                <Button variant="outline" size="sm" disabled>
+                                                    Chưa mở
+                                                </Button>
+                                            )}
                                         </>
-                                    ) : canSubmit ? (
+                                    ) : canSubmitPhase ? (
                                         <Button leftIcon={<Upload size={16} aria-hidden="true" />}
                                             onClick={() => setUploadModal({ open: true, phase: phase.id })}>
-                                            Nộp báo cáo
+                                            {isAfterClose ? 'Nộp trễ' : 'Nộp báo cáo'}
                                         </Button>
+                                    ) : isBeforeOpen ? (
+                                        <Button disabled>Chưa mở</Button>
                                     ) : (
                                         <Button disabled>Chưa thể nộp</Button>
                                     )}

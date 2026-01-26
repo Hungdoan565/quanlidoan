@@ -17,6 +17,7 @@ import {
     Users,
 } from 'lucide-react';
 import { useGradableTopics } from '../../../hooks/useGrading';
+import { useMyClasses } from '../../../hooks/useTeacher';
 import {
     Card,
     CardBody,
@@ -34,40 +35,56 @@ export function GradingPage() {
 
     // Fetch gradable topics
     const { data: topics = [], isLoading, error } = useGradableTopics('advisor');
+    const { data: myClasses, isLoading: isLoadingClasses } = useMyClasses();
 
-    // Group topics by class
+    // Group topics by class AND include empty classes from myClasses
     const classesSummary = useMemo(() => {
-        if (!topics || topics.length === 0) return [];
-        
         const classMap = new Map();
         
-        topics.forEach(topic => {
-            const className = topic.class?.name || 'Không xác định';
-            const key = className;
-            
-            if (!classMap.has(key)) {
-                classMap.set(key, {
-                    className,
-                    topics: [],
-                    stats: { total: 0, pending: 0, completed: 0 }
-                });
-            }
-            
-            const classData = classMap.get(key);
-            classData.topics.push(topic);
-            classData.stats.total++;
-            
-            if (topic.gradingStatus?.isComplete) {
-                classData.stats.completed++;
-            } else {
-                classData.stats.pending++;
-            }
-        });
+        // First, add all classes from myClasses (teacher's assigned classes)
+        if (myClasses) {
+            myClasses.forEach(cls => {
+                const className = cls.name || cls.code;
+                if (!classMap.has(className)) {
+                    classMap.set(className, {
+                        className,
+                        topics: [],
+                        stats: { total: 0, pending: 0, completed: 0 }
+                    });
+                }
+            });
+        }
+        
+        // Then, populate with topics data
+        if (topics && topics.length > 0) {
+            topics.forEach(topic => {
+                const className = topic.class?.name || 'Không xác định';
+                const key = className;
+                
+                if (!classMap.has(key)) {
+                    classMap.set(key, {
+                        className,
+                        topics: [],
+                        stats: { total: 0, pending: 0, completed: 0 }
+                    });
+                }
+                
+                const classData = classMap.get(key);
+                classData.topics.push(topic);
+                classData.stats.total++;
+                
+                if (topic.gradingStatus?.isComplete) {
+                    classData.stats.completed++;
+                } else {
+                    classData.stats.pending++;
+                }
+            });
+        }
         
         return Array.from(classMap.values()).sort((a, b) => 
             a.className.localeCompare(b.className)
         );
-    }, [topics]);
+    }, [topics, myClasses]);
 
     // Get topics for selected class
     const classTopics = useMemo(() => {
@@ -93,8 +110,8 @@ export function GradingPage() {
         setSelectedClassName(null);
     };
 
-    // Check if we have multiple classes
-    const hasMultipleClasses = classesSummary.length > 1;
+    // Check if we have multiple classes (based on teacher's assigned classes, not just those with topics)
+    const hasMultipleClasses = (myClasses?.length || 0) > 1;
 
     return (
         <div className="page grading-page">
@@ -147,7 +164,7 @@ export function GradingPage() {
             </div>
 
             {/* Content */}
-            {isLoading ? (
+            {(isLoading || isLoadingClasses) ? (
                 <div className="grading-topics-grid">
                     <SkeletonCard />
                     <SkeletonCard />

@@ -159,7 +159,6 @@ export const statsService = {
         const { data, error } = await supabase
             .from('sessions')
             .select('id, name, academic_year, semester, status')
-            .in('status', ['open', 'draft'])
             .order('created_at', { ascending: false });
 
         if (error) throw error;

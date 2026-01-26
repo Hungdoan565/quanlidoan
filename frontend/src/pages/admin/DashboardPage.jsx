@@ -57,10 +57,15 @@ export function AdminDashboard() {
     const { data: activities = [], isLoading: activitiesLoading } = useRecentActivities(8);
     const { data: deadlines = [] } = useUpcomingDeadlines(selectedSessionId);
 
-    // Auto-select first session if none selected
+    // Reset invalid selected session (fallback to "all")
     useEffect(() => {
-        if (!selectedSessionId && sessions.length > 0) {
-            setSelectedSession(sessions[0].id);
+        if (sessions.length === 0) {
+            if (selectedSessionId) setSelectedSession(null);
+            return;
+        }
+
+        if (selectedSessionId && !sessions.some(s => s.id === selectedSessionId)) {
+            setSelectedSession(null);
         }
     }, [sessions, selectedSessionId, setSelectedSession]);
 

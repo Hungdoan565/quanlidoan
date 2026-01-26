@@ -54,7 +54,7 @@
 
 .stat-card .card-body {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 16px;
     padding: 16px;
     height: 100%;
@@ -80,7 +80,8 @@
     flex-direction: column;
     gap: 2px;
     min-height: 44px;
-    justify-content: center;
+    justify-content: flex-start;
+    padding-top: 1px;
 }
 
 .stat-value {

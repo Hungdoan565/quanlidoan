@@ -1,15 +1,9 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Check, ChevronDown, ChevronUp, FileText, BookOpen, CheckCircle, AlertTriangle, Users } from 'lucide-react';
+import { Bell, Check, FileText, BookOpen, CheckCircle, AlertTriangle, Users, X, RefreshCw, Trash2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
-import { 
-    Dropdown, 
-    DropdownTrigger, 
-    DropdownContent,
-    Badge 
-} from '../ui';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import './NotificationDropdown.css';
@@ -64,74 +58,19 @@ const NOTIFICATION_TYPE_CONFIG = {
 };
 
 /**
- * Group notifications by type within a time window (24 hours)
- */
-function groupNotifications(notifications) {
-    const now = new Date();
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    
-    const groups = {};
-    const ungrouped = [];
-    
-    notifications.forEach(notification => {
-        const config = NOTIFICATION_TYPE_CONFIG[notification.type];
-        const notificationDate = new Date(notification.created_at);
-        
-        // Only group if: config says groupable AND within 24 hours
-        if (config?.groupable && notificationDate > oneDayAgo) {
-            const groupKey = notification.type;
-            if (!groups[groupKey]) {
-                groups[groupKey] = {
-                    type: notification.type,
-                    items: [],
-                    latestTime: notification.created_at,
-                    hasUnread: false,
-                };
-            }
-            groups[groupKey].items.push(notification);
-            if (!notification.is_read) {
-                groups[groupKey].hasUnread = true;
-            }
-            // Track latest time
-            if (new Date(notification.created_at) > new Date(groups[groupKey].latestTime)) {
-                groups[groupKey].latestTime = notification.created_at;
-            }
-        } else {
-            ungrouped.push(notification);
-        }
-    });
-    
-    // Convert groups to array and sort by latest time
-    const groupedArray = Object.values(groups)
-        .filter(g => g.items.length > 0)
-        .map(g => ({
-            ...g,
-            isGroup: true,
-            id: `group-${g.type}`,
-        }));
-    
-    // Combine and sort all by time
-    const combined = [
-        ...groupedArray.map(g => ({ ...g, sortTime: g.latestTime })),
-        ...ungrouped.map(n => ({ ...n, isGroup: false, sortTime: n.created_at })),
-    ];
-    
-    combined.sort((a, b) => new Date(b.sortTime) - new Date(a.sortTime));
-    
-    return combined;
-}
-
-/**
  * Notification Dropdown Component with Grouping
  */
 export function NotificationDropdown() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { profile } = useAuthStore();
-    const [expandedGroups, setExpandedGroups] = useState(new Set());
+    const [isOpen, setIsOpen] = useState(false);
+    const [showAll, setShowAll] = useState(false);
+    const [filter, setFilter] = useState('all');
+    const [selectedIds, setSelectedIds] = useState([]);
 
     // Fetch notifications
-    const { data: notifications = [], isLoading } = useQuery({
+    const { data: notifications = [], isLoading, refetch, isRefetching } = useQuery({
         queryKey: ['notifications', profile?.id],
         queryFn: async () => {
             if (!profile?.id) return [];
@@ -139,8 +78,7 @@ export function NotificationDropdown() {
                 .from('notifications')
                 .select('*')
                 .eq('user_id', profile.id)
-                .order('created_at', { ascending: false })
-                .limit(50); // Fetch more for grouping
+                .order('created_at', { ascending: false });
             if (error) throw error;
             return data || [];
         },
@@ -149,10 +87,16 @@ export function NotificationDropdown() {
         refetchInterval: 2 * 60 * 1000,
     });
 
-    // Group notifications
-    const groupedNotifications = useMemo(() => {
-        return groupNotifications(notifications);
-    }, [notifications]);
+    const filteredNotifications = useMemo(() => {
+        switch (filter) {
+            case 'unread':
+                return notifications.filter(n => !n.is_read);
+            case 'read':
+                return notifications.filter(n => n.is_read);
+            default:
+                return notifications;
+        }
+    }, [notifications, filter]);
 
     // Realtime updates
     useEffect(() => {
@@ -211,99 +155,53 @@ export function NotificationDropdown() {
     });
 
     const unreadCount = notifications.filter(n => !n.is_read).length;
-
-    const toggleGroup = (groupId) => {
-        setExpandedGroups(prev => {
-            const next = new Set(prev);
-            if (next.has(groupId)) {
-                next.delete(groupId);
-            } else {
-                next.add(groupId);
-            }
-            return next;
-        });
-    };
+    const totalCount = notifications.length;
 
     const handleNotificationClick = (notification) => {
         if (!notification.is_read) {
             markAsRead.mutate(notification.id);
         }
+        setIsOpen(false);
+        setShowAll(false);
         if (notification.link) {
             navigate(notification.link);
         }
     };
-
-    const handleGroupClick = (group) => {
-        // Mark all in group as read
-        const unreadIds = group.items.filter(n => !n.is_read).map(n => n.id);
-        if (unreadIds.length > 0) {
-            markAsRead.mutate(unreadIds);
-        }
-        // Toggle expansion
-        toggleGroup(group.id);
-    };
-
-    const renderGroupedNotification = (group) => {
-        const config = NOTIFICATION_TYPE_CONFIG[group.type] || {};
-        const Icon = config.icon || Bell;
-        const isExpanded = expandedGroups.has(group.id);
-        const title = config.groupTitle ? config.groupTitle(group.items.length) : `${group.items.length} thông báo`;
-
-        return (
-            <div key={group.id} className="notification-group">
-                <div 
-                    className={`notification-item notification-group-header ${group.hasUnread ? 'unread' : ''}`}
-                    onClick={() => handleGroupClick(group)}
-                >
-                    <div className={`notification-icon notification-icon-${config.color || 'primary'}`}>
-                        <Icon size={16} />
-                    </div>
-                    <div className="notification-body">
-                        <p className="notification-title">{title}</p>
-                        <span className="notification-time">
-                            {formatDistanceToNow(new Date(group.latestTime), { 
-                                addSuffix: true, 
-                                locale: vi 
-                            })}
-                        </span>
-                    </div>
-                    <button className="notification-expand-btn" aria-label={isExpanded ? 'Thu gọn' : 'Mở rộng'}>
-                        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </button>
-                </div>
-                
-                {isExpanded && (
-                    <div className="notification-group-items">
-                        {group.items.slice(0, 5).map(notification => (
-                            <div 
-                                key={notification.id}
-                                className={`notification-item notification-subitem ${!notification.is_read ? 'unread' : ''}`}
-                                onClick={() => handleNotificationClick(notification)}
-                            >
-                                <div className="notification-dot" />
-                                <div className="notification-body">
-                                    {notification.message && (
-                                        <p className="notification-message">{notification.message}</p>
-                                    )}
-                                    <span className="notification-time">
-                                        {formatDistanceToNow(new Date(notification.created_at), { 
-                                            addSuffix: true, 
-                                            locale: vi 
-                                        })}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                        {group.items.length > 5 && (
-                            <div className="notification-more">
-                                +{group.items.length - 5} thông báo khác
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
+    const toggleSelect = (id) => {
+        setSelectedIds(prev => 
+            prev.includes(id) 
+                ? prev.filter(item => item !== id)
+                : [...prev, id]
         );
     };
+
+    const selectAll = () => {
+        if (!filteredNotifications.length) return;
+        if (selectedIds.length === filteredNotifications.length) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds(filteredNotifications.map(n => n.id));
+        }
+    };
+
+    const deleteSelected = useMutation({
+        mutationFn: async (ids) => {
+            const { error } = await supabase
+                .from('notifications')
+                .delete()
+                .in('id', ids);
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            setSelectedIds([]);
+            queryClient.invalidateQueries(['notifications']);
+            queryClient.invalidateQueries(['notifications-all']);
+        },
+    });
+
+    useEffect(() => {
+        setSelectedIds([]);
+    }, [filter]);
 
     const renderSingleNotification = (notification) => {
         const config = NOTIFICATION_TYPE_CONFIG[notification.type] || {};
@@ -312,13 +210,19 @@ export function NotificationDropdown() {
         return (
             <div 
                 key={notification.id}
-                className={`notification-item ${!notification.is_read ? 'unread' : ''}`}
-                onClick={() => handleNotificationClick(notification)}
+                className={`notification-item ${!notification.is_read ? 'unread' : ''} ${selectedIds.includes(notification.id) ? 'selected' : ''}`}
             >
+                <label className="notification-checkbox" onClick={(event) => event.stopPropagation()}>
+                    <input 
+                        type="checkbox"
+                        checked={selectedIds.includes(notification.id)}
+                        onChange={() => toggleSelect(notification.id)}
+                    />
+                </label>
                 <div className={`notification-icon notification-icon-${config.color || 'default'}`}>
                     <Icon size={16} />
                 </div>
-                <div className="notification-body">
+                <div className="notification-body" onClick={() => handleNotificationClick(notification)}>
                     <p className="notification-title">{notification.title}</p>
                     {notification.message && (
                         <p className="notification-message">{notification.message}</p>
@@ -334,59 +238,183 @@ export function NotificationDropdown() {
         );
     };
 
-    return (
-        <Dropdown align="end">
-            <DropdownTrigger aria-label="Thông báo">
-                <div className="notification-trigger">
-                    <Bell size={20} />
-                    {unreadCount > 0 && (
-                        <span className="notification-count">{unreadCount > 99 ? '99+' : unreadCount}</span>
-                    )}
-                </div>
-            </DropdownTrigger>
-            <DropdownContent minWidth={380} className="notification-dropdown">
-                <div className="notification-header">
-                    <h4>Thông báo</h4>
-                    {unreadCount > 0 && (
-                        <button 
-                            className="mark-all-read-btn"
-                            onClick={() => markAllAsRead.mutate()}
-                            disabled={markAllAsRead.isPending}
-                        >
-                            <Check size={14} />
-                            Đánh dấu đã đọc
-                        </button>
-                    )}
-                </div>
+    useEffect(() => {
+        const handleOpen = (event) => {
+            setIsOpen(true);
+            if (event?.detail?.showAll) {
+                setShowAll(true);
+            }
+        };
 
-                <div className="notification-list">
-                    {isLoading ? (
-                        <div className="notification-loading">Đang tải…</div>
-                    ) : groupedNotifications.length > 0 ? (
-                        groupedNotifications.slice(0, 10).map((item) => 
-                            item.isGroup 
-                                ? renderGroupedNotification(item)
-                                : renderSingleNotification(item)
-                        )
-                    ) : (
-                        <div className="notification-empty">
-                            <Bell size={32} className="empty-icon" />
-                            <p>Không có thông báo</p>
+        window.addEventListener('open-notification-sidebar', handleOpen);
+        return () => window.removeEventListener('open-notification-sidebar', handleOpen);
+    }, []);
+
+    useEffect(() => {
+        if (!isOpen) return undefined;
+
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                setIsOpen(false);
+                setShowAll(false);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen]);
+
+    const visibleNotifications = showAll
+        ? filteredNotifications
+        : filteredNotifications.slice(0, 10);
+
+    return (
+        <>
+            <button
+                type="button"
+                className="notification-trigger"
+                aria-label="Thông báo"
+                onClick={() => {
+                    setIsOpen(true);
+                    setShowAll(false);
+                }}
+            >
+                <Bell size={20} />
+                {unreadCount > 0 && (
+                    <span className="notification-count">{unreadCount > 99 ? '99+' : unreadCount}</span>
+                )}
+            </button>
+
+            <div
+                className={`notification-sidebar-overlay ${isOpen ? 'open' : ''}`}
+                onClick={() => {
+                    setIsOpen(false);
+                    setShowAll(false);
+                }}
+                aria-hidden="true"
+            />
+
+            <aside
+                className={`notification-sidebar ${isOpen ? 'open' : ''}`}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Thông báo"
+                onClick={(event) => event.stopPropagation()}
+            >
+                <div className="notification-dropdown">
+                    <div className="notification-header">
+                        <h4>Thông báo</h4>
+                        <div className="notification-header-actions">
+                            <button 
+                                className="notification-refresh-btn"
+                                onClick={() => refetch()}
+                                disabled={isRefetching}
+                            >
+                                <RefreshCw size={14} />
+                                {isRefetching ? 'Đang làm mới' : 'Làm mới'}
+                            </button>
+                            {unreadCount > 0 && (
+                                <button 
+                                    className="mark-all-read-btn"
+                                    onClick={() => markAllAsRead.mutate()}
+                                    disabled={markAllAsRead.isPending}
+                                >
+                                    <Check size={14} />
+                                    Đánh dấu đã đọc
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                className="notification-close-btn"
+                                aria-label="Đóng thông báo"
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    setShowAll(false);
+                                }}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="notification-toolbar">
+                        <div className="notification-filters">
+                            <button
+                                className={`notification-filter-btn ${filter === 'all' ? 'active' : ''}`}
+                                onClick={() => setFilter('all')}
+                            >
+                                Tất cả
+                                <span className="notification-filter-count">{totalCount}</span>
+                            </button>
+                            <button
+                                className={`notification-filter-btn ${filter === 'unread' ? 'active' : ''}`}
+                                onClick={() => setFilter('unread')}
+                            >
+                                Chưa đọc
+                                <span className="notification-filter-count">{unreadCount}</span>
+                            </button>
+                            <button
+                                className={`notification-filter-btn ${filter === 'read' ? 'active' : ''}`}
+                                onClick={() => setFilter('read')}
+                            >
+                                Đã đọc
+                                <span className="notification-filter-count">{Math.max(totalCount - unreadCount, 0)}</span>
+                            </button>
+                        </div>
+
+                        <div className="notification-selection">
+                            <label className="notification-select-all">
+                                <input
+                                    type="checkbox"
+                                    checked={filteredNotifications.length > 0 && selectedIds.length === filteredNotifications.length}
+                                    onChange={selectAll}
+                                />
+                                Chọn tất cả
+                            </label>
+                            {selectedIds.length > 0 && (
+                                <button
+                                    className="notification-delete-btn"
+                                    onClick={() => deleteSelected.mutate(selectedIds)}
+                                    disabled={deleteSelected.isPending}
+                                >
+                                    <Trash2 size={14} />
+                                    Xóa
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="notification-list">
+                        {isLoading ? (
+                            <div className="notification-loading">Đang tải…</div>
+                        ) : visibleNotifications.length > 0 ? (
+                            visibleNotifications.map((item) => renderSingleNotification(item))
+                        ) : (
+                            <div className="notification-empty">
+                                <Bell size={32} className="empty-icon" />
+                                <p>Không có thông báo</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {filteredNotifications.length > 0 && (
+                        <div className="notification-footer">
+                            <button 
+                                className="view-all-notifications"
+                                onClick={() => setShowAll(prev => !prev)}
+                            >
+                                {showAll ? 'Thu gọn' : 'Xem tất cả thông báo'}
+                            </button>
                         </div>
                     )}
                 </div>
-
-                {groupedNotifications.length > 0 && (
-                    <div className="notification-footer">
-                        <button 
-                            className="view-all-notifications"
-                            onClick={() => navigate('/notifications')}
-                        >
-                            Xem tất cả thông báo
-                        </button>
-                    </div>
-                )}
-            </DropdownContent>
-        </Dropdown>
+            </aside>
+        </>
     );
 }

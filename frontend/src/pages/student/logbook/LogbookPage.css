@@ -50,8 +50,8 @@
 .advisor-card-body {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: var(--space-8) var(--space-6) var(--space-6);
+    align-items: stretch;
+    padding: var(--space-7) var(--space-6) var(--space-6);
     position: relative;
     height: 100%;
 }
@@ -77,30 +77,28 @@
 }
 
 .advisor-profile {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: auto 1fr;
     align-items: center;
+    gap: var(--space-4) var(--space-5);
     width: 100%;
     margin-top: var(--space-4);
 }
 
 .advisor-avatar-wrapper {
     position: relative;
-    margin-bottom: var(--space-4);
+    align-self: start;
 }
 
 .advisor-avatar {
     width: 80px;
     height: 80px;
     border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 2px solid var(--bg-primary);
+    box-shadow:
+        0 10px 24px rgba(59, 130, 246, 0.18),
+        0 0 0 3px rgba(59, 130, 246, 0.12);
     font-size: 2rem;
-    font-weight: var(--font-bold);
-    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
 }
 
 .advisor-status-dot {
@@ -110,14 +108,14 @@
     width: 20px;
     height: 20px;
     background: var(--success-500);
-    border: 3px solid #fff;
+    border: 3px solid var(--bg-primary);
     border-radius: 50%;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .advisor-info {
-    text-align: center;
-    margin-bottom: var(--space-4);
+    text-align: left;
+    margin-bottom: 0;
 }
 
 .advisor-name {
@@ -142,22 +140,23 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    background: var(--primary-50);
+    background: var(--bg-secondary);
     padding: var(--space-2) var(--space-4);
-    border-radius: 20px;
+    border-radius: var(--radius-full);
     font-size: var(--text-sm);
-    color: var(--primary-700);
+    color: var(--text-secondary);
     width: 100%;
-    justify-content: center;
-    border: 1px solid transparent;
+    justify-content: flex-start;
+    border: 1px solid var(--border-default);
     transition: all 0.2s ease;
     text-decoration: none;
+    grid-column: 1 / -1;
 }
 
 .advisor-email:hover {
-    background: var(--primary-100);
+    background: var(--primary-50);
     border-color: var(--primary-200);
-    color: var(--primary-800);
+    color: var(--primary-700);
 }
 
 /* Class Info Card */
@@ -166,18 +165,21 @@
 }
 
 .class-info-body {
-    padding: 0;
+    padding: var(--space-4);
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    height: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
     align-items: stretch;
 }
 
 .info-section {
-    padding: var(--space-6);
+    padding: var(--space-5);
     flex: 1;
     display: flex;
     flex-direction: column;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
 }
 
 .info-header {
@@ -234,10 +236,7 @@
 }
 
 .info-divider {
-    width: 1px;
-    height: auto;
-    background: var(--border-light);
-    margin: var(--space-6) 0;
+    display: none;
 }
 
 .stats-grid {
@@ -247,7 +246,7 @@
 }
 
 .mini-stat {
-    background: var(--bg-secondary);
+    background: var(--bg-primary);
     padding: var(--space-3);
     border-radius: var(--radius-lg);
     text-align: center;
@@ -292,26 +291,18 @@
 
     .class-info-body {
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto;
-    }
-    
-    .info-divider {
-        width: 100%;
-        height: 1px;
-        margin: 0;
     }
 }
 
 @media (max-width: 640px) {
     .advisor-profile {
-        flex-direction: row;
-        gap: var(--space-4);
-        align-items: center;
-        text-align: left;
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
     }
     
     .advisor-avatar-wrapper {
-        margin-bottom: 0;
+        align-self: center;
     }
     
     .advisor-avatar {
@@ -321,20 +312,73 @@
     }
     
     .advisor-info {
-        text-align: left;
-        margin-bottom: 0;
-        flex: 1;
+        text-align: center;
     }
     
     .advisor-email {
-        width: auto;
-        margin-top: var(--space-3);
+        width: 100%;
+        justify-content: center;
     }
 
     /* Wrap advisor profile into columns on very small screens if needed */
     .advisor-card-body {
-        align-items: flex-start;
+        align-items: stretch;
     }
+}
+
+/* Dark mode refinements */
+[data-theme="dark"] .advisor-header-label {
+    background: var(--bg-primary);
+    border-color: var(--border-default);
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .advisor-avatar {
+    border-color: var(--bg-secondary);
+    box-shadow:
+        0 10px 24px rgba(0, 0, 0, 0.55),
+        0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+[data-theme="dark"] .advisor-status-dot {
+    border-color: var(--bg-secondary);
+}
+
+[data-theme="dark"] .advisor-email {
+    background: var(--neutral-100);
+    border-color: var(--neutral-200);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .advisor-email:hover {
+    background: var(--primary-50);
+    border-color: var(--primary-100);
+    color: var(--primary-500);
+}
+
+[data-theme="dark"] .advisor-code {
+    background: var(--neutral-100);
+    border-color: var(--neutral-200);
+    color: var(--primary-300);
+}
+
+[data-theme="dark"] .info-section {
+    background: var(--neutral-50);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .info-icon-wrapper.text-primary-bg {
+    background: rgba(96, 165, 250, 0.16);
+}
+
+[data-theme="dark"] .info-icon-wrapper.text-success-bg {
+    background: rgba(52, 211, 153, 0.16);
+}
+
+[data-theme="dark"] .mini-stat {
+    background: var(--neutral-100);
+    border-color: var(--neutral-200);
 }
 
 /* Entries Section */

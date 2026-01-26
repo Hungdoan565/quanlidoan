@@ -463,31 +463,26 @@
 
 .teacher-info {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    text-align: center;
+    text-align: left;
     gap: var(--space-4);
 }
 
-.teacher-avatar {
-    width: 64px;
-    height: 64px;
-    border-radius: var(--radius-xl);
-    background: linear-gradient(145deg, var(--primary-400) 0%, var(--primary-600) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    flex-shrink: 0;
-    box-shadow: 
-        0 8px 24px rgba(59, 130, 246, 0.3),
-        0 0 0 3px rgba(59, 130, 246, 0.1),
-        inset 0 2px 4px rgba(255, 255, 255, 0.2);
+.teacher-avatar-wrapper {
     position: relative;
+    flex-shrink: 0;
 }
 
-.teacher-avatar::after {
-    content: '';
+.teacher-avatar {
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--bg-primary);
+    box-shadow:
+        0 10px 24px rgba(59, 130, 246, 0.18),
+        0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.teacher-status-dot {
     position: absolute;
     bottom: 2px;
     right: 2px;
@@ -501,7 +496,7 @@
 .teacher-details {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-2);
     width: 100%;
 }
@@ -568,54 +563,64 @@
     opacity: 0.4;
 }
 
+@media (max-width: 640px) {
+    .teacher-info {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .teacher-details {
+        align-items: center;
+    }
+}
+
 /* Class Info - Enhanced */
 .class-card .card-header h3 svg {
     color: var(--success-500);
 }
 
 .class-info-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
+    display: grid;
+    gap: var(--space-2);
 }
 
-.info-row {
+.class-info-list .info-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-3) 0;
-    border-bottom: 1px solid var(--border-default);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
     gap: var(--space-3);
+    background: var(--bg-secondary);
 }
 
-.info-row:hover {
-    background: transparent;
+.class-info-list .info-row:hover {
+    background: var(--neutral-50);
+    border-color: var(--primary-200);
 }
 
-.info-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.info-row:first-child {
-    padding-top: 0;
-}
-
-.info-row .info-label {
+.class-info-list .info-row .info-label {
     font-size: var(--text-sm);
     color: var(--text-muted);
     font-weight: 500;
     white-space: nowrap;
 }
 
-.info-row .info-value {
+.class-info-list .info-row .info-value {
     font-size: var(--text-sm);
     font-weight: 600;
     color: var(--text-primary);
     text-align: right;
 }
 
-.info-row.deadline .info-value {
+.class-info-list .info-row .info-value.highlight {
+    color: var(--primary-600);
+    font-weight: 700;
+}
+
+.class-info-list .info-row.deadline .info-value {
     color: var(--warning-600);
     font-weight: 700;
 }
@@ -789,19 +794,35 @@
 }
 
 [data-theme="dark"] .teacher-code {
-    background: var(--primary-900);
-    color: var(--primary-300);
-    border-color: var(--primary-700);
+    background: var(--primary-100);
+    color: var(--primary-400);
+    border-color: var(--primary-500);
 }
 
 [data-theme="dark"] .teacher-email {
-    background: var(--neutral-800);
-    border-color: var(--neutral-700);
+    background: var(--neutral-200);
+    border-color: var(--neutral-300);
+    color: var(--text-primary);
 }
 
 [data-theme="dark"] .teacher-email:hover {
-    background: var(--primary-900);
-    border-color: var(--primary-700);
+    background: var(--primary-100);
+    border-color: var(--primary-400);
+    color: var(--primary-700);
+}
+
+[data-theme="dark"] .class-info-list .info-row {
+    background: var(--neutral-100);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .class-info-list .info-row:hover {
+    background: var(--neutral-200);
+    border-color: var(--primary-400);
+}
+
+[data-theme="dark"] .class-info-list .info-row .info-value.highlight {
+    color: var(--primary-400);
 }
 
 [data-theme="dark"] .tech-chips-container {
@@ -833,7 +854,14 @@
 }
 
 [data-theme="dark"] .teacher-avatar {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border-color: var(--neutral-900);
+    box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.55),
+        0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="dark"] .teacher-status-dot {
+    border-color: var(--neutral-900);
 }
 
 button:focus-visible,

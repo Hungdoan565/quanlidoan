@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { topicsService } from './topics.service';
+import { REPORT_PHASES } from './reports.service';
 
 /**
  * Student Service - Student-specific operations
@@ -34,15 +35,22 @@ export const studentService = {
             // Lấy session để tính deadline
             const session = topic.class?.session;
 
+            const { data: reports, error: reportsError } = await supabase
+                .from('reports')
+                .select('phase')
+                .eq('topic_id', topic.id);
+
+            if (reportsError) throw reportsError;
+
+            const submittedPhases = new Set((reports || []).map(r => r.phase));
+
             // Tính progress timeline
-            const progress = calculateProgress(topic, session);
+            const progress = calculateProgress(topic, session, submittedPhases);
 
             // Tìm deadline tiếp theo
             const nextDeadline = findNextDeadline(session);
 
-            // Đếm số báo cáo đã nộp (giả lập - cần table reports)
-            const reportsSubmitted = topic.status === 'submitted' || topic.status === 'defended' || topic.status === 'completed' ? 2 :
-                topic.status === 'in_progress' ? 1 : 0;
+            const reportsSubmitted = submittedPhases.size;
 
             return {
                 hasTopic: true,
@@ -50,7 +58,7 @@ export const studentService = {
                 progress,
                 nextDeadline,
                 reportsSubmitted,
-                totalReports: 4, // Thường có 4 báo cáo
+                totalReports: REPORT_PHASES.length,
             };
         } catch (error) {
             console.error('Error fetching student stats:', error);
@@ -80,7 +88,7 @@ export const studentService = {
 };
 
 // Helper: Calculate progress steps
-function calculateProgress(topic, session) {
+function calculateProgress(topic, session, submittedPhases) {
     const steps = [
         { key: 'register', label: 'Đăng ký', status: 'completed' },
         { key: 'bc1', label: 'BC1', status: 'pending' },
@@ -89,21 +97,21 @@ function calculateProgress(topic, session) {
         { key: 'defense', label: 'Bảo vệ', status: 'pending' },
     ];
 
-    // Determine current step based on topic status
-    const statusOrder = ['pending', 'revision', 'approved', 'in_progress', 'submitted', 'defended', 'completed'];
-    const currentIndex = statusOrder.indexOf(topic.status);
+    if (topic.status === 'pending' || topic.status === 'revision') {
+        steps[0].status = 'current';
+    } else {
+        steps[0].status = 'completed';
+    }
 
-    if (currentIndex >= 2) steps[1].status = 'completed'; // BC1
-    if (currentIndex >= 3) steps[2].status = 'completed'; // BC2
-    if (currentIndex >= 4) steps[3].status = 'completed'; // Final
-    if (currentIndex >= 5) steps[4].status = 'completed'; // Defense
+    if (submittedPhases?.has('report1')) steps[1].status = 'completed';
+    if (submittedPhases?.has('report2')) steps[2].status = 'completed';
+    if (submittedPhases?.has('final')) steps[3].status = 'completed';
+    if (topic.status === 'defended' || topic.status === 'completed') steps[4].status = 'completed';
 
-    // Mark current step
-    if (currentIndex === 0 || currentIndex === 1) steps[0].status = 'current';
-    else if (currentIndex === 2) steps[1].status = 'current';
-    else if (currentIndex === 3) steps[2].status = 'current';
-    else if (currentIndex === 4) steps[3].status = 'current';
-    else if (currentIndex === 5) steps[4].status = 'current';
+    if (!steps.some(step => step.status === 'current')) {
+        const firstPending = steps.find(step => step.status === 'pending');
+        if (firstPending) firstPending.status = 'current';
+    }
 
     // Add dates if session exists
     if (session) {

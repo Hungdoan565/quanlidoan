@@ -22,7 +22,7 @@ export const topicsService = {
                     code,
                     session_id,
                     advisor_id,
-                    advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email),
+                    advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, avatar_url),
                     session:sessions(
                         id, 
                         name, 
@@ -258,7 +258,7 @@ export const topicsService = {
                     advisor_id,
                     session:sessions(*)
                 ),
-                advisor:profiles!topics_advisor_id_fkey(id, full_name, teacher_code, email, phone),
+                advisor:profiles!topics_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url),
                 sample_topic:sample_topics(id, title)
             `)
             .eq('student_id', studentId)

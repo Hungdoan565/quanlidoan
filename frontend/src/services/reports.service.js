@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
  */
 
 // Report phases theo migration
-const REPORT_PHASES = ['report1', 'report2', 'final', 'slide', 'source_code'];
+export const REPORT_PHASES = ['report1', 'report2', 'final', 'slide', 'source_code'];
 
 // Allowed file types
 const ALLOWED_TYPES = {
@@ -145,7 +145,10 @@ export const reportsService = {
             .from('topics')
             .select(`
                 id, student_id, 
-                class:class_id(id, session_id)
+                class:class_id(
+                    id, 
+                    session:session_id(registration_end, report1_deadline, report2_deadline, final_deadline)
+                )
             `)
             .eq('id', topicId)
             .single();
@@ -153,6 +156,30 @@ export const reportsService = {
         if (topicError) throw topicError;
         if (topic.student_id !== user.id) {
             throw new Error('Bạn không có quyền nộp báo cáo cho đề tài này');
+        }
+
+        const session = topic.class?.session || null;
+        if (session) {
+            let openAt = null;
+            switch (phase) {
+                case 'report1':
+                    openAt = session.registration_end;
+                    break;
+                case 'report2':
+                    openAt = session.report1_deadline;
+                    break;
+                case 'final':
+                case 'slide':
+                case 'source_code':
+                    openAt = session.report2_deadline;
+                    break;
+                default:
+                    openAt = null;
+            }
+
+            if (openAt && new Date() < new Date(openAt)) {
+                throw new Error('Chưa đến thời gian nộp báo cáo này');
+            }
         }
 
         // Get next version number

@@ -40,45 +40,61 @@ export function StudentsLogbookPage() {
         setFilterWeek('all');
     };
 
-    // Group students by class
+    // Group students by class AND include empty classes from myClasses
     const classesSummary = useMemo(() => {
-        if (!students) return [];
-        
         const classMap = new Map();
         
-        students.forEach(topic => {
-            const className = topic.class?.name || 'Không xác định';
-            const sessionName = topic.class?.session?.name || '';
-            const key = className;
-            
-            if (!classMap.has(key)) {
-                classMap.set(key, {
-                    className,
-                    sessionName,
-                    students: [],
-                    stats: { total: 0, onTrack: 0, pending: 0, missing: 0 }
-                });
-            }
-            
-            const classData = classMap.get(key);
-            classData.students.push(topic);
-            classData.stats.total++;
-            
-            const stats = topic.logbook_stats;
-            if (stats.total_entries >= stats.expected_weeks) {
-                classData.stats.onTrack++;
-            } else {
-                classData.stats.missing++;
-            }
-            if (stats.total_entries > stats.confirmed_entries) {
-                classData.stats.pending++;
-            }
-        });
+        // First, add all classes from myClasses (teacher's assigned classes)
+        if (myClasses) {
+            myClasses.forEach(cls => {
+                const className = cls.name || cls.code;
+                if (!classMap.has(className)) {
+                    classMap.set(className, {
+                        className,
+                        sessionName: cls.session?.name || '',
+                        students: [],
+                        stats: { total: 0, onTrack: 0, pending: 0, missing: 0 }
+                    });
+                }
+            });
+        }
+        
+        // Then, populate with students data
+        if (students) {
+            students.forEach(topic => {
+                const className = topic.class?.name || 'Không xác định';
+                const sessionName = topic.class?.session?.name || '';
+                const key = className;
+                
+                if (!classMap.has(key)) {
+                    classMap.set(key, {
+                        className,
+                        sessionName,
+                        students: [],
+                        stats: { total: 0, onTrack: 0, pending: 0, missing: 0 }
+                    });
+                }
+                
+                const classData = classMap.get(key);
+                classData.students.push(topic);
+                classData.stats.total++;
+                
+                const stats = topic.logbook_stats;
+                if (stats.total_entries >= stats.expected_weeks) {
+                    classData.stats.onTrack++;
+                } else {
+                    classData.stats.missing++;
+                }
+                if (stats.total_entries > stats.confirmed_entries) {
+                    classData.stats.pending++;
+                }
+            });
+        }
         
         return Array.from(classMap.values()).sort((a, b) => 
             a.className.localeCompare(b.className)
         );
-    }, [students]);
+    }, [students, myClasses]);
 
     // Get students for selected class
     const classStudents = useMemo(() => {
@@ -199,7 +215,7 @@ export function StudentsLogbookPage() {
         handleClearFilters();
     };
 
-    if (isLoading) {
+    if (isLoading || isLoadingClasses) {
         return (
             <div className="students-logbook-page">
                 <div className="page-header">
@@ -226,8 +242,8 @@ export function StudentsLogbookPage() {
     const pendingCount = currentScope?.filter(s => s.logbook_stats.total_entries > s.logbook_stats.confirmed_entries).length || 0;
     const missingCount = currentScope?.filter(s => s.logbook_stats.total_entries < s.logbook_stats.expected_weeks).length || 0;
 
-    // Check if we have multiple classes
-    const hasMultipleClasses = classesSummary.length > 1;
+    // Check if we have multiple classes (based on teacher's assigned classes, not just those with topics)
+    const hasMultipleClasses = (myClasses?.length || 0) > 1;
 
     return (
         <div className="students-logbook-page">

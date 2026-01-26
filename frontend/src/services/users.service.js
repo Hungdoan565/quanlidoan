@@ -17,7 +17,7 @@ export const usersService = {
         const to = from + limit - 1;
 
         const selectFields = filters.class_id
-            ? '*, class_students!inner(class_id)'
+            ? '*, class_students!inner(class_id, created_at)'
             : '*';
 
         let query = supabase
@@ -42,9 +42,20 @@ export const usersService = {
         }
 
         // Ordering and pagination
-        query = query
-            .order('created_at', { ascending: false })
-            .range(from, to);
+        if (filters.class_id) {
+            query = query
+                .order('created_at', { foreignTable: 'class_students', ascending: true, nullsFirst: false })
+                .order('student_code', { ascending: true, nullsFirst: false })
+                .order('full_name', { ascending: true, nullsFirst: false });
+        } else if (filters.role === 'student') {
+            query = query
+                .order('student_code', { ascending: true, nullsFirst: false })
+                .order('full_name', { ascending: true, nullsFirst: false });
+        } else {
+            query = query.order('created_at', { ascending: false });
+        }
+
+        query = query.range(from, to);
 
         const { data, count, error } = await query;
         if (error) throw error;

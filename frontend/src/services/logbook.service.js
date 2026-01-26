@@ -35,7 +35,7 @@ export const logbookService = {
             .select(`
                 *,
                 class:class_id(name, session:session_id(name)),
-                advisor:advisor_id(full_name, teacher_code, email)
+                advisor:advisor_id(full_name, teacher_code, email, avatar_url)
             `)
             .eq('student_id', user.id)
             .in('status', ['approved', 'in_progress', 'submitted'])

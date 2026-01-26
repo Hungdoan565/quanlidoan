@@ -26,7 +26,8 @@ import {
     Input,
     Textarea,
     SkeletonCard,
-    EmptyState
+    EmptyState,
+    Avatar
 } from '../../components/ui';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -161,6 +162,7 @@ export function MyTopicPage() {
     const StatusIcon = status.icon;
     const canEdit = topic.status === 'revision';
     const teacher = topic.advisor || topic.class?.advisor || topic.teacher;
+    const showClassNameRow = studentClass?.code && studentClass?.name && studentClass.code !== studentClass.name;
 
     return (
         <div className="my-topic-page">
@@ -328,8 +330,15 @@ export function MyTopicPage() {
                         <CardBody>
                             {teacher ? (
                                 <div className="teacher-info">
-                                    <div className="teacher-avatar">
-                                        <User size={28}  aria-hidden="true" />
+                                    <div className="teacher-avatar-wrapper">
+                                        <Avatar
+                                            src={teacher.avatar_url}
+                                            name={teacher.full_name}
+                                            alt={teacher.full_name}
+                                            size="xl"
+                                            className="teacher-avatar"
+                                        />
+                                        <span className="teacher-status-dot" aria-hidden="true"></span>
                                     </div>
                                     <div className="teacher-details">
                                         <h4>{teacher.full_name}</h4>
@@ -363,17 +372,33 @@ export function MyTopicPage() {
                                 <div className="class-info-list">
                                     <div className="info-row">
                                         <span className="info-label">Lớp đồ án</span>
-                                        <span className="info-value">{studentClass.name}</span>
+                                        <span className="info-value highlight">{studentClass.code || studentClass.name}</span>
                                     </div>
+                                    {showClassNameRow ? (
+                                        <div className="info-row">
+                                            <span className="info-label">Tên lớp</span>
+                                            <span className="info-value">{studentClass.name}</span>
+                                        </div>
+                                    ) : null}
                                     <div className="info-row">
                                         <span className="info-label">Đợt</span>
                                         <span className="info-value">{studentClass.session?.name || '-'}</span>
                                     </div>
-                                    {studentClass.session?.submission_deadline && (
+                                    <div className="info-row">
+                                        <span className="info-label">Niên khóa</span>
+                                        <span className="info-value">{studentClass.session?.academic_year || '-'}</span>
+                                    </div>
+                                    <div className="info-row">
+                                        <span className="info-label">Học kỳ</span>
+                                        <span className="info-value">
+                                            {studentClass.session?.semester ? `HK${studentClass.session.semester}` : '-'}
+                                        </span>
+                                    </div>
+                                    {studentClass.session?.registration_end && (
                                         <div className="info-row deadline">
-                                            <span className="info-label">Hạn nộp báo cáo</span>
+                                            <span className="info-label">Hạn đăng ký</span>
                                             <span className="info-value">
-                                                {format(new Date(studentClass.session.submission_deadline), 'dd/MM/yyyy')}
+                                                {format(new Date(studentClass.session.registration_end), 'dd/MM/yyyy')}
                                             </span>
                                         </div>
                                     )}

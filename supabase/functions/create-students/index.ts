@@ -80,7 +80,9 @@ serve(async (req: Request) => {
         // Supabase Auth Admin API has strict rate limits
         const DELAY_MS = 100; // 100ms delay between each user creation
         
-        const classStudentsToInsert: { class_id: string; student_id: string }[] = [];
+        const classStudentsToInsert: { class_id: string; student_id: string; created_at: string }[] = [];
+        const baseTime = Date.now();
+        let orderIndex = 0;
 
         // Helper function to delay
         const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -162,7 +164,12 @@ serve(async (req: Request) => {
                 }
 
                 // Collect for batch insert to class
-                classStudentsToInsert.push({ class_id: classId, student_id: userId });
+                classStudentsToInsert.push({
+                    class_id: classId,
+                    student_id: userId,
+                    created_at: new Date(baseTime + orderIndex).toISOString(),
+                });
+                orderIndex += 1;
 
             } catch (err) {
                 results.errors.push({

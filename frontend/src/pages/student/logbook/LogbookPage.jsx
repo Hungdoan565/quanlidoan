@@ -16,6 +16,7 @@ import {
     SkeletonText,
     NoDataState,
     ErrorState,
+    Avatar,
     RadioGroup,
     ProgressBar,
     AccordionItem,
@@ -343,9 +344,13 @@ export function LogbookPage() {
                         
                         <div className="advisor-profile">
                             <div className="advisor-avatar-wrapper">
-                                <div className="advisor-avatar">
-                                    {topic.advisor?.full_name?.charAt(0) || 'G'}
-                                </div>
+                                <Avatar
+                                    src={topic.advisor?.avatar_url}
+                                    name={topic.advisor?.full_name || 'Giảng viên'}
+                                    alt={topic.advisor?.full_name || 'Giảng viên'}
+                                    size="2xl"
+                                    className="advisor-avatar"
+                                />
                                 <div className="advisor-status-dot"></div>
                             </div>
                             

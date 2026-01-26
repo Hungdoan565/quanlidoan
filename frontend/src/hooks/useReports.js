@@ -51,6 +51,7 @@ export const useUploadReport = () => {
             queryClient.invalidateQueries(['reports', 'topic', variables.topicId]);
             queryClient.invalidateQueries(['reports', 'latest', variables.topicId]);
             queryClient.invalidateQueries(['reports', 'status', variables.topicId]);
+            queryClient.invalidateQueries({ queryKey: ['student-dashboard'] });
         },
     });
 };

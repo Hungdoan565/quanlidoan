@@ -286,7 +286,7 @@ export function StudentDashboard() {
                                 <h3>Thông báo mới</h3>
                                 <button
                                     className="view-all-btn"
-                                    onClick={() => navigate('/notifications')}
+                                    onClick={() => window.dispatchEvent(new CustomEvent('open-notification-sidebar', { detail: { showAll: true } }))}
                                 >
                                     Xem tất cả
                                 </button>

@@ -91,18 +91,16 @@
     align-items: flex-start;
     justify-content: space-between;
     position: relative;
+    padding-inline: var(--space-3);
+    overflow: hidden;
 }
 
 .progress-step {
     display: flex;
     flex-direction: column;
     align-items: center;
-    flex: 1;
+    flex: 1 1 0;
     position: relative;
-}
-
-.progress-step:last-child {
-    flex: 0;
 }
 
 .progress-marker {
@@ -152,7 +150,7 @@
     position: absolute;
     top: 14px;
     left: calc(50% + 14px);
-    right: calc(-50% + 14px);
+    width: calc(100% - 28px);
     height: 2px;
     background: var(--neutral-200);
 }

@@ -64,6 +64,7 @@ export function useUpdateUser() {
             queryClient.invalidateQueries({ queryKey: ['user', data.id] });
             queryClient.invalidateQueries({ queryKey: ['teachers'] });
             queryClient.invalidateQueries({ queryKey: ['students'] });
+            queryClient.invalidateQueries({ queryKey: ['user-stats'] });
             toast.success('Cập nhật người dùng thành công');
         },
         onError: (error) => {
@@ -83,6 +84,7 @@ export function useToggleUserActive() {
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
             queryClient.invalidateQueries({ queryKey: ['user', data.id] });
+            queryClient.invalidateQueries({ queryKey: ['user-stats'] });
             toast.success(data.is_active ? 'Đã kích hoạt tài khoản' : 'Đã vô hiệu hóa tài khoản');
         },
         onError: (error) => {
@@ -115,6 +117,7 @@ export function useChangeUserRole() {
             queryClient.invalidateQueries({ queryKey: ['user', data.id] });
             queryClient.invalidateQueries({ queryKey: ['teachers'] });
             queryClient.invalidateQueries({ queryKey: ['students'] });
+            queryClient.invalidateQueries({ queryKey: ['user-stats'] });
             toast.success('Đã thay đổi vai trò người dùng');
         },
         onError: (error) => {

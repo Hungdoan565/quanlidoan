@@ -90,6 +90,9 @@ export function UsersListPage() {
     // Extract data from server response
     const users = usersData?.data || [];
     const totalItems = usersData?.total || 0;
+    const studentStatValue = selectedClassId
+        ? (selectedClass?.student_count || totalItems || 0)
+        : (stats?.student || 0);
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
     // Handle filter changes - reset to page 1
@@ -173,7 +176,7 @@ export function UsersListPage() {
                     <div className="stat-mini-content">
                         <GraduationCap size={20} className="stat-icon student" aria-hidden="true" />
                         <div>
-                            <span className="stat-value">{stats?.student || 0}</span>
+                            <span className="stat-value">{studentStatValue}</span>
                             <span className="stat-label">Sinh viên</span>
                         </div>
                     </div>
@@ -298,7 +301,11 @@ export function UsersListPage() {
                                             <TableRow key={user.id}>
                                                 <TableCell>
                                                     <div className="user-cell">
-                                                        <Avatar name={user.full_name} size="sm" />
+                                                        <Avatar
+                                                            src={user.avatar_url}
+                                                            name={user.full_name}
+                                                            size="sm"
+                                                        />
                                                         <span className="user-name">{user.full_name}</span>
                                                     </div>
                                                 </TableCell>

@@ -65,7 +65,7 @@ export function UserDetailModal({ isOpen, onClose, user }) {
             <div className="user-detail-modal">
                 {/* User Header */}
                 <div className="user-header">
-                    <Avatar name={user.full_name} size="lg" />
+                    <Avatar src={user.avatar_url} name={user.full_name} size="lg" />
                     <div className="user-header-info">
                         <h3>{user.full_name}</h3>
                         <div className="user-badges">
