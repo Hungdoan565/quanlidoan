@@ -24,7 +24,7 @@ export const exportService = {
                     session:session_id(id, name, academic_year, semester)
                 )
             `)
-            .order('created_at', { ascending: false });
+            .order('created_at', { ascending: true });
 
         if (sessionId) {
             // Filter by session via class
@@ -42,8 +42,13 @@ export const exportService = {
 
         if (error) throw error;
 
-        exportTopicsToExcel(topics || [], sessionName);
-        return topics?.length || 0;
+        const topicList = topics || [];
+        const classIdsForOrder = Array.from(new Set(topicList.map(topic => topic.class?.id).filter(Boolean)));
+        const orderMap = await buildClassStudentOrderMap(classIdsForOrder);
+        const sortedTopics = sortTopicsByClassList(topicList, orderMap);
+
+        exportTopicsToExcel(sortedTopics, sessionName);
+        return sortedTopics.length;
     },
 
     /**
@@ -179,7 +184,11 @@ export const exportService = {
                 )
             `)
             .in('class_id', (classes || []).map(c => c.id))
-            .order('class_id, created_at');
+            .order('created_at', { ascending: true })
+            .order('class_id');
+
+        const orderMap = await buildClassStudentOrderMap((classes || []).map(c => c.id));
+        const sortedTopics = sortTopicsByClassList(topics || [], orderMap);
 
         // Prepare sheets
         const sheets = [];
@@ -193,7 +202,7 @@ export const exportService = {
             completed: 0,
             rejected: 0,
         };
-        (topics || []).forEach(t => {
+        (sortedTopics || []).forEach(t => {
             if (statusCounts[t.status] !== undefined) {
                 statusCounts[t.status]++;
             }
@@ -226,7 +235,7 @@ export const exportService = {
                 maLop: c.code,
                 tenLop: c.name,
                 gvhd: c.advisor?.full_name || '',
-                soDeTai: topics?.filter(t => t.class_id === c.id).length || 0,
+                soDeTai: sortedTopics?.filter(t => t.class_id === c.id).length || 0,
             })),
             columnHeaders: {
                 stt: 'STT',
@@ -241,7 +250,7 @@ export const exportService = {
         // Sheet 3: All topics
         sheets.push({
             sheetName: 'Danh sách đề tài',
-            data: (topics || []).map((topic, i) => ({
+            data: (sortedTopics || []).map((topic, i) => ({
                 stt: i + 1,
                 mssv: topic.student?.student_code || '',
                 sinhVien: topic.student?.full_name || '',
@@ -269,7 +278,7 @@ export const exportService = {
         
         return {
             classCount: classes?.length || 0,
-            topicCount: topics?.length || 0,
+            topicCount: sortedTopics?.length || 0,
         };
     },
 
@@ -300,6 +309,51 @@ export const exportService = {
         return classData.students?.length || 0;
     },
 };
+
+async function buildClassStudentOrderMap(classIds) {
+    if (!classIds || classIds.length === 0) return new Map();
+
+    const { data, error } = await supabase
+        .from('class_students')
+        .select('class_id, student_id, created_at')
+        .in('class_id', classIds);
+
+    if (error) throw error;
+
+    const map = new Map();
+    (data || []).forEach(row => {
+        map.set(`${row.class_id}_${row.student_id}`, row.created_at);
+    });
+    return map;
+}
+
+function sortTopicsByClassList(topics, orderMap) {
+    const sorted = [...topics];
+    sorted.sort((a, b) => {
+        const aClassKey = a.class?.code || a.class?.name || a.class?.id || '';
+        const bClassKey = b.class?.code || b.class?.name || b.class?.id || '';
+        const classCompare = aClassKey.localeCompare(bClassKey, 'vi', { numeric: true, sensitivity: 'base' });
+        if (classCompare !== 0) return classCompare;
+
+        const aOrder = orderMap.get(`${a.class?.id}_${a.student?.id}`);
+        const bOrder = orderMap.get(`${b.class?.id}_${b.student?.id}`);
+        if (aOrder && bOrder) {
+            return new Date(aOrder).getTime() - new Date(bOrder).getTime();
+        }
+        if (aOrder) return -1;
+        if (bOrder) return 1;
+
+        const aCode = a.student?.student_code || '';
+        const bCode = b.student?.student_code || '';
+        const codeCompare = aCode.localeCompare(bCode, 'vi', { numeric: true, sensitivity: 'base' });
+        if (codeCompare !== 0) return codeCompare;
+
+        const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return aCreated - bCreated;
+    });
+    return sorted;
+}
 
 // Helper function
 function getStatusLabel(status) {
