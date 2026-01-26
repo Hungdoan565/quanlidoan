@@ -336,7 +336,7 @@ export function NotificationDropdown() {
 
     return (
         <Dropdown align="end">
-            <DropdownTrigger>
+            <DropdownTrigger aria-label="Thông báo">
                 <div className="notification-trigger">
                     <Bell size={20} />
                     {unreadCount > 0 && (
@@ -361,7 +361,7 @@ export function NotificationDropdown() {
 
                 <div className="notification-list">
                     {isLoading ? (
-                        <div className="notification-loading">Đang tải...</div>
+                        <div className="notification-loading">Đang tải…</div>
                     ) : groupedNotifications.length > 0 ? (
                         groupedNotifications.slice(0, 10).map((item) => 
                             item.isGroup 

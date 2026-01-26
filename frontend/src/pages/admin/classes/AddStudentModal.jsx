@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { Search, UserPlus, Check } from 'lucide-react';
-import { useStudents } from '../../../hooks/useUsers';
-import { useAddStudentToClass, useImportStudents } from '../../../hooks/useClasses';
+import { useAddStudentToClass, useImportStudentIds, useAvailableStudents } from '../../../hooks/useClasses';
 import { Modal, Input, Button, Badge } from '../../../components/ui';
 
 export function AddStudentModal({ isOpen, onClose, classId, sessionId, existingStudentIds = [] }) {
     const [search, setSearch] = useState('');
     const [selectedIds, setSelectedIds] = useState([]);
 
-    const { data: allStudents = [], isLoading } = useStudents({ activeOnly: true });
+    const { data: allStudents = [], isLoading } = useAvailableStudents(sessionId);
     const addStudent = useAddStudentToClass();
-    const importStudents = useImportStudents();
+    const importStudentIds = useImportStudentIds();
 
     // Filter out existing students and by search
     const availableStudents = allStudents.filter(s => {
@@ -51,7 +50,7 @@ export function AddStudentModal({ isOpen, onClose, classId, sessionId, existingS
         if (selectedIds.length === 1) {
             await addStudent.mutateAsync({ classId, studentId: selectedIds[0] });
         } else {
-            await importStudents.mutateAsync({ classId, studentIds: selectedIds });
+            await importStudentIds.mutateAsync({ classId, studentIds: selectedIds });
         }
 
         setSelectedIds([]);
@@ -65,7 +64,7 @@ export function AddStudentModal({ isOpen, onClose, classId, sessionId, existingS
         onClose();
     };
 
-    const isAdding = addStudent.isPending || importStudents.isPending;
+    const isAdding = addStudent.isPending || importStudentIds.isPending;
     const allVisibleSelected = availableStudents.length > 0 &&
         availableStudents.every(s => selectedIds.includes(s.id));
 

@@ -313,7 +313,7 @@ export const logbookService = {
         const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
         const filePath = `${topicId}/${timestamp}_${safeName}`;
 
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
             .from('logbook-attachments')
             .upload(filePath, file);
 
@@ -403,7 +403,7 @@ export const logbookService = {
                 title,
                 status,
                 approved_at,
-                student:student_id(id, full_name, student_code, email),
+                student:student_id(id, full_name, student_code, email, avatar_url),
                 class:class_id(name, session:session_id(name))
             `)
             .eq('advisor_id', user.id)
@@ -464,7 +464,7 @@ export const logbookService = {
                 status,
                 approved_at,
                 repo_url,
-                student:student_id(id, full_name, student_code, email),
+                student:student_id(id, full_name, student_code, email, avatar_url),
                 class:class_id(name)
             `)
             .eq('id', topicId)

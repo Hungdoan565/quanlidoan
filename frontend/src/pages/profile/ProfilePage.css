@@ -232,6 +232,15 @@
     border-radius: var(--radius-md);
 }
 
+[data-theme="dark"] .profile-tab:hover {
+    background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .settings-item {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-default);
+}
+
 .settings-item-header {
     display: flex;
     align-items: center;

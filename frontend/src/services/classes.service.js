@@ -63,7 +63,7 @@ export const classesService = {
             .select(`
                 *,
                 session:sessions(id, name, academic_year, semester, session_type, status),
-                advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, phone),
+                advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url),
                 class_students(
                     id,
                     student:profiles(
@@ -72,6 +72,7 @@ export const classesService = {
                         student_code, 
                         email, 
                         phone,
+                        avatar_url,
                         gender,
                         birth_date,
                         class_name
@@ -244,6 +245,12 @@ export const classesService = {
      * - Thêm vào class
      */
     bulkImportStudents: async (classId, students) => {
+        if (!classId) {
+            throw new Error('Thiếu mã lớp');
+        }
+        if (!Array.isArray(students) || students.length === 0) {
+            throw new Error('Danh sách sinh viên không hợp lệ');
+        }
         // Get current session for authorization
         const { data: { session } } = await supabase.auth.getSession();
 
@@ -252,7 +259,7 @@ export const classesService = {
         }
 
         // Call Edge Function directly via fetch
-        const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/smart-service`;
+        const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-students`;
 
         const response = await fetch(functionUrl, {
             method: 'POST',
@@ -311,7 +318,14 @@ export const classesService = {
 
         const assignedIds = new Set(assignedStudents?.map(s => s.student_id) || []);
 
-        return allStudents?.filter(s => !assignedIds.has(s.id)) || [];
+        const filtered = allStudents?.filter(s => !assignedIds.has(s.id)) || [];
+        const seen = new Set();
+        return filtered.filter(student => {
+            const key = student.student_code || student.email || student.id;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
     },
 };
 

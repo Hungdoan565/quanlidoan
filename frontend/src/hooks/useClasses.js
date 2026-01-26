@@ -185,6 +185,27 @@ export function useImportStudents() {
 }
 
 /**
+ * Hook để thêm nhiều sinh viên đã có tài khoản vào lớp
+ */
+export function useImportStudentIds() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ classId, studentIds }) =>
+            classesService.importStudents(classId, studentIds),
+        onSuccess: (_, { classId }) => {
+            queryClient.invalidateQueries({ queryKey: ['class', classId] });
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            queryClient.invalidateQueries({ queryKey: ['available-students'] });
+            toast.success('Đã thêm sinh viên vào lớp');
+        },
+        onError: (error) => {
+            toast.error(error.message || 'Không thể thêm sinh viên');
+        },
+    });
+}
+
+/**
  * Hook để lấy danh sách sinh viên chưa được gán vào class nào
  */
 export function useAvailableStudents(sessionId) {

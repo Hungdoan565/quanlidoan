@@ -69,26 +69,30 @@ function Dropdown({
 /**
  * Dropdown Trigger - The element that opens the dropdown
  */
-function DropdownTrigger({ children, asChild = false, className }) {
+function DropdownTrigger({ children, asChild = false, className, ...props }) {
     const { toggle, isOpen } = useContext(DropdownContext);
 
     const handleClick = (e) => {
         e.stopPropagation();
         toggle();
     };
+    const triggerProps = {
+        onClick: handleClick,
+        'aria-expanded': isOpen,
+        'aria-haspopup': 'menu',
+        ...props,
+    };
 
     if (asChild) {
         // Clone the child and add click handler
-        return children({ onClick: handleClick, 'aria-expanded': isOpen });
+        return children(triggerProps);
     }
 
     return (
         <button 
             type="button"
             className={cn('dropdown-trigger', className)}
-            onClick={handleClick}
-            aria-expanded={isOpen}
-            aria-haspopup="menu"
+            {...triggerProps}
         >
             {children}
         </button>

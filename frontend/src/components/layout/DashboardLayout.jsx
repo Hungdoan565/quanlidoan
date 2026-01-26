@@ -36,6 +36,7 @@ const navItems = {
         { icon: Users, label: 'Lớp học', path: '/admin/classes' },
         { icon: Users, label: 'Người dùng', path: '/admin/users' },
         { icon: Settings, label: 'Tiêu chí chấm', path: '/admin/grading-config' },
+        { icon: User, label: 'Hồ sơ', path: '/profile' },
     ],
     teacher: [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/teacher/dashboard' },
@@ -44,6 +45,7 @@ const navItems = {
         { icon: FileText, label: 'Duyệt đề tài', path: '/teacher/reviews' },
         { icon: BookOpen, label: 'Nhật ký SV', path: '/teacher/logbook' },
         { icon: FileText, label: 'Chấm điểm', path: '/teacher/grading' },
+        { icon: User, label: 'Hồ sơ', path: '/profile' },
     ],
     student: [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/student/dashboard' },
@@ -51,6 +53,7 @@ const navItems = {
         { icon: FileText, label: 'Đề tài của tôi', path: '/student/topic' },
         { icon: BookOpen, label: 'Nhật ký', path: '/student/logbook' },
         { icon: FileText, label: 'Nộp báo cáo', path: '/student/reports' },
+        { icon: User, label: 'Hồ sơ', path: '/profile' },
     ],
 };
 
@@ -62,10 +65,12 @@ const roleLabels = {
 };
 
 export function DashboardLayout({ role }) {
-    const { profile, signOut } = useAuthStore();
+    const { profile, signOut, role: storeRole } = useAuthStore();
     const { sidebarOpen, toggleSidebar, theme, toggleTheme } = useUIStore();
     const navigate = useNavigate();
-    const items = navItems[role] || [];
+    const resolvedRole = role || storeRole || profile?.role;
+    const items = navItems[resolvedRole] || [];
+    const roleLabel = roleLabels[resolvedRole] || roleLabels[profile?.role] || resolvedRole || profile?.role;
 
     const handleSignOut = async () => {
         await signOut();
@@ -86,7 +91,11 @@ export function DashboardLayout({ role }) {
                         <Logo size={32} />
                         <span className="logo-text">QL Đồ án</span>
                     </div>
-                    <button className="close-btn" onClick={toggleSidebar}>
+                    <button
+                        className="close-btn"
+                        onClick={toggleSidebar}
+                        aria-label="Đóng thanh bên"
+                    >
                         <X size={20} />
                     </button>
                 </div>
@@ -120,7 +129,11 @@ export function DashboardLayout({ role }) {
                 {/* Header */}
                 <header className="header">
                     <div className="header-left">
-                        <button className="menu-btn" onClick={toggleSidebar}>
+                        <button
+                            className="menu-btn"
+                            onClick={toggleSidebar}
+                            aria-label={sidebarOpen ? 'Đóng thanh bên' : 'Mở thanh bên'}
+                        >
                             <Menu size={24} />
                         </button>
                     </div>
@@ -131,6 +144,7 @@ export function DashboardLayout({ role }) {
                             className="header-icon-btn"
                             onClick={toggleTheme}
                             title={theme === 'light' ? 'Chế độ tối' : 'Chế độ sáng'}
+                            aria-label={theme === 'light' ? 'Bật chế độ tối' : 'Bật chế độ sáng'}
                         >
                             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
                         </button>
@@ -150,7 +164,7 @@ export function DashboardLayout({ role }) {
                                     <div className="user-info">
                                         <span className="user-name">{profile?.full_name || 'User'}</span>
                                         <span className="user-role">
-                                            {roleLabels[role] || role}
+                                            {roleLabel}
                                             {profile?.student_code && ` • ${profile.student_code}`}
                                             {profile?.teacher_code && ` • ${profile.teacher_code}`}
                                         </span>

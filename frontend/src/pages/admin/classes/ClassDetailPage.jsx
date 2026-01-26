@@ -26,6 +26,7 @@ import {
     Card,
     Badge,
     StatusBadge,
+    Avatar,
     Select,
     ConfirmModal,
     SkeletonCard,
@@ -315,9 +316,12 @@ export function ClassDetailPage() {
                                         </td>
                                         <td className="col-student">
                                             <div className="student-info">
-<div className="student-avatar">
-                                                    <User size={16} aria-hidden="true" />
-                                                </div>
+                                                <Avatar
+                                                    src={student.avatar_url}
+                                                    name={student.full_name}
+                                                    size="sm"
+                                                    className="student-avatar"
+                                                />
                                                 <div className="student-details">
                                                     <span className="student-name">{student.full_name}</span>
                                                     <span className="student-code">{student.student_code}</span>
@@ -443,9 +447,12 @@ function TeacherCard({ role, roleLabel, teacher, variant }) {
             </div>
             {teacher ? (
                 <div className="teacher-profile">
-<div className="teacher-avatar">
-                        <User size={20} aria-hidden="true" />
-                    </div>
+                    <Avatar
+                        src={teacher.avatar_url}
+                        name={teacher.full_name}
+                        size="md"
+                        className="teacher-avatar"
+                    />
                     <div className="teacher-info">
                         <span className="teacher-name">{teacher.full_name}</span>
                         <span className="teacher-code">{teacher.teacher_code || teacher.email}</span>
