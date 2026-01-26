@@ -15,11 +15,12 @@ import {
 } from 'lucide-react';
 import { useAdminDashboardStats, useRecentActivities, useActiveSessions, useUpcomingDeadlines, useAdminAlerts } from '../../hooks/useStats';
 import { useUIStore } from '../../store/uiStore';
-import { StatCard, SkeletonStatCard, CustomSelect, Card, CardHeader, CardBody, Badge, Button, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, Modal, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui';
+import { StatCard, SkeletonStatCard, CustomSelect, Card, CardHeader, CardBody, Badge, Button, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, Modal, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Input } from '../../components/ui';
 import { formatDistanceToNow, format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { exportService } from '../../services/export.service';
+import { exportToExcel } from '../../utils/excel';
 import { toast } from 'sonner';
 import './DashboardPage.css';
 
@@ -51,6 +52,8 @@ export function AdminDashboard() {
     const { selectedSessionId, setSelectedSession } = useUIStore();
     const [exporting, setExporting] = useState(null);
     const [activeAlert, setActiveAlert] = useState(null);
+    const [alertClassFilter, setAlertClassFilter] = useState('');
+    const [alertSearch, setAlertSearch] = useState('');
 
     // Fetch data
     const { data: sessions = [], isLoading: sessionsLoading } = useActiveSessions();
@@ -144,11 +147,127 @@ export function AdminDashboard() {
         label: `${s.name} (${s.academic_year} - HK${s.semester})`,
     })), [sessions]);
 
+    const alertSessionOptions = useMemo(() => ([
+        { value: '', label: '-- Tất cả đợt --' },
+        ...sessionOptions
+    ]), [sessionOptions]);
+
+    useEffect(() => {
+        if (activeAlert) {
+            setAlertClassFilter('');
+            setAlertSearch('');
+        }
+    }, [activeAlert]);
+
     const isLoading = statsLoading || sessionsLoading;
     const missingLogbookItems = alerts?.missingLogbook?.items || [];
     const overdueReportItems = alerts?.overdueReports?.items || [];
     const missingLogbookCount = alerts?.missingLogbook?.count || 0;
     const overdueReportCount = alerts?.overdueReports?.count || 0;
+
+    const logbookClassOptions = useMemo(() => {
+        const map = new Map();
+        missingLogbookItems.forEach(item => {
+            if (!item.classId) return;
+            const label = item.classCode || item.className || 'Lớp';
+            map.set(item.classId, label);
+        });
+        return [{ value: '', label: 'Tất cả lớp' }, ...Array.from(map.entries()).map(([value, label]) => ({ value, label }))];
+    }, [missingLogbookItems]);
+
+    const reportClassOptions = useMemo(() => {
+        const map = new Map();
+        overdueReportItems.forEach(item => {
+            if (!item.classId) return;
+            const label = item.classCode || item.className || 'Lớp';
+            map.set(item.classId, label);
+        });
+        return [{ value: '', label: 'Tất cả lớp' }, ...Array.from(map.entries()).map(([value, label]) => ({ value, label }))];
+    }, [overdueReportItems]);
+
+    const filteredLogbookItems = useMemo(() => {
+        const keyword = alertSearch.trim().toLowerCase();
+        return missingLogbookItems.filter(item => {
+            if (alertClassFilter && item.classId !== alertClassFilter) return false;
+            if (!keyword) return true;
+            return [
+                item.studentName,
+                item.studentCode,
+                item.topicTitle,
+                item.classCode,
+                item.className,
+            ].some(value => (value || '').toString().toLowerCase().includes(keyword));
+        });
+    }, [missingLogbookItems, alertClassFilter, alertSearch]);
+
+    const filteredReportItems = useMemo(() => {
+        const keyword = alertSearch.trim().toLowerCase();
+        return overdueReportItems.filter(item => {
+            if (alertClassFilter && item.classId !== alertClassFilter) return false;
+            if (!keyword) return true;
+            return [
+                item.studentName,
+                item.studentCode,
+                item.topicTitle,
+                item.phaseLabel,
+                item.classCode,
+                item.className,
+            ].some(value => (value || '').toString().toLowerCase().includes(keyword));
+        });
+    }, [overdueReportItems, alertClassFilter, alertSearch]);
+
+    const handleExportAlerts = () => {
+        const today = new Date().toISOString().slice(0, 10);
+        if (activeAlert === 'logbook') {
+            const data = filteredLogbookItems.map((item, index) => ({
+                stt: index + 1,
+                mssv: item.studentCode || '',
+                sinhVien: item.studentName,
+                lop: item.classCode || item.className || '',
+                deTai: item.topicTitle || '',
+                tuan: item.weekNumber,
+                capNhat: item.lastEntryAt ? format(new Date(item.lastEntryAt), 'dd/MM/yyyy', { locale: vi }) : '',
+            }));
+            exportToExcel(data, `CanhBao_ThieuNhatKy_${sessionName}_${today}`, {
+                sheetName: 'Thiếu nhật ký',
+                columnHeaders: {
+                    stt: 'STT',
+                    mssv: 'MSSV',
+                    sinhVien: 'Sinh viên',
+                    lop: 'Lớp',
+                    deTai: 'Đề tài',
+                    tuan: 'Tuần',
+                    capNhat: 'Cập nhật gần nhất',
+                },
+                columnWidths: { A: 5, B: 12, C: 25, D: 15, E: 40, F: 8, G: 18 },
+            });
+        } else if (activeAlert === 'reports') {
+            const data = filteredReportItems.map((item, index) => ({
+                stt: index + 1,
+                mssv: item.studentCode || '',
+                sinhVien: item.studentName,
+                lop: item.classCode || item.className || '',
+                deTai: item.topicTitle || '',
+                baoCao: item.phaseLabel,
+                han: item.deadline ? format(new Date(item.deadline), 'dd/MM/yyyy', { locale: vi }) : '',
+                tre: item.daysLate,
+            }));
+            exportToExcel(data, `CanhBao_BaoCaoTre_${sessionName}_${today}`, {
+                sheetName: 'Báo cáo trễ',
+                columnHeaders: {
+                    stt: 'STT',
+                    mssv: 'MSSV',
+                    sinhVien: 'Sinh viên',
+                    lop: 'Lớp',
+                    deTai: 'Đề tài',
+                    baoCao: 'Báo cáo',
+                    han: 'Hạn',
+                    tre: 'Trễ (ngày)',
+                },
+                columnWidths: { A: 5, B: 12, C: 25, D: 15, E: 40, F: 18, G: 12, H: 10 },
+            });
+        }
+    };
 
     return (
         <div className="dashboard-page">
@@ -511,8 +630,47 @@ export function AdminDashboard() {
                 title={activeAlert === 'logbook' ? 'Thiếu nhật ký tuần hiện tại' : 'Báo cáo nộp trễ'}
                 size="lg"
             >
+                <div className="alerts-filter-row">
+                    <div className="alerts-filter-group">
+                        <label>Đợt</label>
+                        <CustomSelect
+                            value={selectedSessionId || ''}
+                            onChange={(e) => setSelectedSession(e.target.value || null)}
+                            options={alertSessionOptions}
+                        />
+                    </div>
+                    <div className="alerts-filter-group">
+                        <label>Lớp</label>
+                        <CustomSelect
+                            value={alertClassFilter}
+                            onChange={(e) => setAlertClassFilter(e.target.value)}
+                            options={activeAlert === 'logbook' ? logbookClassOptions : reportClassOptions}
+                        />
+                    </div>
+                    <div className="alerts-filter-group alerts-filter-search">
+                        <label>Tìm kiếm</label>
+                        <Input
+                            value={alertSearch}
+                            onChange={(e) => setAlertSearch(e.target.value)}
+                            placeholder="MSSV, tên, đề tài..."
+                        />
+                    </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        leftIcon={<Download size={16} aria-hidden="true" />}
+                        onClick={handleExportAlerts}
+                        disabled={
+                            activeAlert === 'logbook'
+                                ? filteredLogbookItems.length === 0
+                                : filteredReportItems.length === 0
+                        }
+                    >
+                        Xuất Excel
+                    </Button>
+                </div>
                 {activeAlert === 'logbook' ? (
-                    missingLogbookItems.length > 0 ? (
+                    filteredLogbookItems.length > 0 ? (
                         <Table className="alerts-table">
                             <TableHeader>
                                 <TableRow>
@@ -525,7 +683,7 @@ export function AdminDashboard() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {missingLogbookItems.map((item, index) => (
+                                {filteredLogbookItems.map((item, index) => (
                                     <TableRow key={`${item.topicId}-${item.studentCode}`}>
                                         <TableCell>{index + 1}</TableCell>
                                         <TableCell>{item.studentCode || '-'}</TableCell>
@@ -546,7 +704,7 @@ export function AdminDashboard() {
                     ) : (
                         <div className="alerts-empty">Không có sinh viên thiếu nhật ký.</div>
                     )
-                ) : overdueReportItems.length > 0 ? (
+                ) : filteredReportItems.length > 0 ? (
                     <Table className="alerts-table">
                         <TableHeader>
                             <TableRow>
@@ -560,7 +718,7 @@ export function AdminDashboard() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {overdueReportItems.map((item, index) => (
+                            {filteredReportItems.map((item, index) => (
                                 <TableRow key={`${item.topicId}-${item.phase}`}>
                                     <TableCell>{index + 1}</TableCell>
                                     <TableCell>{item.studentCode || '-'}</TableCell>

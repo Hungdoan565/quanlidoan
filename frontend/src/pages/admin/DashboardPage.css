@@ -92,6 +92,31 @@
     font-size: var(--text-sm);
 }
 
+.alerts-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: flex-end;
+    margin-bottom: var(--space-4);
+}
+
+.alerts-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 180px;
+}
+
+.alerts-filter-group label {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+}
+
+.alerts-filter-search {
+    flex: 1;
+    min-width: 220px;
+}
+
 .alerts-empty {
     padding: var(--space-5);
     text-align: center;
@@ -424,6 +449,11 @@
 
     .dashboard-alerts {
         grid-template-columns: 1fr;
+    }
+
+    .alerts-filter-row {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .dashboard-charts {
