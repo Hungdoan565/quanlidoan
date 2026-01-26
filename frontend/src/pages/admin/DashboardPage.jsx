@@ -13,9 +13,9 @@ import {
     Download,
     Loader2
 } from 'lucide-react';
-import { useAdminDashboardStats, useRecentActivities, useActiveSessions, useUpcomingDeadlines } from '../../hooks/useStats';
+import { useAdminDashboardStats, useRecentActivities, useActiveSessions, useUpcomingDeadlines, useAdminAlerts } from '../../hooks/useStats';
 import { useUIStore } from '../../store/uiStore';
-import { StatCard, SkeletonStatCard, CustomSelect, Card, CardHeader, CardBody, Badge, Button, Dropdown, DropdownTrigger, DropdownContent, DropdownItem } from '../../components/ui';
+import { StatCard, SkeletonStatCard, CustomSelect, Card, CardHeader, CardBody, Badge, Button, Dropdown, DropdownTrigger, DropdownContent, DropdownItem, Modal, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui';
 import { formatDistanceToNow, format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
@@ -50,10 +50,12 @@ export function AdminDashboard() {
     const navigate = useNavigate();
     const { selectedSessionId, setSelectedSession } = useUIStore();
     const [exporting, setExporting] = useState(null);
+    const [activeAlert, setActiveAlert] = useState(null);
 
     // Fetch data
     const { data: sessions = [], isLoading: sessionsLoading } = useActiveSessions();
     const { data: stats, isLoading: statsLoading, error: statsError } = useAdminDashboardStats(selectedSessionId);
+    const { data: alerts, isLoading: alertsLoading } = useAdminAlerts(selectedSessionId);
     const { data: activities = [], isLoading: activitiesLoading } = useRecentActivities(8);
     const { data: deadlines = [] } = useUpcomingDeadlines(selectedSessionId);
 
@@ -143,6 +145,10 @@ export function AdminDashboard() {
     })), [sessions]);
 
     const isLoading = statsLoading || sessionsLoading;
+    const missingLogbookItems = alerts?.missingLogbook?.items || [];
+    const overdueReportItems = alerts?.overdueReports?.items || [];
+    const missingLogbookCount = alerts?.missingLogbook?.count || 0;
+    const overdueReportCount = alerts?.overdueReports?.count || 0;
 
     return (
         <div className="dashboard-page">
@@ -244,6 +250,69 @@ export function AdminDashboard() {
                         />
                     </>
                 )}
+            </div>
+
+            {/* Alerts Row */}
+            <div className="dashboard-alerts">
+                <Card className="alert-card">
+                    <CardHeader>
+                        <div className="alert-card-title">
+                            <AlertTriangle size={18} aria-hidden="true" />
+                            <div>
+                                <h3>Thiếu nhật ký</h3>
+                                <p>Tuần hiện tại chưa nộp</p>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardBody>
+                        <div className="alert-card-content">
+                            <span className="alert-card-value">
+                                {alertsLoading ? '...' : missingLogbookCount}
+                            </span>
+                            <Badge variant={missingLogbookCount > 0 ? 'danger' : 'default'}>
+                                {missingLogbookCount > 0 ? 'Cần xử lý' : 'Ổn định'}
+                            </Badge>
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setActiveAlert('logbook')}
+                            disabled={missingLogbookCount === 0}
+                        >
+                            Xem danh sách
+                        </Button>
+                    </CardBody>
+                </Card>
+
+                <Card className="alert-card">
+                    <CardHeader>
+                        <div className="alert-card-title">
+                            <FileText size={18} aria-hidden="true" />
+                            <div>
+                                <h3>Trễ báo cáo</h3>
+                                <p>Đã quá hạn nộp</p>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardBody>
+                        <div className="alert-card-content">
+                            <span className="alert-card-value">
+                                {alertsLoading ? '...' : overdueReportCount}
+                            </span>
+                            <Badge variant={overdueReportCount > 0 ? 'danger' : 'default'}>
+                                {overdueReportCount > 0 ? 'Cần xử lý' : 'Ổn định'}
+                            </Badge>
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setActiveAlert('reports')}
+                            disabled={overdueReportCount === 0}
+                        >
+                            Xem danh sách
+                        </Button>
+                    </CardBody>
+                </Card>
             </div>
 
             {/* Charts Row */}
@@ -435,6 +504,85 @@ export function AdminDashboard() {
                     </CardBody>
                 </Card>
             </div>
+
+            <Modal
+                isOpen={activeAlert !== null}
+                onClose={() => setActiveAlert(null)}
+                title={activeAlert === 'logbook' ? 'Thiếu nhật ký tuần hiện tại' : 'Báo cáo nộp trễ'}
+                size="lg"
+            >
+                {activeAlert === 'logbook' ? (
+                    missingLogbookItems.length > 0 ? (
+                        <Table className="alerts-table">
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead style={{ width: '8%' }}>STT</TableHead>
+                                    <TableHead style={{ width: '18%' }}>MSSV</TableHead>
+                                    <TableHead style={{ width: '24%' }}>Sinh viên</TableHead>
+                                    <TableHead style={{ width: '16%' }}>Lớp</TableHead>
+                                    <TableHead style={{ width: '12%' }}>Tuần</TableHead>
+                                    <TableHead>Cập nhật gần nhất</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {missingLogbookItems.map((item, index) => (
+                                    <TableRow key={`${item.topicId}-${item.studentCode}`}>
+                                        <TableCell>{index + 1}</TableCell>
+                                        <TableCell>{item.studentCode || '-'}</TableCell>
+                                        <TableCell>{item.studentName}</TableCell>
+                                        <TableCell>{item.classCode || item.className}</TableCell>
+                                        <TableCell>
+                                            <Badge variant="warning">Tuần {item.weekNumber}</Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            {item.lastEntryAt
+                                                ? format(new Date(item.lastEntryAt), 'dd/MM/yyyy', { locale: vi })
+                                                : 'Chưa có'}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    ) : (
+                        <div className="alerts-empty">Không có sinh viên thiếu nhật ký.</div>
+                    )
+                ) : overdueReportItems.length > 0 ? (
+                    <Table className="alerts-table">
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead style={{ width: '8%' }}>STT</TableHead>
+                                <TableHead style={{ width: '18%' }}>MSSV</TableHead>
+                                <TableHead style={{ width: '22%' }}>Sinh viên</TableHead>
+                                <TableHead style={{ width: '16%' }}>Lớp</TableHead>
+                                <TableHead>Báo cáo</TableHead>
+                                <TableHead style={{ width: '12%' }}>Hạn</TableHead>
+                                <TableHead style={{ width: '12%' }}>Trễ</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {overdueReportItems.map((item, index) => (
+                                <TableRow key={`${item.topicId}-${item.phase}`}>
+                                    <TableCell>{index + 1}</TableCell>
+                                    <TableCell>{item.studentCode || '-'}</TableCell>
+                                    <TableCell>{item.studentName}</TableCell>
+                                    <TableCell>{item.classCode || item.className}</TableCell>
+                                    <TableCell>{item.phaseLabel}</TableCell>
+                                    <TableCell>
+                                        {item.deadline
+                                            ? format(new Date(item.deadline), 'dd/MM/yyyy', { locale: vi })
+                                            : '-'}
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge variant="danger">{item.daysLate} ngày</Badge>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                    <div className="alerts-empty">Không có báo cáo trễ hạn.</div>
+                )}
+            </Modal>
         </div>
     );
 }

@@ -43,6 +43,62 @@
     margin-bottom: var(--space-6);
 }
 
+/* Alerts Row */
+.dashboard-alerts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.alert-card .card-header {
+    display: flex;
+    align-items: center;
+}
+
+.alert-card-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.alert-card-title h3 {
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    margin: 0;
+}
+
+.alert-card-title p {
+    margin: 2px 0 0;
+    color: var(--text-secondary);
+    font-size: var(--text-xs);
+}
+
+.alert-card-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.alert-card-value {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+}
+
+.alerts-table .table-cell,
+.alerts-table .table-head {
+    font-size: var(--text-sm);
+}
+
+.alerts-empty {
+    padding: var(--space-5);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
 /* Charts Row */
 .dashboard-charts {
     display: grid;
@@ -364,6 +420,10 @@
 @media (max-width: 1023px) {
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dashboard-alerts {
+        grid-template-columns: 1fr;
     }
 
     .dashboard-charts {

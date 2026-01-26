@@ -166,6 +166,183 @@ export const statsService = {
     },
 
     /**
+     * Lấy cảnh báo cho Admin Dashboard
+     */
+    getAdminAlerts: async (sessionId = null) => {
+        try {
+            const classQuery = supabase
+                .from('classes')
+                .select('id, name, code, session:session_id(id, report1_deadline, report2_deadline, final_deadline)');
+
+            if (sessionId) {
+                classQuery.eq('session_id', sessionId);
+            }
+
+            const { data: classes, error: classError } = await classQuery;
+            if (classError) throw classError;
+
+            const classIds = classes?.map(c => c.id) || [];
+            if (classIds.length === 0) {
+                return {
+                    missingLogbook: { count: 0, items: [] },
+                    overdueReports: { count: 0, items: [] },
+                };
+            }
+
+            const topicStatuses = ['approved', 'in_progress', 'submitted', 'defended', 'completed'];
+            const { data: topics, error: topicsError } = await supabase
+                .from('topics')
+                .select(`
+                    id,
+                    title,
+                    status,
+                    approved_at,
+                    created_at,
+                    class_id,
+                    student:student_id(id, full_name, student_code),
+                    class:class_id(
+                        id,
+                        name,
+                        code,
+                        session:session_id(id, report1_deadline, report2_deadline, final_deadline)
+                    )
+                `)
+                .in('class_id', classIds)
+                .in('status', topicStatuses);
+
+            if (topicsError) throw topicsError;
+
+            const topicList = topics || [];
+            if (topicList.length === 0) {
+                return {
+                    missingLogbook: { count: 0, items: [] },
+                    overdueReports: { count: 0, items: [] },
+                };
+            }
+
+            const topicIds = topicList.map(t => t.id);
+            const [logbookResult, reportResult] = await Promise.all([
+                supabase
+                    .from('logbook_entries')
+                    .select('topic_id, week_number, status, submitted_at, created_at')
+                    .in('topic_id', topicIds),
+                supabase
+                    .from('reports')
+                    .select('topic_id, phase, submitted_at')
+                    .in('topic_id', topicIds)
+                    .in('phase', ['report1', 'report2', 'final']),
+            ]);
+
+            if (logbookResult.error) throw logbookResult.error;
+            if (reportResult.error) throw reportResult.error;
+
+            const logbookEntries = logbookResult.data || [];
+            const reports = reportResult.data || [];
+
+            const entriesByTopic = new Map();
+            logbookEntries.forEach(entry => {
+                if (!entriesByTopic.has(entry.topic_id)) {
+                    entriesByTopic.set(entry.topic_id, []);
+                }
+                entriesByTopic.get(entry.topic_id).push(entry);
+            });
+
+            const reportsByTopic = new Map();
+            reports.forEach(report => {
+                if (!reportsByTopic.has(report.topic_id)) {
+                    reportsByTopic.set(report.topic_id, new Set());
+                }
+                reportsByTopic.get(report.topic_id).add(report.phase);
+            });
+
+            const now = new Date();
+            const missingLogbookItems = [];
+            const overdueReportItems = [];
+
+            topicList.forEach(topic => {
+                if (!topic.approved_at) return;
+
+                const currentWeek = calculateWeekNumber(topic.approved_at);
+                const entries = entriesByTopic.get(topic.id) || [];
+                const hasSubmitted = entries.some(entry => entry.week_number === currentWeek && entry.status !== 'draft');
+                if (!hasSubmitted) {
+                    const latestEntry = entries.reduce((latest, entry) => {
+                        if (!latest) return entry;
+                        return new Date(entry.created_at) > new Date(latest.created_at) ? entry : latest;
+                    }, null);
+
+                    missingLogbookItems.push({
+                        topicId: topic.id,
+                        topicTitle: topic.title,
+                        studentName: topic.student?.full_name || 'Chưa có tên',
+                        studentCode: topic.student?.student_code || '',
+                        className: topic.class?.name || '',
+                        classCode: topic.class?.code || '',
+                        weekNumber: currentWeek,
+                        lastEntryAt: latestEntry?.created_at || null,
+                    });
+                }
+
+                const session = topic.class?.session;
+                const phaseDeadlines = [
+                    { key: 'report1', label: 'Báo cáo tiến độ 1', deadline: session?.report1_deadline },
+                    { key: 'report2', label: 'Báo cáo tiến độ 2', deadline: session?.report2_deadline },
+                    { key: 'final', label: 'Báo cáo cuối', deadline: session?.final_deadline },
+                ];
+
+                const submittedPhases = reportsByTopic.get(topic.id) || new Set();
+                phaseDeadlines.forEach(phase => {
+                    if (!phase.deadline) return;
+                    const deadlineDate = new Date(phase.deadline);
+                    if (now > deadlineDate && !submittedPhases.has(phase.key)) {
+                        const daysLate = Math.ceil((now - deadlineDate) / (1000 * 60 * 60 * 24));
+                        overdueReportItems.push({
+                            topicId: topic.id,
+                            topicTitle: topic.title,
+                            studentName: topic.student?.full_name || 'Chưa có tên',
+                            studentCode: topic.student?.student_code || '',
+                            className: topic.class?.name || '',
+                            classCode: topic.class?.code || '',
+                            phase: phase.key,
+                            phaseLabel: phase.label,
+                            deadline: phase.deadline,
+                            daysLate,
+                        });
+                    }
+                });
+            });
+
+            const sortedMissingLogbook = missingLogbookItems.sort((a, b) => {
+                const classCompare = `${a.classCode}${a.className}`.localeCompare(`${b.classCode}${b.className}`, 'vi', {
+                    numeric: true,
+                    sensitivity: 'base',
+                });
+                if (classCompare !== 0) return classCompare;
+                return a.studentCode.localeCompare(b.studentCode, 'vi', { numeric: true, sensitivity: 'base' });
+            });
+
+            const sortedOverdueReports = overdueReportItems.sort((a, b) => b.daysLate - a.daysLate);
+
+            return {
+                missingLogbook: {
+                    count: missingLogbookItems.length,
+                    items: sortedMissingLogbook,
+                },
+                overdueReports: {
+                    count: overdueReportItems.length,
+                    items: sortedOverdueReports,
+                },
+            };
+        } catch (error) {
+            console.error('[Stats] Error fetching admin alerts:', error);
+            return {
+                missingLogbook: { count: 0, items: [] },
+                overdueReports: { count: 0, items: [] },
+            };
+        }
+    },
+
+    /**
      * Lấy deadlines sắp tới
      */
     getUpcomingDeadlines: async (sessionId) => {
@@ -226,6 +403,15 @@ function getTopicAction(status) {
         rejected: 'bị từ chối đề tài',
     };
     return actions[status] || 'cập nhật đề tài';
+}
+
+function calculateWeekNumber(approvedAt) {
+    if (!approvedAt) return 1;
+    const approved = new Date(approvedAt);
+    const now = new Date();
+    const diffMs = now - approved;
+    const diffWeeks = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000));
+    return Math.max(1, diffWeeks + 1);
 }
 
 export default statsService;

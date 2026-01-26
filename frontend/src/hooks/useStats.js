@@ -47,3 +47,15 @@ export function useUpcomingDeadlines(sessionId) {
         staleTime: 5 * 60 * 1000,
     });
 }
+
+/**
+ * Hook để lấy cảnh báo admin
+ */
+export function useAdminAlerts(sessionId = null) {
+    return useQuery({
+        queryKey: ['admin-alerts', sessionId],
+        queryFn: () => statsService.getAdminAlerts(sessionId),
+        staleTime: 2 * 60 * 1000,
+        refetchInterval: 5 * 60 * 1000,
+    });
+}
