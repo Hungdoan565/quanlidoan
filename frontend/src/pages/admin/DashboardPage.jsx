@@ -356,7 +356,7 @@ export function AdminDashboard() {
                             icon={Clock}
                             variant="warning"
                             subtitle="Cần xử lý"
-                            onClick={() => navigate('/admin/topics?status=pending')}
+                            onClick={() => navigate('/admin/classes?status=pending')}
                             delay={0.2}
                         />
                         <StatCard
