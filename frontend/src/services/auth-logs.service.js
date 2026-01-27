@@ -183,6 +183,14 @@ export const authLogsService = {
             byDay: {},
         };
 
+        const toLocalDateKey = (value) => {
+            const d = new Date(value);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
         data?.forEach(log => {
             // Count by event type
             switch (log.event_type) {
@@ -206,14 +214,14 @@ export const authLogsService = {
             }
 
             // Group by day for chart
-            const day = new Date(log.created_at).toISOString().split('T')[0];
-            if (!stats.byDay[day]) {
-                stats.byDay[day] = { success: 0, failed: 0 };
+            const dayKey = toLocalDateKey(log.created_at);
+            if (!stats.byDay[dayKey]) {
+                stats.byDay[dayKey] = { success: 0, failed: 0 };
             }
             if (log.status === 'success') {
-                stats.byDay[day].success++;
+                stats.byDay[dayKey].success++;
             } else {
-                stats.byDay[day].failed++;
+                stats.byDay[dayKey].failed++;
             }
         });
 

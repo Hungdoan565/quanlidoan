@@ -147,7 +147,7 @@ export function AuthLogsPage() {
         });
 
         return days.map(day => {
-            const key = day.toISOString().split('T')[0];
+            const key = format(day, 'yyyy-MM-dd');
             const counts = byDay.get(key) || { success: 0, failed: 0 };
             return {
                 date: format(day, 'dd/MM', { locale: vi }),
