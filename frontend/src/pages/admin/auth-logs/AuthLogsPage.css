@@ -1,0 +1,347 @@
+/* ==================== */
+/* AUTH LOGS PAGE       */
+/* ==================== */
+
+.auth-logs-page {
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Page Header */
+.auth-logs-page .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--space-6);
+    gap: var(--space-4);
+}
+
+.auth-logs-page .page-header-content h1 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-1);
+}
+
+.auth-logs-page .page-header-content p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.auth-logs-page .page-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.period-selector {
+    min-width: 160px;
+}
+
+/* Stats Grid */
+.auth-logs-page .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+/* Charts Row */
+.auth-logs-charts {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.auth-logs-charts .chart-card {
+    min-height: 320px;
+}
+
+.auth-logs-charts .chart-card .card-header h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    margin: 0;
+}
+
+.auth-logs-charts .chart-loading,
+.auth-logs-charts .chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+/* Alerts Card */
+.alerts-card {
+    min-height: 320px;
+}
+
+.alerts-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--warning-600);
+}
+
+.alerts-header h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.alerts-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: var(--text-muted);
+}
+
+.alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.alerts-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+}
+
+.alerts-list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.alert-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-3);
+    background: var(--danger-50);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+}
+
+.alert-email {
+    color: var(--text-primary);
+    font-weight: var(--font-medium);
+}
+
+.alerts-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: var(--success-600);
+    gap: var(--space-2);
+}
+
+.alerts-empty p {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Logs Table Card */
+.logs-table-card {
+    min-height: 400px;
+}
+
+.logs-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.logs-header h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    margin: 0;
+}
+
+.logs-filters {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.logs-filters .search-input {
+    min-width: 200px;
+}
+
+.logs-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    height: 200px;
+    color: var(--text-muted);
+}
+
+.logs-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+/* Log Table Cells */
+.log-time {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.log-time-relative {
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+}
+
+.log-time-absolute {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.log-user {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.log-user-name {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+}
+
+.log-user-email {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.log-event {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+}
+
+.log-error {
+    font-size: var(--text-xs);
+    color: var(--danger-600);
+}
+
+/* Pagination */
+.logs-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-default);
+    margin-top: var(--space-4);
+}
+
+.logs-pagination-info {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.logs-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.logs-pagination-page {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+/* Animations */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+/* ==================== */
+/* RESPONSIVE           */
+/* ==================== */
+@media (max-width: 1279px) {
+    .auth-logs-charts {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 1023px) {
+    .auth-logs-page .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .logs-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .logs-filters {
+        width: 100%;
+    }
+
+    .logs-filters .search-input {
+        flex: 1;
+    }
+}
+
+@media (max-width: 767px) {
+    .auth-logs-page .page-header {
+        flex-direction: column;
+    }
+
+    .auth-logs-page .page-header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .period-selector {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .logs-pagination {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+}
+
+@media (max-width: 639px) {
+    .auth-logs-page .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .logs-filters {
+        flex-direction: column;
+    }
+
+    .logs-filters > * {
+        width: 100%;
+    }
+}

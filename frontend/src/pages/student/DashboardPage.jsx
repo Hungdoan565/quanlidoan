@@ -25,7 +25,8 @@ import {
     ProgressTimeline,
     CountdownCard,
     SkeletonCard,
-    Badge
+    Badge,
+    Tooltip
 } from '../../components/ui';
 import { formatDistanceToNow, format, differenceInDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -195,24 +196,49 @@ export function StudentDashboard() {
                             />
                         )}
 
-                        {/* Topic Info Card */}
+                        {/* Topic Info Card - Compact Design */}
                         <Card className="topic-card" hover>
                             <Link to="/student/topic" className="topic-card-link">
+                                <div className="topic-card-accent" aria-hidden="true" />
                                 <CardBody>
                                     <div className="topic-header">
-                                        <BookOpen size={24} className="topic-icon"  aria-hidden="true" />
                                         <StatusBadge status={dashboard.topic.status} />
                                     </div>
-                                    <h3 className="topic-title">{dashboard.topic.title}</h3>
-                                    <div className="topic-info">
-                                        <div className="topic-info-item">
-                                            <User size={14}  aria-hidden="true" />
-                                            <span>GV: {dashboard.topic.advisor?.full_name || dashboard.topic.teacher?.full_name || 'Chưa phân công'}</span>
+                                    
+                                    <Tooltip content={dashboard.topic.title} position="top">
+                                        <h3 className="topic-title">{dashboard.topic.title}</h3>
+                                    </Tooltip>
+                                    
+                                    <div className="topic-footer">
+                                        <div className="topic-advisor-row">
+                                            {(dashboard.topic.advisor || dashboard.topic.class?.advisor) ? (
+                                                <>
+                                                    {(dashboard.topic.advisor?.avatar_url || dashboard.topic.class?.advisor?.avatar_url) ? (
+                                                        <img 
+                                                            src={dashboard.topic.advisor?.avatar_url || dashboard.topic.class?.advisor?.avatar_url} 
+                                                            alt=""
+                                                            className="advisor-avatar-img"
+                                                        />
+                                                    ) : (
+                                                        <div className="advisor-avatar-mini">
+                                                            {(dashboard.topic.advisor?.full_name || dashboard.topic.class?.advisor?.full_name || 'GV').charAt(0)}
+                                                        </div>
+                                                    )}
+                                                    <span className="advisor-name-inline">
+                                                        {dashboard.topic.advisor?.full_name || dashboard.topic.class?.advisor?.full_name}
+                                                    </span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <User size={16} className="no-advisor-icon" aria-hidden="true" />
+                                                    <span className="advisor-name-inline muted">Chưa phân công</span>
+                                                </>
+                                            )}
                                         </div>
-                                    </div>
-                                    <div className="topic-action">
-                                        <span>Xem chi tiết</span>
-                                        <ChevronRight size={16}  aria-hidden="true" />
+                                        <div className="topic-action">
+                                            <span>Xem chi tiết</span>
+                                            <ChevronRight size={16} aria-hidden="true" />
+                                        </div>
                                     </div>
                                 </CardBody>
                             </Link>

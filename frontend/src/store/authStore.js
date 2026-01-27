@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import { authLogsService } from '../services/auth-logs.service';
 
 /**
  * Auth Store - Quản lý trạng thái xác thực
@@ -123,38 +124,61 @@ export const useAuthStore = create((set, get) => ({
 
     // Sign in with email/password
     signIn: async (email, password, rememberMe = false) => {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-
-        if (error) throw error;
-
-        // Fetch profile from database to get correct role
-        let role = 'student';
-        if (data.user) {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', data.user.id)
-                .single();
-
-            // Use role from profiles table, fallback to user_metadata, then 'student'
-            role = profile?.role || data.user?.user_metadata?.role || 'student';
-
-            set({
-                user: data.user,
-                profile: profile || null,
-                role,
-                isAuthenticated: true,
-                isLoading: false,
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
             });
+
+            if (error) {
+                // Log failed login
+                authLogsService.log({
+                    email,
+                    eventType: 'login_failed',
+                    status: 'failed',
+                    errorMessage: error.message,
+                });
+                throw error;
+            }
+
+            // Fetch profile from database to get correct role
+            let role = 'student';
+            if (data.user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single();
+
+                // Use role from profiles table, fallback to user_metadata, then 'student'
+                role = profile?.role || data.user?.user_metadata?.role || 'student';
+
+                set({
+                    user: data.user,
+                    profile: profile || null,
+                    role,
+                    isAuthenticated: true,
+                    isLoading: false,
+                });
+
+                // Log successful login
+                authLogsService.log({
+                    userId: data.user.id,
+                    email: data.user.email,
+                    eventType: 'login_success',
+                    status: 'success',
+                    metadata: { role },
+                });
+            }
+
+            // Note: Supabase handles session persistence automatically
+            // rememberMe could be used for custom logic if needed
+
+            return { ...data, role };
+        } catch (error) {
+            // Re-throw to let caller handle
+            throw error;
         }
-
-        // Note: Supabase handles session persistence automatically
-        // rememberMe could be used for custom logic if needed
-
-        return { ...data, role };
     },
 
     // Sign up new user
@@ -233,6 +257,18 @@ export const useAuthStore = create((set, get) => ({
 
     // Sign out
     signOut: async () => {
+        const currentUser = get().user;
+        
+        // Log logout before clearing state
+        if (currentUser) {
+            authLogsService.log({
+                userId: currentUser.id,
+                email: currentUser.email,
+                eventType: 'logout',
+                status: 'success',
+            });
+        }
+
         await supabase.auth.signOut();
         set({
             user: null,
@@ -249,6 +285,14 @@ export const useAuthStore = create((set, get) => ({
         });
 
         if (error) throw error;
+
+        // Log password reset request
+        authLogsService.log({
+            email,
+            eventType: 'password_reset_requested',
+            status: 'success',
+        });
+
         return true;
     },
 
@@ -259,6 +303,18 @@ export const useAuthStore = create((set, get) => ({
         });
 
         if (error) throw error;
+
+        // Log password change
+        const currentUser = get().user;
+        if (currentUser) {
+            authLogsService.log({
+                userId: currentUser.id,
+                email: currentUser.email,
+                eventType: 'password_changed',
+                status: 'success',
+            });
+        }
+
         return data;
     },
 

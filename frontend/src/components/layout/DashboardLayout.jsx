@@ -13,7 +13,8 @@ import {
     User,
     ChevronDown,
     Moon,
-    Sun
+    Sun,
+    Shield
 } from 'lucide-react';
 import {
     Avatar,
@@ -36,6 +37,7 @@ const navItems = {
         { icon: Users, label: 'Lớp học', path: '/admin/classes' },
         { icon: Users, label: 'Người dùng', path: '/admin/users' },
         { icon: Settings, label: 'Tiêu chí chấm', path: '/admin/grading-config' },
+        { icon: Shield, label: 'Auth Logs', path: '/admin/auth-logs' },
         { icon: User, label: 'Hồ sơ', path: '/profile' },
     ],
     teacher: [

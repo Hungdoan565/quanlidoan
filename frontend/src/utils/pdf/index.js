@@ -128,7 +128,9 @@ export async function generateStudentListPDF(classData) {
         headStyles: {
             fillColor: COLORS.primary,
             textColor: [255, 255, 255],
-            fontStyle: 'bold',
+            // Use the registered Vietnamese font; avoid bold fallback to default font
+            font: 'Arial',
+            fontStyle: 'normal',
             fontSize: 9,
         },
         bodyStyles: {
@@ -147,6 +149,7 @@ export async function generateStudentListPDF(classData) {
         },
         styles: {
             font: 'Arial',
+            fontStyle: 'normal',
             lineColor: COLORS.border,
             lineWidth: 0.1,
             cellPadding: 2,

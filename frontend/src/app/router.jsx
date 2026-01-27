@@ -18,6 +18,7 @@ import { ClassesListPage } from '../pages/admin/classes/ClassesListPage';
 import { ClassDetailPage } from '../pages/admin/classes/ClassDetailPage';
 import { UsersListPage } from '../pages/admin/users/UsersListPage';
 import { GradingConfigPage } from '../pages/admin/grading-config/GradingConfigPage';
+import { AuthLogsPage } from '../pages/admin/auth-logs/AuthLogsPage';
 
 // Teacher Pages
 import { TeacherDashboard } from '../pages/teacher/DashboardPage';
@@ -102,6 +103,7 @@ export const router = createBrowserRouter([
             { path: 'classes/:id', element: <ClassDetailPage /> },
             { path: 'users', element: <UsersListPage /> },
             { path: 'grading-config', element: <GradingConfigPage /> },
+            { path: 'auth-logs', element: <AuthLogsPage /> },
             // TODO: Thêm các routes admin khác
             // { path: 'sessions/:id', element: <SessionDetailPage /> },
             // { path: 'teacher-pairs', element: <TeacherPairsPage /> },

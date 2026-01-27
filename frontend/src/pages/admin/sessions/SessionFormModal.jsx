@@ -1,6 +1,16 @@
-import { useState, useEffect } from 'react';
-import { format, addDays, addWeeks, addMonths } from 'date-fns';
-import { Calendar, Zap, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { format, addDays, differenceInDays, isValid, parseISO, startOfDay, endOfDay } from 'date-fns';
+import { 
+    CalendarDays, 
+    Zap, 
+    ChevronRight, 
+    BookOpen, 
+    SlidersHorizontal,
+    ClipboardList,
+    FileText,
+    Flag,
+    Users
+} from 'lucide-react';
 import { useCreateSession, useUpdateSession } from '../../../hooks/useSessions';
 import { Modal, Button, Input, CustomSelect, Badge } from '../../../components/ui';
 import './SessionFormModal.css';
@@ -22,45 +32,52 @@ const STATUS_OPTIONS = [
     { value: 'closed', label: 'Đã đóng' },
 ];
 
-// Template presets với các khoảng cách ngày mặc định
+// Template presets với các khoảng cách ngày mặc định (theo tuần)
 const DATE_TEMPLATES = [
     {
         value: 'standard_4_months',
-        label: '📅 Đợt chuẩn (4 tháng)',
+        label: 'Đợt chuẩn (4 tháng)',
+        icon: CalendarDays,
         offsets: {
-            registration_end: 14,      // +14 ngày từ start
-            report1_deadline: 45,      // +45 ngày
-            report2_deadline: 75,      // +75 ngày
-            final_deadline: 100,       // +100 ngày
-            defense_start: 110,        // +110 ngày
-            defense_end: 120,          // +120 ngày
+            registration_end: 14,      // 2 weeks
+            report1_deadline: 42,      // 6 weeks  
+            report2_deadline: 70,      // 10 weeks
+            final_deadline: 98,        // 14 weeks
+            defense_start: 105,        // 15 weeks
+            defense_end: 112,          // 16 weeks
         }
     },
     {
         value: 'short_2_months',
-        label: '⚡ Đợt rút gọn (2 tháng)',
+        label: 'Đợt rút gọn (2 tháng)',
+        icon: Zap,
         offsets: {
-            registration_end: 7,
-            report1_deadline: 21,
-            report2_deadline: 35,
-            final_deadline: 50,
-            defense_start: 55,
-            defense_end: 60,
+            registration_end: 7,       // 1 week
+            report1_deadline: 21,      // 3 weeks
+            report2_deadline: 35,      // 5 weeks
+            final_deadline: 49,        // 7 weeks
+            defense_start: 52,         // 7.5 weeks approx (52 days)
+            defense_end: 56,           // 8 weeks
         }
     },
     {
         value: 'extended_6_months',
-        label: '📚 Đợt mở rộng (6 tháng)',
+        label: 'Đợt mở rộng (6 tháng)',
+        icon: BookOpen,
         offsets: {
-            registration_end: 21,
-            report1_deadline: 60,
-            report2_deadline: 120,
-            final_deadline: 150,
-            defense_start: 165,
-            defense_end: 180,
+            registration_end: 21,      // 3 weeks
+            report1_deadline: 56,      // 8 weeks
+            report2_deadline: 98,      // 14 weeks
+            final_deadline: 147,       // 21 weeks
+            defense_start: 154,        // 22 weeks
+            defense_end: 168,          // 24 weeks
         }
     },
-    { value: 'custom', label: '🛠️ Tuỳ chỉnh' },
+    { 
+        value: 'custom', 
+        label: 'Tuỳ chỉnh',
+        icon: SlidersHorizontal,
+    },
 ];
 
 // Generate academic year options
@@ -95,13 +112,14 @@ const initialFormState = {
 export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
     const [formData, setFormData] = useState(initialFormState);
     const [errors, setErrors] = useState({});
-    const [selectedTemplate, setSelectedTemplate] = useState('custom');
+    const [selectedTemplate, setSelectedTemplate] = useState('standard_4_months');
 
     const createSession = useCreateSession();
     const updateSession = useUpdateSession();
 
     const isEditing = !!session;
     const isLoading = createSession.isPending || updateSession.isPending;
+    const isTemplateMode = selectedTemplate !== 'custom';
 
     // Populate form when editing
     useEffect(() => {
@@ -134,9 +152,10 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: null }));
         }
-        // Auto switch to custom when manually editing dates
-        if (field.includes('registration') || field.includes('report') || field.includes('deadline') || field.includes('defense')) {
-            setSelectedTemplate('custom');
+        
+        // If in template mode and changing start date, re-apply template
+        if (field === 'registration_start' && isTemplateMode) {
+            applyTemplate(value, selectedTemplate);
         }
     };
 
@@ -146,10 +165,11 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
         if (!template || templateValue === 'custom' || !startDate) return;
 
         const start = new Date(startDate);
-        if (isNaN(start.getTime())) return;
+        if (!isValid(start)) return;
 
         setFormData(prev => ({
             ...prev,
+            registration_start: startDate,
             registration_end: formatDateForInput(addDays(start, template.offsets.registration_end)),
             report1_deadline: formatDateForInput(addDays(start, template.offsets.report1_deadline)),
             report2_deadline: formatDateForInput(addDays(start, template.offsets.report2_deadline)),
@@ -162,32 +182,26 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
     // Handle template change
     const handleTemplateChange = (templateValue) => {
         setSelectedTemplate(templateValue);
-        if (formData.registration_start) {
+        if (templateValue !== 'custom' && formData.registration_start) {
             applyTemplate(formData.registration_start, templateValue);
-        }
-    };
-
-    // Handle registration start change - auto apply template
-    const handleRegistrationStartChange = (value) => {
-        setFormData(prev => ({ ...prev, registration_start: value }));
-        if (selectedTemplate !== 'custom') {
-            applyTemplate(value, selectedTemplate);
         }
     };
 
     // Quick add buttons for individual fields
     const addToDate = (field, days) => {
         const currentValue = formData[field];
-        if (!currentValue) {
-            // If empty, use registration_start as base
-            if (formData.registration_start) {
-                const newDate = addDays(new Date(formData.registration_start), days);
-                handleChange(field, formatDateForInput(newDate));
-            }
-            return;
+        let baseDate;
+
+        if (currentValue) {
+            baseDate = new Date(currentValue);
+        } else if (formData.registration_start) {
+            baseDate = new Date(formData.registration_start);
         }
-        const newDate = addDays(new Date(currentValue), days);
-        handleChange(field, formatDateForInput(newDate));
+
+        if (baseDate && isValid(baseDate)) {
+            const newDate = addDays(baseDate, days);
+            handleChange(field, formatDateForInput(newDate));
+        }
     };
 
     // Validate form
@@ -203,13 +217,33 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
         if (!formData.registration_start) {
             newErrors.registration_start = 'Vui lòng chọn ngày bắt đầu đăng ký';
         }
+
+        // Sequence validation
+        const milestones = [
+            { field: 'registration_start', label: 'Bắt đầu đăng ký', date: formData.registration_start },
+            { field: 'registration_end', label: 'Kết thúc đăng ký', date: formData.registration_end },
+            { field: 'report1_deadline', label: 'BC tiến độ 1', date: formData.report1_deadline },
+            { field: 'report2_deadline', label: 'BC tiến độ 2', date: formData.report2_deadline },
+            { field: 'final_deadline', label: 'Nộp BC cuối', date: formData.final_deadline },
+            { field: 'defense_start', label: 'Bắt đầu bảo vệ', date: formData.defense_start },
+            { field: 'defense_end', label: 'Kết thúc bảo vệ', date: formData.defense_end },
+        ];
+
+        // Check sequence: each milestone must be after the previous one
+        for (let i = 1; i < milestones.length; i++) {
+            const current = milestones[i];
+            const prev = milestones[i-1];
+            
+            if (current.date && prev.date) {
+                if (new Date(current.date) < new Date(prev.date)) {
+                    newErrors[current.field] = `Phải sau ${prev.label}`;
+                }
+            }
+        }
+        
+        // Required fields validation
         if (!formData.registration_end) {
             newErrors.registration_end = 'Vui lòng chọn ngày kết thúc đăng ký';
-        }
-        if (formData.registration_start && formData.registration_end) {
-            if (new Date(formData.registration_start) >= new Date(formData.registration_end)) {
-                newErrors.registration_end = 'Ngày kết thúc phải sau ngày bắt đầu';
-            }
         }
 
         setErrors(newErrors);
@@ -222,16 +256,29 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
 
         if (!validate()) return;
 
+        // Helper to convert date string to ISO string with correct time
+        // Start dates -> 00:00:00 (Local) -> UTC
+        // End/Deadline dates -> 23:59:59 (Local) -> UTC
+        const toISO = (dateStr, isEndOfDay = false) => {
+            if (!dateStr) return null;
+            // Append time to ensure local interpretation
+            const date = new Date(`${dateStr}T00:00`);
+            if (!isValid(date)) return null;
+            
+            const adjustedDate = isEndOfDay ? endOfDay(date) : startOfDay(date);
+            return adjustedDate.toISOString();
+        };
+
         const submitData = {
             ...formData,
             semester: parseInt(formData.semester),
-            registration_start: formData.registration_start ? new Date(formData.registration_start).toISOString() : null,
-            registration_end: formData.registration_end ? new Date(formData.registration_end).toISOString() : null,
-            report1_deadline: formData.report1_deadline ? new Date(formData.report1_deadline).toISOString() : null,
-            report2_deadline: formData.report2_deadline ? new Date(formData.report2_deadline).toISOString() : null,
-            final_deadline: formData.final_deadline ? new Date(formData.final_deadline).toISOString() : null,
-            defense_start: formData.defense_start ? new Date(formData.defense_start).toISOString() : null,
-            defense_end: formData.defense_end ? new Date(formData.defense_end).toISOString() : null,
+            registration_start: toISO(formData.registration_start, false),
+            registration_end: toISO(formData.registration_end, true),
+            report1_deadline: toISO(formData.report1_deadline, true),
+            report2_deadline: toISO(formData.report2_deadline, true),
+            final_deadline: toISO(formData.final_deadline, true),
+            defense_start: toISO(formData.defense_start, false),
+            defense_end: toISO(formData.defense_end, true),
         };
 
         try {
@@ -251,9 +298,20 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
         if (!formData[startField] || !formData[endField]) return null;
         const start = new Date(formData[startField]);
         const end = new Date(formData[endField]);
-        const diff = Math.round((end - start) / (1000 * 60 * 60 * 24));
-        return diff;
+        if (!isValid(start) || !isValid(end)) return null;
+        return differenceInDays(end, start);
     };
+
+    // Prepare template options for CustomSelect
+    const templateOptions = useMemo(() => DATE_TEMPLATES.map(t => ({
+        value: t.value,
+        label: (
+            <div className="flex items-center gap-2">
+                <t.icon size={16} className="text-muted-foreground" />
+                <span>{t.label}</span>
+            </div>
+        )
+    })), []);
 
     return (
         <Modal
@@ -326,29 +384,72 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
                     <div className="form-section-header">
                         <h3 className="form-section-title">Các mốc thời gian</h3>
                         <CustomSelect
-                            options={DATE_TEMPLATES}
+                            options={templateOptions}
                             value={selectedTemplate}
                             onChange={(e) => handleTemplateChange(e.target.value)}
                             className="template-select"
                         />
                     </div>
 
-                    {selectedTemplate !== 'custom' && (
+                    {isTemplateMode && (
                         <div className="template-hint">
                             <Zap size={14} aria-hidden="true" />
-                            <span>Chọn ngày bắt đầu, các mốc còn lại sẽ tự động điền theo template</span>
+                            <span>Chọn <b>Ngày bắt đầu đăng ký</b>, các mốc còn lại sẽ tự động tính toán. Chuyển sang "Tuỳ chỉnh" để sửa từng mốc.</span>
+                        </div>
+                    )}
+
+                    {/* Timeline Preview - Horizontal Steps */}
+                    {formData.registration_start && isValid(new Date(formData.registration_start)) && (
+                        <div className="schedule-preview">
+                            <div className="preview-title">Lịch trình dự kiến</div>
+                            <div className="timeline-steps">
+                                {[
+                                    { field: 'registration_start', label: 'Bắt đầu ĐK', color: 'var(--primary-500)' },
+                                    { field: 'registration_end', label: 'Kết thúc ĐK', color: 'var(--primary-400)' },
+                                    { field: 'report1_deadline', label: 'BC tiến độ 1', color: 'var(--warning-500)' },
+                                    { field: 'report2_deadline', label: 'BC tiến độ 2', color: 'var(--warning-600)' },
+                                    { field: 'final_deadline', label: 'Nộp BC cuối', color: 'var(--danger-500)' },
+                                    { field: 'defense_start', label: 'Bảo vệ', color: 'var(--success-500)' },
+                                    { field: 'defense_end', label: 'Kết thúc', color: 'var(--success-600)' },
+                                ].map((step, index, arr) => {
+                                    const date = formData[step.field];
+                                    if (!date || !isValid(new Date(date))) return null;
+                                    
+                                    const currentDate = new Date(date);
+                                    const isLast = index === arr.length - 1;
+                                    
+                                    return (
+                                        <div key={step.field} className="timeline-step">
+                                            <div className="step-content">
+                                                <div 
+                                                    className="step-dot" 
+                                                    style={{ backgroundColor: step.color }}
+                                                />
+                                                <div className="step-info">
+                                                    <span className="step-label">{step.label}</span>
+                                                    <span className="step-date">{format(currentDate, 'dd/MM/yyyy')}</span>
+                                                </div>
+                                            </div>
+                                            {!isLast && <div className="step-connector" />}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
 
                     {/* Registration dates */}
                     <div className="date-group">
-                        <div className="date-group-label">📋 Đăng ký đề tài</div>
+                        <div className="date-group-label">
+                            <ClipboardList size={14} />
+                            <span>Đăng ký đề tài</span>
+                        </div>
                         <div className="form-row date-row">
                             <DateInputWithButtons
                                 label="Bắt đầu"
                                 required
                                 value={formData.registration_start}
-                                onChange={handleRegistrationStartChange}
+                                onChange={(v) => handleChange('registration_start', v)}
                                 error={errors.registration_start}
                             />
                             <span className="date-arrow">
@@ -364,21 +465,27 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
                                 required
                                 value={formData.registration_end}
                                 onChange={(v) => handleChange('registration_end', v)}
-                                onQuickAdd={(days) => addToDate('registration_end', days)}
+                                onQuickAdd={!isTemplateMode ? (days) => addToDate('registration_end', days) : undefined}
                                 error={errors.registration_end}
+                                disabled={isTemplateMode}
                             />
                         </div>
                     </div>
 
                     {/* Report deadlines */}
                     <div className="date-group">
-                        <div className="date-group-label">📄 Báo cáo tiến độ</div>
+                        <div className="date-group-label">
+                            <FileText size={14} />
+                            <span>Báo cáo tiến độ</span>
+                        </div>
                         <div className="form-row date-row">
                             <DateInputWithButtons
                                 label="BC tiến độ 1"
                                 value={formData.report1_deadline}
                                 onChange={(v) => handleChange('report1_deadline', v)}
-                                onQuickAdd={(days) => addToDate('report1_deadline', days)}
+                                onQuickAdd={!isTemplateMode ? (days) => addToDate('report1_deadline', days) : undefined}
+                                error={errors.report1_deadline}
+                                disabled={isTemplateMode}
                             />
                             <span className="date-arrow">
                                 <ChevronRight size={16} aria-hidden="true" />
@@ -387,29 +494,61 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
                                 label="BC tiến độ 2"
                                 value={formData.report2_deadline}
                                 onChange={(v) => handleChange('report2_deadline', v)}
-                                onQuickAdd={(days) => addToDate('report2_deadline', days)}
+                                onQuickAdd={!isTemplateMode ? (days) => addToDate('report2_deadline', days) : undefined}
+                                error={errors.report2_deadline}
+                                disabled={isTemplateMode}
                             />
                         </div>
                     </div>
 
                     {/* Final & Defense */}
                     <div className="date-group">
-                        <div className="date-group-label">🎓 Nộp BC cuối & Bảo vệ</div>
-                        <div className="form-row date-row">
+                        <div className="date-group-label">
+                            <Flag size={14} />
+                            <span>Nộp BC cuối</span>
+                        </div>
+                        <div className="form-row">
                             <DateInputWithButtons
-                                label="Nộp BC cuối"
+                                label="Hạn nộp báo cáo cuối kỳ"
                                 value={formData.final_deadline}
                                 onChange={(v) => handleChange('final_deadline', v)}
-                                onQuickAdd={(days) => addToDate('final_deadline', days)}
+                                onQuickAdd={!isTemplateMode ? (days) => addToDate('final_deadline', days) : undefined}
+                                error={errors.final_deadline}
+                                disabled={isTemplateMode}
+                                className="w-full"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="date-group">
+                        <div className="date-group-label">
+                            <Users size={14} />
+                            <span>Bảo vệ</span>
+                        </div>
+                        <div className="form-row date-row">
+                            <DateInputWithButtons
+                                label="Bắt đầu"
+                                value={formData.defense_start}
+                                onChange={(v) => handleChange('defense_start', v)}
+                                onQuickAdd={!isTemplateMode ? (days) => addToDate('defense_start', days) : undefined}
+                                error={errors.defense_start}
+                                disabled={isTemplateMode}
                             />
                             <span className="date-arrow">
                                 <ChevronRight size={16} aria-hidden="true" />
+                                {getDaysBetween('defense_start', 'defense_end') !== null && (
+                                    <Badge variant="secondary" size="sm">
+                                        {getDaysBetween('defense_start', 'defense_end')} ngày
+                                    </Badge>
+                                )}
                             </span>
                             <DateInputWithButtons
-                                label="Bảo vệ"
-                                value={formData.defense_start}
-                                onChange={(v) => handleChange('defense_start', v)}
-                                onQuickAdd={(days) => addToDate('defense_start', days)}
+                                label="Kết thúc"
+                                value={formData.defense_end}
+                                onChange={(v) => handleChange('defense_end', v)}
+                                onQuickAdd={!isTemplateMode ? (days) => addToDate('defense_end', days) : undefined}
+                                error={errors.defense_end}
+                                disabled={isTemplateMode}
                             />
                         </div>
                     </div>
@@ -420,22 +559,24 @@ export function SessionFormModal({ isOpen, onClose, session, onSuccess }) {
 }
 
 // Custom date input with quick add buttons
-function DateInputWithButtons({ label, value, onChange, onQuickAdd, error, required }) {
+function DateInputWithButtons({ label, value, onChange, onQuickAdd, error, required, disabled, className }) {
     return (
-        <div className="date-input-wrapper">
+        <div className={`date-input-wrapper ${className || ''}`}>
             <Input
                 label={label}
                 required={required}
-                type="datetime-local"
+                type="date"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 error={error}
+                disabled={disabled}
+                className={disabled ? 'bg-muted' : ''}
             />
-            {onQuickAdd && (
+            {onQuickAdd && !disabled && (
                 <div className="quick-buttons">
                     <button type="button" onClick={() => onQuickAdd(7)} title="+1 tuần">+1w</button>
                     <button type="button" onClick={() => onQuickAdd(14)} title="+2 tuần">+2w</button>
-                    <button type="button" onClick={() => onQuickAdd(30)} title="+1 tháng">+1m</button>
+                    <button type="button" onClick={() => onQuickAdd(28)} title="+4 tuần">+4w</button>
                 </div>
             )}
         </div>
@@ -446,7 +587,9 @@ function DateInputWithButtons({ label, value, onChange, onQuickAdd, error, requi
 function formatDateForInput(dateString) {
     if (!dateString) return '';
     try {
-        return format(new Date(dateString), "yyyy-MM-dd'T'HH:mm");
+        const date = new Date(dateString);
+        if (!isValid(date)) return '';
+        return format(date, "yyyy-MM-dd");
     } catch {
         return '';
     }

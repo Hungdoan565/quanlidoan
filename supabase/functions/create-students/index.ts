@@ -4,11 +4,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+const getCorsHeaders = (origin: string | null) => ({
+    "Access-Control-Allow-Origin": origin ?? "*",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-requested-with",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+    "Access-Control-Allow-Credentials": "true",
+});
 
 interface StudentData {
     student_code: string;
@@ -26,8 +27,11 @@ interface RequestBody {
 }
 
 serve(async (req: Request) => {
+    const origin = req.headers.get("Origin");
+    const corsHeaders = getCorsHeaders(origin);
+
     if (req.method === "OPTIONS") {
-        return new Response("ok", { headers: corsHeaders });
+        return new Response("ok", { status: 204, headers: corsHeaders });
     }
 
     try {
@@ -44,6 +48,37 @@ serve(async (req: Request) => {
         const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
             auth: { autoRefreshToken: false, persistSession: false },
         });
+
+        const authHeader = req.headers.get("Authorization") || "";
+        const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+
+        if (!token) {
+            return new Response(
+                JSON.stringify({ error: "Unauthorized" }),
+                { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+        }
+
+        const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
+        if (authError || !authData?.user) {
+            return new Response(
+                JSON.stringify({ error: "Invalid token" }),
+                { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+        }
+
+        const { data: profile, error: profileError } = await supabaseAdmin
+            .from("profiles")
+            .select("role")
+            .eq("id", authData.user.id)
+            .single();
+
+        if (profileError || profile?.role !== "admin") {
+            return new Response(
+                JSON.stringify({ error: "Forbidden" }),
+                { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+        }
 
         const { classId, students }: RequestBody = await req.json();
 

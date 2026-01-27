@@ -200,6 +200,7 @@ export const topicsService = {
                 class:classes(
                     id, name, code,
                     advisor_id,
+                    advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url),
                     session:sessions(*)
                 ),
                 advisor:profiles!topics_advisor_id_fkey(id, full_name, teacher_code, email, phone),
@@ -256,6 +257,7 @@ export const topicsService = {
                 class:classes(
                     id, name, code,
                     advisor_id,
+                    advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url),
                     session:sessions(*)
                 ),
                 advisor:profiles!topics_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url),
