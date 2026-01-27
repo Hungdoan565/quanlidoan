@@ -499,7 +499,7 @@ export function StudentsLogbookPage() {
                                                         <p className="student-code">
                                                             {topic.student?.student_code}
                                                         </p>
-                                                        <p className="topic-title" title={topic.title}>
+                                                        <p className="logbook-topic-title" title={topic.title}>
                                                             {topic.title}
                                                         </p>
                                                     </div>

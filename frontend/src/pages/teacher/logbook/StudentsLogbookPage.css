@@ -317,15 +317,16 @@
     margin: 0;
 }
 
-.topic-title {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    margin: 2px 0 0 0;
+.students-logbook-page .logbook-topic-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 4px 0 0 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    line-height: 1.3;
+    line-height: 1.35;
 }
 
 /* Center Section */
