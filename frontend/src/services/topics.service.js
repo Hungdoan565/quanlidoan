@@ -22,7 +22,7 @@ export const topicsService = {
                     code,
                     session_id,
                     advisor_id,
-                    advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, avatar_url),
+                    advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, avatar_url, department, academic_rank, bio, interests, bio_public),
                     session:sessions(
                         id, 
                         name, 
@@ -61,7 +61,7 @@ export const topicsService = {
             .from('sample_topics')
             .select(`
                 *,
-                teacher:profiles!sample_topics_teacher_id_fkey(id, full_name, teacher_code)
+                teacher:profiles!sample_topics_teacher_id_fkey(id, full_name, teacher_code, avatar_url, department, academic_rank, bio, interests, bio_public)
             `)
             .eq('session_id', sessionId)
             .eq('is_active', true)
@@ -81,7 +81,7 @@ export const topicsService = {
             .from('sample_topics')
             .select(`
                 *,
-                teacher:profiles!sample_topics_teacher_id_fkey(id, full_name, teacher_code)
+                teacher:profiles!sample_topics_teacher_id_fkey(id, full_name, teacher_code, avatar_url, department, academic_rank, bio, interests, bio_public)
             `)
             .eq('session_id', sessionId)
             .eq('is_active', true)
@@ -123,7 +123,7 @@ export const topicsService = {
             })
             .select(`
                 *,
-                advisor:profiles!topics_advisor_id_fkey(id, full_name, email)
+                advisor:profiles!topics_advisor_id_fkey(id, full_name, email, teacher_code, avatar_url, department, academic_rank, bio, interests, bio_public)
             `)
             .single();
 
@@ -148,7 +148,7 @@ export const topicsService = {
             })
             .select(`
                 *,
-                advisor:profiles!topics_advisor_id_fkey(id, full_name, email)
+                advisor:profiles!topics_advisor_id_fkey(id, full_name, email, teacher_code, avatar_url, department, academic_rank, bio, interests, bio_public)
             `)
             .single();
 
@@ -200,10 +200,10 @@ export const topicsService = {
                 class:classes(
                     id, name, code,
                     advisor_id,
-                    advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url),
+                    advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url, department, academic_rank, bio, interests, bio_public),
                     session:sessions(*)
                 ),
-                advisor:profiles!topics_advisor_id_fkey(id, full_name, teacher_code, email, phone),
+                advisor:profiles!topics_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url, department, academic_rank, bio, interests, bio_public),
                 sample_topic:sample_topics(id, title)
             `)
             .eq('student_id', studentId)
@@ -257,10 +257,10 @@ export const topicsService = {
                 class:classes(
                     id, name, code,
                     advisor_id,
-                    advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url),
+                    advisor:profiles!classes_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url, department, academic_rank, bio, interests, bio_public),
                     session:sessions(*)
                 ),
-                advisor:profiles!topics_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url),
+                advisor:profiles!topics_advisor_id_fkey(id, full_name, teacher_code, email, phone, avatar_url, department, academic_rank, bio, interests, bio_public),
                 sample_topic:sample_topics(id, title)
             `)
             .eq('student_id', studentId)

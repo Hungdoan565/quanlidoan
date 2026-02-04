@@ -267,7 +267,11 @@ export function TopicRegisterPage() {
                         </div>
                     ) : sampleTopics.length > 0 ? (
                         <div className="topics-grid">
-                            {sampleTopics.map((topic) => (
+                            {sampleTopics.map((topic) => {
+                                const teacherInterests = Array.isArray(topic.teacher?.interests)
+                                    ? topic.teacher.interests
+                                    : (topic.teacher?.interests ? String(topic.teacher.interests).split(',').map((i) => i.trim()).filter(Boolean) : []);
+                                return (
                                 <Card key={topic.id} className="topic-card" hover>
                                     <CardBody>
                                         <div className="topic-card-header">
@@ -294,8 +298,28 @@ export function TopicRegisterPage() {
 
                                         <div className="topic-teacher">
                                             <User size={14}  aria-hidden="true" />
-                                            <span>{topic.teacher?.full_name}</span>
+                                            {topic.teacher?.id ? (
+                                                <button
+                                                    type="button"
+                                                    className="teacher-link"
+                                                    onClick={() => navigate(`/profiles/${topic.teacher.id}`)}
+                                                >
+                                                    {topic.teacher?.full_name}
+                                                </button>
+                                            ) : (
+                                                <span>{topic.teacher?.full_name}</span>
+                                            )}
                                         </div>
+                                        {topic.teacher?.bio_public && topic.teacher?.bio && (
+                                            <p className="topic-teacher-bio">{topic.teacher.bio}</p>
+                                        )}
+                                        {topic.teacher?.bio_public && teacherInterests.length > 0 && (
+                                            <div className="topic-teacher-tags">
+                                                {teacherInterests.map((tag, idx) => (
+                                                    <span key={idx} className="topic-teacher-tag">{tag}</span>
+                                                ))}
+                                            </div>
+                                        )}
 
                                         <Button
                                             className="select-topic-btn"
@@ -308,7 +332,8 @@ export function TopicRegisterPage() {
                                         </Button>
                                     </CardBody>
                                 </Card>
-                            ))}
+                            );
+                            })}
                         </div>
                     ) : (
                         <EmptyState
@@ -444,4 +469,3 @@ export function TopicRegisterPage() {
         </div>
     );
 }
-

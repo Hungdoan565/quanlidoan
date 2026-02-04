@@ -162,6 +162,10 @@ export function MyTopicPage() {
     const StatusIcon = status.icon;
     const canEdit = topic.status === 'revision';
     const teacher = topic.advisor || topic.class?.advisor || topic.teacher;
+    const canShowTeacherBio = !!teacher?.bio_public;
+    const teacherInterests = Array.isArray(teacher?.interests)
+        ? teacher.interests
+        : (teacher?.interests ? String(teacher.interests).split(',').map((i) => i.trim()).filter(Boolean) : []);
     const showClassNameRow = studentClass?.code && studentClass?.name && studentClass.code !== studentClass.name;
 
     return (
@@ -349,6 +353,26 @@ export function MyTopicPage() {
                                             <Mail size={14}  aria-hidden="true" />
                                             {teacher.email}
                                         </a>
+                                        {canShowTeacherBio && teacher.bio && (
+                                            <p className="teacher-bio">{teacher.bio}</p>
+                                        )}
+                                        {canShowTeacherBio && teacherInterests.length > 0 && (
+                                            <div className="teacher-tags">
+                                                {teacherInterests.map((tag, idx) => (
+                                                    <span key={idx} className="teacher-tag">{tag}</span>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {teacher?.id && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="teacher-profile-link"
+                                                onClick={() => navigate(`/profiles/${teacher.id}`)}
+                                            >
+                                                Xem hồ sơ
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
                             ) : (
