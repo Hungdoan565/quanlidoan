@@ -241,8 +241,8 @@ export const classesService = {
 
     /**
      * Bulk import sinh viên từ Excel data
-     * - Gọi Edge Function để tạo auth users và profiles
-     * - Thêm vào class
+     * Ưu tiên gọi Edge Function để tạo auth users
+     * Fallback: Tạo profiles trực tiếp (không tạo auth users)
      */
     bulkImportStudents: async (classId, students) => {
         if (!classId) {
@@ -251,40 +251,174 @@ export const classesService = {
         if (!Array.isArray(students) || students.length === 0) {
             throw new Error('Danh sách sinh viên không hợp lệ');
         }
-        // Get current session for authorization
-        const { data: { session } } = await supabase.auth.getSession();
 
-        if (!session) {
-            throw new Error('Chưa đăng nhập');
-        }
+        // Try Edge Function first (creates auth users + profiles)
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                throw new Error('Chưa đăng nhập');
+            }
 
-        // Call Edge Function directly via fetch
-        const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-students`;
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-        const response = await fetch(functionUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session.access_token}`,
-                'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-            },
-            body: JSON.stringify({ classId, students }),
-        });
+            const response = await fetch(`${supabaseUrl}/functions/v1/create-students`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`,
+                    'apikey': supabaseAnonKey,
+                },
+                body: JSON.stringify({ classId, students }),
+            });
 
-        if (!response.ok) {
+            if (response.ok) {
+                const results = await response.json();
+                console.log('Edge Function import results:', results);
+                return results;
+            }
+
+            // If 4xx/5xx, log and fallback
             const errorText = await response.text();
-            console.error('Edge Function error:', response.status, errorText);
-            throw new Error(`Lỗi ${response.status}: ${errorText || 'Không thể import sinh viên'}`);
+            console.warn('Edge Function error, falling back to local:', response.status, errorText);
+        } catch (edgeError) {
+            console.warn('Edge Function unavailable, falling back to local:', edgeError.message);
         }
 
-        const data = await response.json();
+        // Fallback: Local import (no auth users)
+        console.log('Using local fallback import...');
+        const results = {
+            created: 0,
+            skipped: 0,
+            added_to_class: 0,
+            errors: [],
+        };
 
-        // Check for errors in response
-        if (data.errors && data.errors.length > 0 && data.created === 0 && data.skipped === 0) {
-            throw new Error(`Import thất bại: ${data.errors[0].error}`);
+        // Step 1: Get existing profiles by student_code
+        const studentCodes = students.map(s => s.student_code);
+        const { data: existingProfiles, error: fetchError } = await supabase
+            .from('profiles')
+            .select('id, student_code, email')
+            .in('student_code', studentCodes);
+
+        if (fetchError) {
+            console.error('Error fetching existing profiles:', fetchError);
+            throw new Error('Không thể kiểm tra sinh viên đã tồn tại');
         }
 
-        return data;
+        const existingMap = new Map();
+        existingProfiles?.forEach(p => existingMap.set(p.student_code, p));
+
+        // Step 2: Prepare profiles to create (those not existing)
+        const profilesToCreate = [];
+        const classStudentsToInsert = [];
+        const baseTime = Date.now();
+
+        for (let i = 0; i < students.length; i++) {
+            const student = students[i];
+            const { student_code, full_name, phone, class_name, birth_date, gender } = student;
+
+            if (!student_code || !full_name) {
+                results.errors.push({ student_code: student_code || 'unknown', error: 'Thiếu thông tin bắt buộc' });
+                continue;
+            }
+
+            const existing = existingMap.get(student_code);
+
+            if (existing) {
+                // Student exists - just add to class
+                results.skipped++;
+                classStudentsToInsert.push({
+                    class_id: classId,
+                    student_id: existing.id,
+                    created_at: new Date(baseTime + i).toISOString(),
+                });
+            } else {
+                // Need to create profile - generate UUID for new profile
+                const newId = crypto.randomUUID();
+                const email = `${student_code}@dnc.edu.vn`;
+
+                profilesToCreate.push({
+                    id: newId,
+                    full_name,
+                    email,
+                    student_code,
+                    phone: phone || null,
+                    class_name: class_name || null,
+                    birth_date: birth_date || null,
+                    gender: gender || null,
+                    role: 'student',
+                    is_active: true,
+                });
+
+                classStudentsToInsert.push({
+                    class_id: classId,
+                    student_id: newId,
+                    created_at: new Date(baseTime + i).toISOString(),
+                });
+            }
+        }
+
+        // Step 3: Create new profiles in batch
+        if (profilesToCreate.length > 0) {
+            const { error: createError } = await supabase
+                .from('profiles')
+                .upsert(profilesToCreate, { onConflict: 'student_code' });
+
+            if (createError) {
+                console.error('Error creating profiles:', createError);
+                // Try individual inserts if batch fails
+                for (const profile of profilesToCreate) {
+                    const { error: individualError } = await supabase
+                        .from('profiles')
+                        .upsert(profile, { onConflict: 'student_code' });
+
+                    if (individualError) {
+                        results.errors.push({ student_code: profile.student_code, error: individualError.message });
+                    } else {
+                        results.created++;
+                    }
+                }
+            } else {
+                results.created = profilesToCreate.length;
+            }
+        }
+
+        // Step 4: Add all students to class
+        if (classStudentsToInsert.length > 0) {
+            // Need to get actual profile IDs for newly created profiles
+            const newStudentCodes = profilesToCreate.map(p => p.student_code);
+            if (newStudentCodes.length > 0) {
+                const { data: newProfiles } = await supabase
+                    .from('profiles')
+                    .select('id, student_code')
+                    .in('student_code', newStudentCodes);
+
+                // Update classStudentsToInsert with real IDs
+                const newProfileMap = new Map();
+                newProfiles?.forEach(p => newProfileMap.set(p.student_code, p.id));
+
+                for (const cs of classStudentsToInsert) {
+                    const profile = profilesToCreate.find(p => p.id === cs.student_id);
+                    if (profile && newProfileMap.has(profile.student_code)) {
+                        cs.student_id = newProfileMap.get(profile.student_code);
+                    }
+                }
+            }
+
+            const { error: classError } = await supabase
+                .from('class_students')
+                .upsert(classStudentsToInsert, { onConflict: 'class_id,student_id' });
+
+            if (!classError) {
+                results.added_to_class = classStudentsToInsert.length;
+            } else {
+                console.error('Error adding to class:', classError);
+            }
+        }
+
+        console.log('Import results:', results);
+        return results;
     },
 
     /**
