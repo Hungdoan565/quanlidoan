@@ -8,6 +8,7 @@ import { Avatar } from '../../../components/ui/Avatar';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
+import { Textarea } from '../../../components/ui/Textarea';
 
 const GENDER_OPTIONS = [
     { value: '', label: 'Chọn giới tính' },
@@ -25,6 +26,9 @@ export function PersonalInfoTab() {
         phone: profile?.phone || '',
         gender: profile?.gender || '',
         birth_date: profile?.birth_date || '',
+        bio: profile?.bio || '',
+        interests: Array.isArray(profile?.interests) ? profile.interests.join(', ') : (profile?.interests || ''),
+        bio_public: profile?.bio_public ?? false,
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -32,8 +36,8 @@ export function PersonalInfoTab() {
     const [hasChanges, setHasChanges] = useState(false);
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        const { name, type, value, checked } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
         setHasChanges(true);
     };
 
@@ -86,11 +90,19 @@ export function PersonalInfoTab() {
 
         setIsLoading(true);
         try {
+            const interests = formData.interests
+                .split(',')
+                .map((item) => item.trim())
+                .filter(Boolean);
+
             const updatedProfile = await profileService.updateProfile(user.id, {
                 full_name: formData.full_name.trim(),
                 phone: formData.phone.trim() || null,
                 gender: formData.gender || null,
                 birth_date: formData.birth_date || null,
+                bio: formData.bio.trim() || null,
+                interests: interests.length > 0 ? interests : null,
+                bio_public: !!formData.bio_public,
             });
 
             setProfile(updatedProfile);
@@ -109,6 +121,9 @@ export function PersonalInfoTab() {
             phone: profile?.phone || '',
             gender: profile?.gender || '',
             birth_date: profile?.birth_date || '',
+            bio: profile?.bio || '',
+            interests: Array.isArray(profile?.interests) ? profile.interests.join(', ') : (profile?.interests || ''),
+            bio_public: profile?.bio_public ?? false,
         });
         setHasChanges(false);
     };
@@ -240,6 +255,64 @@ export function PersonalInfoTab() {
                             onChange={handleInputChange}
                             autoComplete="bday"
                         />
+                    </div>
+
+                    </Card>
+
+                <Card className="profile-section-card">
+                    <div className="profile-section-header">
+                        <div>
+                            <h2 className="profile-section-title">Giới thiệu</h2>
+                            <p className="profile-section-description">
+                                Giúp sinh viên hiểu rõ hướng nghiên cứu / kinh nghiệm của bạn
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="profile-form-grid">
+                        <div className="full-width">
+                            <div className="input-group">
+                                <label htmlFor="profile-bio" className="input-label">Giới thiệu ngắn</label>
+                                <div className="input-wrapper">
+                                    <Textarea
+                                        id="profile-bio"
+                                        name="bio"
+                                        rows={4}
+                                        maxLength={400}
+                                        value={formData.bio}
+                                        onChange={handleInputChange}
+                                        placeholder="VD: Giảng viên CNTT, quan tâm đến AI, dữ liệu lớn và hệ thống phân tán..."
+                                    />
+                                </div>
+                                <div className="profile-bio-meta">
+                                    <span className="input-hint">Tối đa 400 ký tự</span>
+                                    <span className="profile-bio-count">{formData.bio.length}/400</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="full-width">
+                            <Input
+                                label="Lĩnh vực quan tâm (cách nhau bằng dấu phẩy)"
+                                name="interests"
+                                value={formData.interests}
+                                onChange={handleInputChange}
+                                placeholder="VD: AI, Machine Learning, Web, IoT"
+                                hint="Dùng để gợi ý & lọc khi phân công đề tài"
+                            />
+                        </div>
+
+                        <div className="full-width">
+                            <label className="profile-checkbox">
+                                <input
+                                    type="checkbox"
+                                    name="bio_public"
+                                    checked={!!formData.bio_public}
+                                    onChange={handleInputChange}
+                                />
+                                <span>Cho phép hiển thị giới thiệu công khai</span>
+                            </label>
+                        </div>
                     </div>
 
                     {/* Form Actions */}
