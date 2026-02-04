@@ -109,6 +109,35 @@ export const profileService = {
     },
 
     /**
+     * Get profile by id (public view)
+     * @param {string} userId - User ID
+     */
+    async getProfileById(userId) {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select(`
+                id,
+                full_name,
+                email,
+                role,
+                avatar_url,
+                teacher_code,
+                student_code,
+                department,
+                academic_rank,
+                class_name,
+                bio,
+                interests,
+                bio_public
+            `)
+            .eq('id', userId)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data;
+    },
+
+    /**
      * Change password
      * @param {string} newPassword - New password
      */

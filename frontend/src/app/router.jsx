@@ -42,7 +42,7 @@ import { GradesPage } from '../pages/student/grades/GradesPage';
 
 // Common Pages
 import { NotificationsPage } from '../pages/common/NotificationsPage';
-import { ProfilePage } from '../pages/profile';
+import { ProfilePage, PublicProfilePage } from '../pages/profile';
 
 // Error Pages
 import { NotFoundPage } from '../pages/errors/NotFoundPage';
@@ -171,6 +171,17 @@ export const router = createBrowserRouter([
         ),
         children: [
             { index: true, element: <ProfilePage /> },
+        ],
+    },
+    {
+        path: '/profiles/:id',
+        element: (
+            <ProtectedRoute>
+                <DashboardLayout />
+            </ProtectedRoute>
+        ),
+        children: [
+            { index: true, element: <PublicProfilePage /> },
         ],
     },
     {
