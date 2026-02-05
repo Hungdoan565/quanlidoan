@@ -65,9 +65,38 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
         onClose();
     };
 
-    // Extract class code from filename (e.g., "DH22TIN06.xlsx" -> "DH22TIN06")
-    const extractClassCode = (filename) => {
-        return filename.replace(/\.(xlsx|xls)$/i, '').trim();
+    // Helper to display clean filename (remove Data(...) prefix)
+    const getDisplayFileName = (filename) => {
+        if (!filename) return '';
+        
+        // Remove Data(...) prefix
+        let cleanName = filename.replace(/^Data\([^)]*\)\s*-\s*/i, '');
+        
+        return cleanName;
+    };
+
+    // Extract class code and name from filename
+    // Support formats:
+    // 1. "DH22TIN06.xlsx" -> code: "DH22TIN06", name: ""
+    // 2. "Data(010100229806) - Nguyen Ly He Dieu Hanh (DH23TIN03).xlsx" 
+    //    -> code: "DH23TIN03", name: "Nguyen Ly He Dieu Hanh"
+    const extractClassInfo = (filename) => {
+        // Remove extension
+        let name = filename.replace(/\.(xlsx|xls)$/i, '').trim();
+        
+        // Remove "Data(...) - " prefix if exists
+        name = name.replace(/^Data\([^)]*\)\s*-\s*/i, '');
+        
+        // Extract class code from parentheses at the end: "...(DH23TIN03)"
+        const codeMatch = name.match(/\(([A-Z0-9]+)\)$/);
+        if (codeMatch) {
+            const code = codeMatch[1]; // "DH23TIN03"
+            const className = name.replace(/\s*\([A-Z0-9]+\)$/, '').trim(); // "Nguyen Ly He Dieu Hanh"
+            return { code, className };
+        }
+        
+        // Fallback: use entire name as code
+        return { code: name, className: '' };
     };
 
     // Helper to normalize Vietnamese text
@@ -111,10 +140,10 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
             return;
         }
 
-        // Extract class code from filename
-        const extractedCode = extractClassCode(selectedFile.name);
-        setClassCode(extractedCode);
-        setClassName(extractedCode);
+        // Extract class code and name from filename
+        const { code, className } = extractClassInfo(selectedFile.name);
+        setClassCode(code);
+        setClassName(className || code); // Use code as fallback if no name extracted
 
         setFile(selectedFile);
         setValidationErrors([]);
@@ -236,6 +265,11 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                 const studentCode = cleanStudentCode(row[columnMap.student_code] || '');
                 if (!studentCode) continue;
 
+                const normalizedCode = normalizeVN(studentCode);
+                if (normalizedCode.includes('tong') || !/^[0-9]+$/.test(studentCode)) {
+                    continue;
+                }
+
                 let fullName = '';
                 if (hasFullName) {
                     fullName = String(row[columnMap.full_name] || '').trim();
@@ -245,12 +279,16 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                     fullName = `${hoDem} ${ten}`.trim();
                 }
 
+                if (normalizeVN(fullName).includes('tong')) {
+                    continue;
+                }
+
                 let email = '';
                 if (columnMap.email !== undefined) {
                     email = String(row[columnMap.email] || '').trim().toLowerCase();
                 }
                 if (!email && studentCode) {
-                    email = `${studentCode}@dnc.edu.vn`;
+                    email = `${studentCode}@student.nctu.edu.vn`;
                 }
 
                 const errors = [];
@@ -432,7 +470,7 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                         {file ? (
                             <div className="file-info">
                                 <FileSpreadsheet size={24} className="file-icon" aria-hidden="true" />
-                                <span className="file-name">{file.name}</span>
+                                <span className="file-name">{getDisplayFileName(file.name)}</span>
 <button
                                     className="remove-file"
                                     onClick={(e) => {
@@ -618,7 +656,7 @@ export function SmartImportModal({ isOpen, onClose, defaultSessionId = null }) {
                             )}
                         </div>
                         <p className="login-hint">
-                            Sinh viên đăng nhập với email <code>MSSV@dnc.edu.vn</code> và mật khẩu là <code>MSSV</code>
+                            Sinh viên đăng nhập với email <code>MSSV@student.nctu.edu.vn</code> và mật khẩu là <code>MSSV</code>
                         </p>
                     </div>
                 )}

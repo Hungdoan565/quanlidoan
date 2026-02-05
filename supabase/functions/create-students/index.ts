@@ -114,17 +114,18 @@ Deno.serve(async (req: Request) => {
     const baseTime = Date.now();
     let orderIndex = 0;
 
-    // Process in batches of 10 for better performance
-    const BATCH_SIZE = 10;
+    // Process in parallel batches for faster performance
+    const BATCH_SIZE = 15; // Increased from 10
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    for (const student of students) {
+    // Process function for a single student
+    const processStudent = async (student: StudentData, index: number) => {
       try {
         const { student_code, full_name, phone, class_name, birth_date, gender } = student;
 
         if (!student_code || !full_name) {
           results.errors.push({ student_code: student_code || "unknown", error: "Missing required fields" });
-          continue;
+          return null;
         }
 
         const email = `${student_code}@student.nctu.edu.vn`;
@@ -137,7 +138,8 @@ Deno.serve(async (req: Request) => {
           userId = existing.id;
           results.skipped++;
         } else {
-          let retries = 3;
+          // Create auth user with retry (reduced retries)
+          let retries = 2; // Reduced from 3
           let createError: Error | null = null;
           let newUser = null;
 
@@ -152,7 +154,7 @@ Deno.serve(async (req: Request) => {
             if (result.error) {
               createError = result.error;
               if (result.error.message.includes("rate") || result.error.message.includes("reset")) {
-                await delay(500);
+                await delay(200); // Reduced from 500ms
                 retries--;
                 continue;
               }
@@ -166,30 +168,15 @@ Deno.serve(async (req: Request) => {
 
           if (createError || !newUser) {
             results.errors.push({ student_code, error: createError?.message || "Failed to create user" });
-            continue;
+            return null;
           }
 
           userId = newUser.user.id;
 
-          // Update profile - trigger may have already created it
-          const { error: profileUpdateError } = await supabaseAdmin
+          // Upsert profile (simpler than update + fallback insert)
+          const { error: profileError } = await supabaseAdmin
             .from("profiles")
-            .update({
-              full_name,
-              email,
-              student_code,
-              phone: phone || null,
-              class_name: class_name || null,
-              birth_date: birth_date || null,
-              gender: gender || null,
-              role: "student",
-              is_active: true,
-            })
-            .eq("id", userId);
-
-          if (profileUpdateError) {
-            // If update fails, try insert
-            await supabaseAdmin.from("profiles").insert({
+            .upsert({
               id: userId,
               full_name,
               email,
@@ -200,24 +187,51 @@ Deno.serve(async (req: Request) => {
               gender: gender || null,
               role: "student",
               is_active: true,
-            });
+            }, { onConflict: 'id' });
+
+          if (profileError) {
+            console.error(`Profile upsert error for ${student_code}:`, profileError);
           }
 
           results.created++;
         }
 
-        classStudentsToInsert.push({
+        return {
           class_id: classId,
           student_id: userId,
-          created_at: new Date(baseTime + orderIndex).toISOString(),
-        });
-        orderIndex += 1;
+          created_at: new Date(baseTime + index).toISOString(),
+        };
 
       } catch (err) {
         results.errors.push({
           student_code: student.student_code || "unknown",
           error: err instanceof Error ? err.message : "Unknown error",
         });
+        return null;
+      }
+    };
+
+    // Process in parallel batches
+    for (let i = 0; i < students.length; i += BATCH_SIZE) {
+      const batch = students.slice(i, i + BATCH_SIZE);
+      console.log(`Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(students.length / BATCH_SIZE)}`);
+      
+      const batchResults = await Promise.all(
+        batch.map((student, idx) => processStudent(student, orderIndex + idx))
+      );
+
+      // Collect valid results
+      batchResults.forEach((result) => {
+        if (result) {
+          classStudentsToInsert.push(result);
+        }
+      });
+
+      orderIndex += batch.length;
+
+      // Small delay between batches to avoid overwhelming the system
+      if (i + BATCH_SIZE < students.length) {
+        await delay(100); // Short delay between batches
       }
     }
 

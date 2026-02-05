@@ -263,10 +263,12 @@
 
 /* Bulk Action Bar */
 .topic-reviews-page .bulk-action-bar {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
+  gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
+  min-height: 52px;
   background: var(--primary-50);
   border-bottom: 1px solid var(--primary-200);
 }
@@ -276,13 +278,25 @@
   align-items: center;
   gap: var(--space-2);
   color: var(--primary-700);
-  font-weight: 500;
+  font-weight: 600;
   font-size: var(--text-sm);
 }
 
 .topic-reviews-page .bulk-actions {
   display: flex;
+  align-items: center;
   gap: var(--space-2);
+}
+
+.topic-reviews-page .bulk-actions .btn-ghost {
+  background: var(--bg-primary);
+  border-color: var(--primary-200);
+  color: var(--primary-700);
+}
+
+.topic-reviews-page .bulk-actions .btn-ghost:hover:not(:disabled) {
+  background: var(--primary-50);
+  color: var(--primary-800);
 }
 
 /* Spin animation for loading */

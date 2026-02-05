@@ -92,17 +92,14 @@ export function SessionRow({
 
                 {/* Stats - Clickable to view classes */}
                 <td>
-                    <div className="session-stats">
-<button
-                            className="stat-item clickable"
-                            aria-label="Xem danh sách lớp"
-                            onClick={handleViewClasses}
-                        >
-                            <Users size={14} aria-hidden="true" />
-                            <span>{classesCount} lớp</span>
-                            <ExternalLink size={12} className="external-icon" aria-hidden="true" />
-                        </button>
-                    </div>
+                    <button
+                        className="classes-count-btn"
+                        aria-label="Xem danh sách lớp"
+                        onClick={handleViewClasses}
+                    >
+                        <Users size={14} aria-hidden="true" />
+                        <span>{classesCount}</span>
+                    </button>
                 </td>
 
                 {/* Type */}

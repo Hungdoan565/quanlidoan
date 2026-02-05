@@ -67,46 +67,32 @@
     color: var(--warning-700);
 }
 
-/* Session Stats */
-.session-stats {
-    display: flex;
-    gap: var(--space-3);
-}
-
-.session-stats .stat-item {
+/* Classes Count Button - Compact */
+.classes-count-btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--space-1);
     font-size: var(--text-sm);
+    font-weight: var(--font-medium);
     color: var(--text-secondary);
-    padding: 2px 8px;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-md);
-    cursor: default;
-}
-
-.session-stats .stat-item.clickable {
-    cursor: pointer;
+    background: transparent;
     border: none;
-    transition: background-color 0.15s ease, color 0.15s ease;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.15s ease;
 }
 
-.session-stats .stat-item.clickable:hover {
-    background: var(--primary-50);
-    color: var(--primary-700);
+.classes-count-btn:hover {
+    color: var(--primary-600);
 }
 
-.session-stats .stat-item .external-icon {
-    opacity: 0;
-    transition: opacity 0.15s;
-}
-
-.session-stats .stat-item.clickable:hover .external-icon {
-    opacity: 1;
-}
-
-.session-stats .stat-item svg {
+.classes-count-btn svg {
     color: var(--text-muted);
+    transition: color 0.15s ease;
+}
+
+.classes-count-btn:hover svg {
+    color: var(--primary-600);
 }
 
 /* Sessions Table */
