@@ -1,7 +1,5 @@
 .logbook-detail-page {
-    padding: 24px;
-    max-width: 900px;
-    margin: 0 auto;
+    padding: 0;
 }
 
 /* Header */
@@ -253,9 +251,6 @@
 
 /* Responsive */
 @media (max-width: 640px) {
-    .logbook-detail-page {
-        padding: 16px;
-    }
 
     .student-header {
         flex-direction: column;
@@ -283,7 +278,7 @@
 /* Stats Grid */
 .logbook-stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     padding-top: 16px;
     border-top: 1px solid var(--border-default);
@@ -700,6 +695,17 @@
 }
 
 /* Responsive */
+@media (max-width: 768px) {
+    .logbook-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .logbook-stats-grid .stat-value {
+        font-size: 1.25rem;
+    }
+}
+
 @media (max-width: 640px) {
     .logbook-stats-grid {
         grid-template-columns: repeat(2, 1fr);

@@ -11,7 +11,8 @@ import {
     AlertCircle,
     Award,
     Calendar,
-    Lock
+    Lock,
+    Activity
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useStudentDashboard, useStudentNotifications } from '../../hooks/useStudent';
@@ -26,7 +27,8 @@ import {
     CountdownCard,
     SkeletonCard,
     Badge,
-    Tooltip
+    Tooltip,
+    Button
 } from '../../components/ui';
 import { formatDistanceToNow, format, differenceInDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -133,9 +135,14 @@ export function StudentDashboard() {
                 <div className="page-header-content">
                     <h1>Xin chào, {profile?.full_name || 'Sinh viên'}</h1>
                     <p>
-                        {profile?.student_code && <span className="student-code">MSSV: {profile.student_code} • </span>}
-                        Theo dõi tiến độ đồ án của bạn
+                        {profile?.student_code && <span className="student-code">MSSV: {profile.student_code}</span>}
                     </p>
+                </div>
+                <div className="page-actions">
+                    <Button onClick={() => navigate('/student/logbook')}>
+                        <Activity size={18} />
+                        Theo dõi tiến độ
+                    </Button>
                 </div>
             </div>
 

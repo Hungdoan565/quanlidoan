@@ -53,7 +53,20 @@ export function GradesPage() {
     }
 
     if (error) {
-        return <ErrorState onRetry={refetch} />;
+        return (
+            <div className="grades-page">
+                <div className="page-header">
+                    <div className="page-header-content">
+                        <h1 className="page-title"><Award size={28}  aria-hidden="true" /> Xem Điểm</h1>
+                    </div>
+                </div>
+                <ErrorState 
+                    onRetry={refetch}
+                    title="Không thể tải dữ liệu"
+                    message={error?.message || "Đã xảy ra lỗi khi tải thông tin điểm. Vui lòng thử lại sau."}
+                />
+            </div>
+        );
     }
 
     if (!topic) {
@@ -255,34 +268,37 @@ export function GradesPage() {
                                     <div key={grade.id} className="grade-item">
                                         <div className="grade-item-header">
                                             <span className="criteria-name">
-                                                {grade.criteria?.name || `Tiêu chí ${grade.id}`}
+                                                {grade.criterion_name}
                                             </span>
                                             <div className="grade-score-badge">
                                                 <span className="item-score">{grade.score}</span>
-                                                <span className="item-max">/{grade.criteria?.max_score || 10}</span>
+                                                <span className="item-max">/10</span>
                                             </div>
                                         </div>
                                         
                                         <ProgressBar 
                                             value={grade.score} 
-                                            max={grade.criteria?.max_score || 10} 
+                                            max={10} 
                                             variant={grade.score >= 8 ? 'success' : grade.score >= 5 ? 'warning' : 'danger'}
                                         />
                                         
-                                        {grade.criteria?.description && (
-                                            <p className="criteria-description">{grade.criteria.description}</p>
-                                        )}
-                                        
-                                        {grade.comments && (
+                                        {grade.notes && (
                                             <div className="grade-comments">
-                                                <strong>Nhận xét:</strong> {grade.comments}
+                                                <strong>Nhận xét:</strong> {grade.notes}
                                             </div>
                                         )}
                                         
-                                        {grade.grader && (
+                                        {grade.graded_by && (
                                             <div className="grade-grader">
                                                 <User size={12}  aria-hidden="true" />
-                                                <span>{grade.grader.full_name}</span>
+                                                <span>{grade.graded_by.full_name}</span>
+                                                {grade.grader_role && (
+                                                    <Badge variant="outline" size="sm">
+                                                        {grade.grader_role === 'advisor' ? 'GVHD' :
+                                                         grade.grader_role === 'reviewer' ? 'GVPB' : 
+                                                         grade.grader_role === 'council' ? 'Hội đồng' : grade.grader_role}
+                                                    </Badge>
+                                                )}
                                             </div>
                                         )}
                                     </div>

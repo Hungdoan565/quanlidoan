@@ -21,7 +21,7 @@ export function useMyGrades() {
  * Hook để lấy điểm tổng hợp (summary)
  */
 export function useGradeSummary() {
-    const { data: topic, isLoading: topicLoading } = useMyTopic();
+    const { data: topic, isLoading: topicLoading, error: topicError } = useMyTopic();
     const topicId = topic?.id;
 
     const query = useQuery({
@@ -29,11 +29,13 @@ export function useGradeSummary() {
         queryFn: () => gradesService.getGradeSummary(topicId),
         enabled: !!topicId,
         staleTime: 10 * 60 * 1000,
+        retry: 1,
     });
 
     return {
         ...query,
-        isLoading: topicLoading || query.isLoading,
+        isLoading: topicLoading || (!!topicId && query.isLoading),
+        error: topicError || query.error,
         topic,
     };
 }

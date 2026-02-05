@@ -433,17 +433,30 @@
   font-family: var(--font-mono);
 }
 
-.topic-info {
+.class-detail-page .topic-info {
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  overflow: hidden;
 }
 
-.topic-title {
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  font-weight: var(--font-medium);
-  line-height: 1.5;
-  max-width: 100%;
+.class-detail-page .topic-title {
+  font-size: 0.875rem !important;
+  color: var(--primary-600) !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  max-width: 280px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  cursor: pointer;
+  transition: color 0.15s;
+  margin: 0 !important;
+}
+
+.class-detail-page .topic-title:hover {
+  color: var(--primary-700);
+  text-decoration: underline;
 }
 
 .no-topic {

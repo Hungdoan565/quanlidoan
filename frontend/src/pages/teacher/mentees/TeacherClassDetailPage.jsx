@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
@@ -21,12 +21,17 @@ import {
   StatusBadge
 } from '../../../components/ui';
 import { useMyClassStudents } from '../../../hooks/useTeacher';
+import { StudentTopicDetailModal } from './StudentTopicDetailModal';
 import './TeacherClassDetailPage.css';
 
 export default function TeacherClassDetailPage() {
   const { classId } = useParams();
   const navigate = useNavigate();
   const { data: classData, isLoading, error, refetch } = useMyClassStudents(classId);
+
+  // Modal state
+  const [selectedTopicId, setSelectedTopicId] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   // Stats calculation
   const stats = useMemo(() => {
@@ -165,9 +170,16 @@ export default function TeacherClassDetailPage() {
                       <td>
                         {student.topic ? (
                           <div className="topic-info">
-                            <span className="topic-title" title={student.topic.title}>
+                            <button 
+                              className="topic-title-btn"
+                              onClick={() => {
+                                setSelectedTopicId(student.topic.id);
+                                setSelectedStudent(student);
+                              }}
+                              title="Xem chi tiết đề tài"
+                            >
                               {student.topic.title}
-                            </span>
+                            </button>
                           </div>
                         ) : (
                           <span className="no-topic">
@@ -215,6 +227,17 @@ export default function TeacherClassDetailPage() {
           )}
         </CardBody>
       </Card>
+
+      {/* Topic Detail Modal */}
+      <StudentTopicDetailModal
+        isOpen={!!selectedTopicId}
+        onClose={() => {
+          setSelectedTopicId(null);
+          setSelectedStudent(null);
+        }}
+        topicId={selectedTopicId}
+        studentInfo={selectedStudent}
+      />
     </div>
   );
 }

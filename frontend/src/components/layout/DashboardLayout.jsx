@@ -14,7 +14,8 @@ import {
     ChevronDown,
     Moon,
     Sun,
-    Shield
+    Shield,
+    Award
 } from 'lucide-react';
 import {
     Avatar,
@@ -55,6 +56,7 @@ const navItems = {
         { icon: FileText, label: 'Đề tài của tôi', path: '/student/topic' },
         { icon: BookOpen, label: 'Nhật ký', path: '/student/logbook' },
         { icon: FileText, label: 'Nộp báo cáo', path: '/student/reports' },
+        { icon: Award, label: 'Xem điểm', path: '/student/grades' },
         { icon: User, label: 'Hồ sơ', path: '/profile' },
     ],
 };

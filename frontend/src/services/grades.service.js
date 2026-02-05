@@ -12,20 +12,20 @@ export const gradesService = {
         if (!topicId) return null;
 
         const { data, error } = await supabase
-            .from('grades')
+            .from('topic_grades')
             .select(`
                 id,
                 score,
-                comments,
-                graded_at,
+                notes,
+                created_at,
                 is_final,
-                grade_type,
-                grader:grader_id(id, full_name, teacher_code),
-                criteria:criteria_id(id, name, max_score, description)
+                grader_role,
+                criterion_name,
+                graded_by:graded_by(id, full_name)
             `)
             .eq('topic_id', topicId)
             .eq('is_final', true)
-            .order('graded_at', { ascending: false });
+            .order('created_at', { ascending: false });
 
         if (error && error.code !== 'PGRST116') throw error;
         return data || [];
@@ -33,7 +33,7 @@ export const gradesService = {
 
     /**
      * Lấy điểm tổng hợp của sinh viên
-     * Tính điểm trung bình từ các criteria
+     * Tính điểm trung bình từ các criteria (all out of 10)
      */
     getGradeSummary: async (topicId) => {
         if (!topicId) return null;
@@ -50,14 +50,14 @@ export const gradesService = {
             };
         }
 
-        // Calculate average score
+        // Calculate average score (all criteria are out of 10)
         const totalScore = grades.reduce((sum, g) => sum + (g.score || 0), 0);
-        const maxPossible = grades.reduce((sum, g) => sum + (g.criteria?.max_score || 10), 0);
+        const maxPossible = grades.length * 10; // Each criterion is out of 10
         const averageScore = grades.length > 0 ? totalScore / grades.length : 0;
 
-        // Get latest graded_at
+        // Get latest created_at
         const latestGrade = grades.reduce((latest, g) => 
-            !latest || new Date(g.graded_at) > new Date(latest.graded_at) ? g : latest
+            !latest || new Date(g.created_at) > new Date(latest.created_at) ? g : latest
         , null);
 
         return {
@@ -66,7 +66,7 @@ export const gradesService = {
             maxPossible,
             averageScore: Math.round(averageScore * 100) / 100,
             grades,
-            gradedAt: latestGrade?.graded_at || null,
+            gradedAt: latestGrade?.created_at || null,
         };
     },
 

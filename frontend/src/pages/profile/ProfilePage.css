@@ -1,9 +1,7 @@
 /* Profile Page Styles */
 
 .profile-page {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: var(--space-6);
+    padding: 0;
 }
 
 .profile-header {
@@ -475,10 +473,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-    .profile-page {
-        padding: var(--space-4);
-    }
-
     .profile-tabs {
         justify-content: flex-start;
     }
