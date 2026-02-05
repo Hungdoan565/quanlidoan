@@ -507,25 +507,20 @@ export function StudentsLogbookPage() {
 
                                                 {/* Center: Progress */}
                                                 <div className="student-section-center">
-                                                    <div className="progress-header">
+                                                    <div className="progress-row">
                                                         <span className="progress-label">
-                                                            Tiến độ: <strong>{stats.total_entries}/{stats.expected_weeks}</strong> tuần
+                                                            <BookOpen size={14} aria-hidden="true" />
+                                                            <strong>{stats.total_entries}/{stats.expected_weeks}</strong> tuần
                                                         </span>
-                                                    </div>
-                                                    <ProgressBar
-                                                        value={stats.total_entries}
-                                                        max={stats.expected_weeks || 1}
-                                                        variant={getProgressVariant(stats)}
-                                                        size="sm"
-                                                        className="logbook-progress-bar"
-                                                    />
-                                                    <div className="progress-meta">
-                                                        <span>
-                                                            Cập nhật: {formatRelativeTime(stats.last_entry_at)}
-                                                        </span>
-                                                        <span className="meta-separator">•</span>
-                                                        <span>
-                                                            {stats.confirmed_entries} xác nhận
+                                                        <ProgressBar
+                                                            value={stats.total_entries}
+                                                            max={stats.expected_weeks || 1}
+                                                            variant={getProgressVariant(stats)}
+                                                            size="sm"
+                                                            className="logbook-progress-bar"
+                                                        />
+                                                        <span className="progress-meta">
+                                                            Cập nhật: {formatRelativeTime(stats.last_entry_at)} · {stats.confirmed_entries} xác nhận
                                                         </span>
                                                     </div>
                                                 </div>
