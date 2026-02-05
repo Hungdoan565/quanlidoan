@@ -142,7 +142,7 @@ export function SampleTopicsPage() {
                         <Table>
 <TableHeader>
                                 <TableRow>
-                                    <TableHead>Tên đề tài</TableHead>
+                                    <TableHead style={{ minWidth: 250 }}>Tên đề tài</TableHead>
                                     <TableHead>Đợt đồ án</TableHead>
                                     <TableHead style={{ width: 80 }}>Độ khó</TableHead>
                                     <TableHead>Công nghệ</TableHead>
@@ -155,16 +155,11 @@ export function SampleTopicsPage() {
                             <TableBody>
                                 {filteredTopics.map((topic) => (
                                     <TableRow key={topic.id}>
-                                        <TableCell>
-<div className="topic-title-cell">
+<TableCell>
+                                            <div className="topic-title-cell">
                                                 <BookOpen size={16} aria-hidden="true" />
-                                                <div>
+                                                <div className="topic-info" title={topic.title}>
                                                     <span className="topic-title">{topic.title}</span>
-                                                        {topic.description && (
-                                                            <span className="topic-desc">
-                                                                {topic.description.slice(0, 80)}…
-                                                            </span>
-                                                        )}
                                                 </div>
                                             </div>
                                         </TableCell>

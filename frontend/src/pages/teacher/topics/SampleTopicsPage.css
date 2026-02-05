@@ -30,25 +30,36 @@
 /* Topic title cell */
 .topic-title-cell {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--spacing-sm);
 }
 
-.topic-title-cell svg {
-    margin-top: 2px;
-    color: var(--text-secondary);
+.topic-title-cell > svg {
+    color: var(--primary-400);
+    flex-shrink: 0;
+}
+
+.topic-title-cell .topic-info {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
 }
 
 .topic-title-cell .topic-title {
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--primary-600);
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     display: block;
+    transition: color 0.15s ease;
 }
 
-.topic-title-cell .topic-desc {
-    font-size: 0.8rem;
-    color: var(--text-tertiary);
-    display: block;
-    margin-top: 2px;
+.topic-title-cell .topic-info:hover .topic-title {
+    color: var(--primary-700);
+    text-decoration: underline;
 }
 
 /* Session name */

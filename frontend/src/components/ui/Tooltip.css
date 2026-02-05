@@ -23,6 +23,22 @@
   transform-origin: bottom;
 }
 
+/* Ensure nested content displays correctly */
+.tooltip-content * {
+  color: #ffffff;
+}
+
+.tooltip-content strong {
+  font-weight: 600;
+  display: block;
+}
+
+.tooltip-content p {
+  margin: 4px 0 0;
+  opacity: 0.9;
+  font-size: 12px;
+}
+
 @keyframes tooltipFadeIn {
   from {
     opacity: 0;
