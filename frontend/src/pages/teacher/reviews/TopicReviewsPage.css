@@ -263,12 +263,10 @@
 
 /* Bulk Action Bar */
 .topic-reviews-page .bulk-action-bar {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  min-height: 52px;
   background: var(--primary-50);
   border-bottom: 1px solid var(--primary-200);
 }
@@ -289,14 +287,33 @@
 }
 
 .topic-reviews-page .bulk-actions .btn-ghost {
-  background: var(--bg-primary);
-  border-color: var(--primary-200);
+  background: transparent;
+  border-color: transparent;
   color: var(--primary-700);
 }
 
 .topic-reviews-page .bulk-actions .btn-ghost:hover:not(:disabled) {
-  background: var(--primary-50);
+  background: var(--primary-100);
   color: var(--primary-800);
+}
+
+/* Primary approve button - Duyệt tất cả */
+.topic-reviews-page .bulk-actions .btn-primary {
+  background: var(--primary-600);
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+  font-weight: 600;
+  padding: 0 var(--space-4);
+  height: 36px;
+}
+
+.topic-reviews-page .bulk-actions .btn-primary:hover:not(:disabled) {
+  background: var(--primary-700);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+}
+
+.topic-reviews-page .bulk-actions .btn-primary svg {
+  stroke-width: 2.5;
 }
 
 /* Spin animation for loading */
