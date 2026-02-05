@@ -99,7 +99,7 @@ Deno.serve(async (req: Request) => {
     };
 
     // Batch check existing emails
-    const emails = students.map((s) => `${s.student_code}@dnc.edu.vn`);
+    const emails = students.map((s) => `${s.student_code}@student.nctu.edu.vn`);
     const { data: existingProfiles } = await supabaseAdmin
       .from("profiles")
       .select("id, email, student_code")
@@ -127,7 +127,7 @@ Deno.serve(async (req: Request) => {
           continue;
         }
 
-        const email = `${student_code}@dnc.edu.vn`;
+        const email = `${student_code}@student.nctu.edu.vn`;
         const password = student_code;
 
         const existing = existingMap.get(email);
