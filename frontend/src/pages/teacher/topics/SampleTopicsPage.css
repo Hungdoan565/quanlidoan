@@ -62,6 +62,24 @@
     text-decoration: underline;
 }
 
+/* Clickable title cell */
+.topic-title-clickable {
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-xs);
+    margin: calc(-1 * var(--spacing-xs));
+    transition: background-color 0.15s ease;
+}
+
+.topic-title-clickable:hover {
+    background-color: var(--primary-50);
+}
+
+.topic-title-clickable:focus {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+}
+
 /* Session name */
 .session-name {
     font-size: 0.85rem;

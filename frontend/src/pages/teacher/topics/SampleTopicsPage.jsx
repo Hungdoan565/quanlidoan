@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit, Trash2, BookOpen, Users, ToggleLeft, ToggleRight, Code, List, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, BookOpen, Users, ToggleLeft, ToggleRight, Code, List, Eye } from 'lucide-react';
 import {
     useMySampleTopics,
     useDeleteSampleTopic,
@@ -25,6 +25,7 @@ import {
     ErrorState,
 } from '../../../components/ui';
 import { SampleTopicFormModal } from './SampleTopicFormModal';
+import { SampleTopicDetailModal } from './SampleTopicDetailModal';
 import './SampleTopicsPage.css';
 
 // Difficulty badge config
@@ -40,6 +41,7 @@ export function SampleTopicsPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingTopic, setEditingTopic] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, topic: null });
+    const [detailTopic, setDetailTopic] = useState(null);
 
     // Queries
     const { data: topics = [], isLoading, error, refetch } = useMySampleTopics();
@@ -61,6 +63,10 @@ export function SampleTopicsPage() {
     const handleEdit = (topic) => {
         setEditingTopic(topic);
         setIsFormOpen(true);
+    };
+
+    const handleViewDetail = (topic) => {
+        setDetailTopic(topic);
     };
 
     const handleDelete = async () => {
@@ -149,14 +155,20 @@ export function SampleTopicsPage() {
                                     <TableHead style={{ width: 80 }}>Yêu cầu</TableHead>
                                     <TableHead style={{ width: 80 }}>Số SV</TableHead>
                                     <TableHead style={{ width: 90 }}>Trạng thái</TableHead>
-                                    <TableHead style={{ width: 100 }}>Thao tác</TableHead>
+                                    <TableHead style={{ width: 130 }}>Thao tác</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {filteredTopics.map((topic) => (
                                     <TableRow key={topic.id}>
 <TableCell>
-                                            <div className="topic-title-cell">
+                                            <div 
+                                                className="topic-title-cell topic-title-clickable"
+                                                onClick={() => handleViewDetail(topic)}
+                                                role="button"
+                                                tabIndex={0}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleViewDetail(topic)}
+                                            >
                                                 <BookOpen size={16} aria-hidden="true" />
                                                 <div className="topic-info" title={topic.title}>
                                                     <span className="topic-title">{topic.title}</span>
@@ -229,6 +241,14 @@ export function SampleTopicsPage() {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
+                                                    onClick={() => handleViewDetail(topic)}
+                                                    aria-label={`Xem chi tiết đề tài ${topic.title}`}
+                                                >
+                                                    <Eye size={16} aria-hidden="true" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
                                                     onClick={() => handleEdit(topic)}
                                                     aria-label={`Chỉnh sửa đề tài ${topic.title}`}
                                                 >
@@ -270,6 +290,14 @@ export function SampleTopicsPage() {
                 confirmText="Xóa"
                 variant="danger"
                 loading={deleteTopic.isPending}
+            />
+
+            {/* Detail Modal */}
+            <SampleTopicDetailModal
+                isOpen={!!detailTopic}
+                onClose={() => setDetailTopic(null)}
+                topic={detailTopic}
+                onEdit={handleEdit}
             />
         </div>
     );
