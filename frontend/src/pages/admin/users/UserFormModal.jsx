@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { UserPlus, Mail, User, Phone, GraduationCap, UserCheck, Shield, Building, Key } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../../lib/supabase';
 import { useAuthStore } from '../../../store/authStore';
 import { Modal, Button, Input, CustomSelect, Badge } from '../../../components/ui';
@@ -53,6 +54,7 @@ const generatePassword = () => {
 };
 
 export function UserFormModal({ isOpen, onClose, onSuccess }) {
+    const queryClient = useQueryClient();
     const [isLoading, setIsLoading] = useState(false);
     const [showGeneratedPassword, setShowGeneratedPassword] = useState(false);
     const [formData, setFormData] = useState({
@@ -215,6 +217,17 @@ export function UserFormModal({ isOpen, onClose, onSuccess }) {
             }
 
             toast.success(`Đã tạo tài khoản ${formData.full_name} thành công!`);
+
+            // Invalidate relevant caches based on role
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+            if (formData.role === 'teacher') {
+                queryClient.invalidateQueries({ queryKey: ['teachers'] });
+            }
+            if (formData.role === 'student') {
+                queryClient.invalidateQueries({ queryKey: ['students'] });
+                queryClient.invalidateQueries({ queryKey: ['available-students'] });
+            }
 
             // Reset form
             setFormData({

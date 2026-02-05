@@ -5,46 +5,58 @@ import { supabase } from '../lib/supabase';
  */
 export const teacherService = {
     /**
-     * Lấy thống kê cho Teacher Dashboard
+     * Lấy thống kê dashboard cho giảng viên
+     * Đếm sinh viên từ các lớp được phân công (classes.advisor_id)
      */
     getTeacherDashboardStats: async (teacherId) => {
         try {
-            // Lấy số sinh viên đang hướng dẫn (Unified Lecturer - chỉ có advisor)
-            const { count: guidingCount } = await supabase
+            // 1. Get classes where teacher is advisor
+            const { data: myClasses } = await supabase
+                .from('classes')
+                .select('id')
+                .eq('advisor_id', teacherId);
+            
+            const classIds = myClasses?.map(c => c.id) || [];
+            
+            // 2. Count students in those classes
+            let guidingStudents = 0;
+            if (classIds.length > 0) {
+                const { count } = await supabase
+                    .from('class_students')
+                    .select('*', { count: 'exact', head: true })
+                    .in('class_id', classIds);
+                guidingStudents = count || 0;
+            }
+            
+            // 3. Count pending topics (status = 'pending')
+            const { count: pendingApproval } = await supabase
                 .from('topics')
                 .select('*', { count: 'exact', head: true })
                 .eq('advisor_id', teacherId)
-                .in('status', ['approved', 'in_progress', 'submitted']);
-
-            // Lấy số đề tài chờ duyệt
-            const { data: pendingTopics } = await supabase
-                .from('topics')
-                .select('id')
-                .eq('advisor_id', teacherId)
                 .eq('status', 'pending');
-
-            // Lấy số báo cáo cần chấm (Unified - advisor chấm tất cả)
+            
+            // 4. Count submitted topics needing grading (status = 'submitted')
             const { count: pendingGrades } = await supabase
                 .from('topics')
                 .select('*', { count: 'exact', head: true })
                 .eq('advisor_id', teacherId)
                 .eq('status', 'submitted');
-
-            // Lấy số đề tài hoàn thành
-            const { count: completedCount } = await supabase
+            
+            // 5. Count completed topics (status = 'completed' or 'defended')
+            const { count: completedTopics } = await supabase
                 .from('topics')
                 .select('*', { count: 'exact', head: true })
                 .eq('advisor_id', teacherId)
-                .eq('status', 'completed');
-
+                .in('status', ['completed', 'defended']);
+            
             return {
-                guidingStudents: guidingCount || 0,
-                pendingApproval: pendingTopics?.length || 0,
+                guidingStudents,
+                pendingApproval: pendingApproval || 0,
                 pendingGrades: pendingGrades || 0,
-                completedTopics: completedCount || 0,
+                completedTopics: completedTopics || 0,
             };
         } catch (error) {
-            console.error('Error fetching teacher stats:', error);
+            console.error('Error fetching teacher dashboard stats:', error);
             throw error;
         }
     },
@@ -112,22 +124,73 @@ export const teacherService = {
     },
 
     /**
-     * Lấy danh sách sinh viên đang hướng dẫn
+     * Lấy danh sách sinh viên đang hướng dẫn (từ các lớp được phân công)
+     * Bao gồm cả sinh viên chưa đăng ký đề tài
      */
     getGuidingStudents: async (teacherId) => {
         try {
-            const { data, error } = await supabase
-                .from('topics')
+            // 1. Get all classes where teacher is advisor
+            const { data: myClasses } = await supabase
+                .from('classes')
+                .select('id, code, name')
+                .eq('advisor_id', teacherId);
+            
+            if (!myClasses || myClasses.length === 0) return [];
+            
+            const classIds = myClasses.map(c => c.id);
+            const classMap = {};
+            myClasses.forEach(c => { classMap[c.id] = c; });
+            
+            // 2. Get all students in those classes
+            const { data: classStudents, error: csError } = await supabase
+                .from('class_students')
                 .select(`
-                    id, title, status, updated_at,
-                    student:profiles!topics_student_id_fkey(id, full_name, email, student_id)
+                    class_id,
+                    created_at,
+                    student:profiles(
+                        id, full_name, email, student_code, avatar_url
+                    )
                 `)
-                .eq('advisor_id', teacherId)
-                .in('status', ['approved', 'in_progress', 'submitted', 'defended'])
-                .order('updated_at', { ascending: false });
-
-            if (error) throw error;
-            return data || [];
+                .in('class_id', classIds)
+                .order('created_at', { ascending: true });
+            
+            if (csError) throw csError;
+            
+            // 3. Get topics for those students (to show status if they have one)
+            const { data: topics } = await supabase
+                .from('topics')
+                .select('id, title, status, updated_at, student_id, class_id')
+                .in('class_id', classIds);
+            
+            // Build topic map by student_id
+            const topicMap = {};
+            topics?.forEach(t => {
+                topicMap[t.student_id] = t;
+            });
+            
+            // 4. Transform data - merge student with topic info
+            const result = classStudents?.map(cs => {
+                const topic = topicMap[cs.student?.id] || null;
+                const classInfo = classMap[cs.class_id];
+                return {
+                    id: topic?.id || `no-topic-${cs.student?.id}`,
+                    title: topic?.title || null,
+                    status: topic?.status || 'no_topic',
+                    updated_at: topic?.updated_at || cs.created_at,
+                    student: cs.student,
+                    class: classInfo,
+                };
+            }).filter(s => s.student?.id) || [];
+            
+            // Sort by status priority: no_topic first, then by updated_at
+            return result.sort((a, b) => {
+                // Prioritize students with active topics
+                const statusOrder = { 'no_topic': 4, 'pending': 1, 'approved': 2, 'in_progress': 3, 'submitted': 0, 'defended': 5, 'completed': 6, 'rejected': 7 };
+                const aOrder = statusOrder[a.status] ?? 10;
+                const bOrder = statusOrder[b.status] ?? 10;
+                if (aOrder !== bOrder) return aOrder - bOrder;
+                return new Date(b.updated_at) - new Date(a.updated_at);
+            });
         } catch (error) {
             console.error('Error fetching guiding students:', error);
             return [];

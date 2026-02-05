@@ -42,6 +42,7 @@ const statusConfig = {
     defended: { variant: 'info', label: 'Đã bảo vệ' },
     completed: { variant: 'success', label: 'Hoàn thành' },
     rejected: { variant: 'danger', label: 'Từ chối' },
+    no_topic: { variant: 'default', label: 'Chưa ĐK' },
     // Session status
     draft: { variant: 'default', label: 'Nháp' },
     open: { variant: 'success', label: 'Đang mở' },

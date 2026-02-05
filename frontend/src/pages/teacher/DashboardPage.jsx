@@ -196,7 +196,7 @@ export function TeacherDashboard() {
                             <h3>Sinh viên đang hướng dẫn</h3>
                             <button 
                                 className="view-all-btn"
-                                onClick={() => navigate('/teacher/students')}
+                                onClick={() => navigate('/teacher/mentees')}
                             >
                                 Xem tất cả
                             </button>
@@ -220,28 +220,34 @@ export function TeacherDashboard() {
                             <div className="loading-placeholder">Đang tải...</div>
                         ) : students.length > 0 ? (
                             <ul className="students-list">
-                                {students.slice(0, 5).map((item) => (
-                                    <li 
-                                        key={item.id} 
-                                        className="student-item"
-                                        role="button"
-                                        tabIndex={0}
-                                        onClick={() => navigate(`/teacher/topics/${item.id}`)}
-                                        onKeyDown={(e) => handleKeyDown(e, () => navigate(`/teacher/topics/${item.id}`))}
-                                        aria-label={`${item.student?.full_name}: ${item.title}`}
-                                    >
-                                        <div className="student-avatar" aria-hidden="true">
-                                            {item.student?.full_name?.[0] || 'S'}
-                                        </div>
-                                        <div className="student-info">
-                                            <span className="student-name">{item.student?.full_name}</span>
-                                            <span className="student-topic" title={item.title}>
-                                                {item.title}
-                                            </span>
-                                        </div>
-                                        <StatusBadge status={item.status} />
-                                    </li>
-                                ))}
+                                {students.slice(0, 5).map((item) => {
+                                    const hasTopic = item.status && item.status !== 'no_topic';
+                                    const handleClick = hasTopic 
+                                        ? () => navigate(`/teacher/reviews/${item.id}`)
+                                        : undefined;
+                                    return (
+                                        <li 
+                                            key={item.id} 
+                                            className={`student-item ${!hasTopic ? 'no-topic' : ''}`}
+                                            role={hasTopic ? "button" : undefined}
+                                            tabIndex={hasTopic ? 0 : undefined}
+                                            onClick={handleClick}
+                                            onKeyDown={hasTopic ? (e) => handleKeyDown(e, handleClick) : undefined}
+                                            aria-label={`${item.student?.full_name}: ${item.title || 'Chưa đăng ký đề tài'}`}
+                                        >
+                                            <div className="student-avatar" aria-hidden="true">
+                                                {item.student?.full_name?.[0] || 'S'}
+                                            </div>
+                                            <div className="student-info">
+                                                <span className="student-name">{item.student?.full_name}</span>
+                                                <span className="student-topic" title={item.title || 'Chưa đăng ký đề tài'}>
+                                                    {item.title || 'Chưa đăng ký đề tài'}
+                                                </span>
+                                            </div>
+                                            <StatusBadge status={item.status} />
+                                        </li>
+                                    );
+                                })}
                             </ul>
                         ) : (
                             <div className="empty-students">

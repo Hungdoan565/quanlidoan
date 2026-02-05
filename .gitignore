@@ -5,3 +5,7 @@ excel
 docs
 .sisyphus/
 nul
+openspec
+# Backup config - DO NOT COMMIT
+.backup.config.ps1
+backups/
