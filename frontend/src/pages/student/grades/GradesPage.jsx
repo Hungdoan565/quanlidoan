@@ -9,7 +9,8 @@ import {
     MapPin,
     AlertCircle,
     CheckCircle,
-    BookOpen
+    BookOpen,
+    Calculator
 } from 'lucide-react';
 import {
     Card,
@@ -133,7 +134,102 @@ export function GradesPage() {
                 </CardBody>
             </Card>
 
-            {/* Defense Schedule */}
+            {/* Grades Section - MOVED UP FOR PRIORITY */}
+            {!summary?.hasGrades ? (
+                <Card className="grades-card empty">
+                    <CardBody>
+                        <NoDataState
+                            icon={Award}
+                            title="Chưa có điểm"
+                            description="Điểm sẽ được công bố sau khi bạn hoàn thành bảo vệ đồ án và được giảng viên chấm điểm"
+                        />
+                    </CardBody>
+                </Card>
+            ) : (
+                <>
+                    {/* Detailed Grades - MOVED TO TOP */}
+                    <Card className="grades-detail-card">
+                        <CardHeader>
+                            <h3><FileText size={18}  aria-hidden="true" /> Chi tiết điểm theo tiêu chí</h3>
+                        </CardHeader>
+                        <CardBody>
+                            <div className="grades-list">
+                                {summary.grades.map((grade) => (
+                                    <div key={grade.id} className="grade-item">
+                                        <div className="grade-item-header">
+                                            <span className="criteria-name">
+                                                {grade.criterion_name}
+                                            </span>
+                                            <div className="grade-score-badge">
+                                                <span className="item-score">{grade.score}</span>
+                                                <span className="item-max">/10</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <ProgressBar 
+                                            value={grade.score} 
+                                            max={10} 
+                                            variant={grade.score >= 8 ? 'success' : grade.score >= 5 ? 'warning' : 'danger'}
+                                        />
+                                        
+                                        {grade.notes && (
+                                            <div className="grade-comments">
+                                                <strong>Nhận xét:</strong> {grade.notes}
+                                            </div>
+                                        )}
+                                        
+                                        {grade.graded_by && (
+                                            <div className="grade-grader">
+                                                <User size={12}  aria-hidden="true" />
+                                                <span>{grade.graded_by.full_name}</span>
+                                                {grade.grader_role && (
+                                                    <Badge variant="outline" size="sm">
+                                                        {grade.grader_role === 'advisor' ? 'GVHD' :
+                                                         grade.grader_role === 'reviewer' ? 'GVPB' : 
+                                                         grade.grader_role === 'council' ? 'Hội đồng' : grade.grader_role}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </CardBody>
+                    </Card>
+
+                    {/* Final Grade Summary - BIG DISPLAY AT BOTTOM */}
+                    <Card className="final-grade-card">
+                        <CardBody>
+                            <div className="final-grade-container">
+                                <div className="final-grade-header">
+                                    <Calculator size={20} aria-hidden="true" />
+                                    <h3>TỔNG KẾT</h3>
+                                </div>
+                                <div className="final-grade-content">
+                                    <div className="final-grade-label">TỔNG ĐIỂM</div>
+                                    <div className="final-grade-value">
+                                        <span className="final-score">{summary.averageScore.toFixed(2)}</span>
+                                        <span className="final-max">/10.00</span>
+                                    </div>
+                                    {classification && (
+                                        <Badge variant={classification.variant} className="final-classification" size="lg">
+                                            <ClassificationIcon size={16} aria-hidden="true" />
+                                            {classification.label}
+                                        </Badge>
+                                    )}
+                                </div>
+                                {summary.gradedAt && (
+                                    <div className="final-grade-date">
+                                        Ngày chấm: {format(new Date(summary.gradedAt), 'dd/MM/yyyy', { locale: vi })}
+                                    </div>
+                                )}
+                            </div>
+                        </CardBody>
+                    </Card>
+                </>
+            )}
+
+            {/* Defense Schedule - MOVED TO BOTTOM */}
             {scheduleLoading ? (
                 <SkeletonCard />
             ) : defenseSchedule ? (
@@ -198,116 +294,7 @@ export function GradesPage() {
                         )}
                     </CardBody>
                 </Card>
-            ) : (
-                <Card className="defense-card empty">
-                    <CardBody>
-                        <NoDataState
-                            icon={Calendar}
-                            title="Chưa có lịch bảo vệ"
-                            description="Lịch bảo vệ sẽ được cập nhật khi đến giai đoạn bảo vệ đồ án"
-                        />
-                    </CardBody>
-                </Card>
-            )}
-
-            {/* Grades Section */}
-            {!summary?.hasGrades ? (
-                <Card className="grades-card empty">
-                    <CardBody>
-                        <NoDataState
-                            icon={Award}
-                            title="Chưa có điểm"
-                            description="Điểm sẽ được công bố sau khi bạn hoàn thành bảo vệ đồ án và được giảng viên chấm điểm"
-                        />
-                    </CardBody>
-                </Card>
-            ) : (
-                <>
-                    {/* Grade Summary */}
-                    <Card className="grade-summary-card">
-                        <CardBody>
-                            <div className="grade-summary">
-                                <div className="grade-score-section">
-                                    <div className="grade-score">
-                                        <span className="score-value">{summary.averageScore.toFixed(1)}</span>
-                                        <span className="score-max">/10</span>
-                                    </div>
-                                    {classification && (
-                                        <Badge variant={classification.variant} className="grade-classification">
-                                            <ClassificationIcon size={14}  aria-hidden="true" />
-                                            {classification.label}
-                                        </Badge>
-                                    )}
-                                </div>
-                                <div className="grade-meta">
-                                    <div className="grade-meta-item">
-                                        <span className="meta-label">Tổng điểm</span>
-                                        <span className="meta-value">{summary.totalScore}/{summary.maxPossible}</span>
-                                    </div>
-                                    {summary.gradedAt && (
-                                        <div className="grade-meta-item">
-                                            <span className="meta-label">Ngày chấm</span>
-                                            <span className="meta-value">
-                                                {format(new Date(summary.gradedAt), 'dd/MM/yyyy', { locale: vi })}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </CardBody>
-                    </Card>
-
-                    {/* Detailed Grades */}
-                    <Card className="grades-detail-card">
-                        <CardHeader>
-                            <h3><FileText size={18}  aria-hidden="true" /> Chi tiết điểm theo tiêu chí</h3>
-                        </CardHeader>
-                        <CardBody>
-                            <div className="grades-list">
-                                {summary.grades.map((grade) => (
-                                    <div key={grade.id} className="grade-item">
-                                        <div className="grade-item-header">
-                                            <span className="criteria-name">
-                                                {grade.criterion_name}
-                                            </span>
-                                            <div className="grade-score-badge">
-                                                <span className="item-score">{grade.score}</span>
-                                                <span className="item-max">/10</span>
-                                            </div>
-                                        </div>
-                                        
-                                        <ProgressBar 
-                                            value={grade.score} 
-                                            max={10} 
-                                            variant={grade.score >= 8 ? 'success' : grade.score >= 5 ? 'warning' : 'danger'}
-                                        />
-                                        
-                                        {grade.notes && (
-                                            <div className="grade-comments">
-                                                <strong>Nhận xét:</strong> {grade.notes}
-                                            </div>
-                                        )}
-                                        
-                                        {grade.graded_by && (
-                                            <div className="grade-grader">
-                                                <User size={12}  aria-hidden="true" />
-                                                <span>{grade.graded_by.full_name}</span>
-                                                {grade.grader_role && (
-                                                    <Badge variant="outline" size="sm">
-                                                        {grade.grader_role === 'advisor' ? 'GVHD' :
-                                                         grade.grader_role === 'reviewer' ? 'GVPB' : 
-                                                         grade.grader_role === 'council' ? 'Hội đồng' : grade.grader_role}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </CardBody>
-                    </Card>
-                </>
-            )}
+            ) : null}
         </div>
     );
 }

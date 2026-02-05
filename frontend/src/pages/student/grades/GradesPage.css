@@ -308,6 +308,83 @@
     margin-bottom: 1.5rem;
 }
 
+/* Final Grade Card - BIG DISPLAY */
+.final-grade-card {
+    margin-bottom: 1.5rem;
+    border: 2px solid var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.final-grade-container {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.final-grade-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.final-grade-header svg {
+    color: var(--primary);
+}
+
+.final-grade-header h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.final-grade-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.final-grade-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.final-grade-value {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.final-score {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--primary);
+}
+
+.final-max {
+    font-size: 1.5rem;
+    color: var(--text-tertiary);
+}
+
+.final-classification {
+    padding: 0.5rem 1.5rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+}
+
+.final-grade-date {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .topic-status-grid {
