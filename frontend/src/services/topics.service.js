@@ -57,35 +57,25 @@ export const topicsService = {
      * Lấy danh sách đề tài mẫu của session (còn slot trống)
      */
     getSampleTopics: async (sessionId) => {
-        const { data, error } = await supabase
-            .from('sample_topics')
-            .select(`
-                *,
-                teacher:profiles!sample_topics_teacher_id_fkey(id, full_name, teacher_code, avatar_url, department, academic_rank, bio, interests, bio_public)
-            `)
-            .eq('session_id', sessionId)
-            .eq('is_active', true)
-            .order('created_at', { ascending: false });
+        const { data, error } = await supabase.rpc('get_sample_topics_with_counts', {
+            p_session_id: sessionId,
+            p_only_active: true,
+        });
 
         if (error) throw error;
 
-        // Filter những đề tài còn slot
-        return data?.filter(t => t.current_students < t.max_students) || [];
+        const topics = data || [];
+        return topics.filter((topic) => topic.current_students < topic.max_students);
     },
 
     /**
      * Lấy tất cả đề tài mẫu (kể cả hết slot - cho hiển thị)
      */
     getAllSampleTopics: async (sessionId) => {
-        const { data, error } = await supabase
-            .from('sample_topics')
-            .select(`
-                *,
-                teacher:profiles!sample_topics_teacher_id_fkey(id, full_name, teacher_code, avatar_url, department, academic_rank, bio, interests, bio_public)
-            `)
-            .eq('session_id', sessionId)
-            .eq('is_active', true)
-            .order('created_at', { ascending: false });
+        const { data, error } = await supabase.rpc('get_sample_topics_with_counts', {
+            p_session_id: sessionId,
+            p_only_active: true,
+        });
 
         if (error) throw error;
         return data || [];

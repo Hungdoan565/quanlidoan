@@ -63,6 +63,15 @@
   min-width: 280px;
   max-height: 300px;
   overflow-y: auto;
+  
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.class-dropdown::-webkit-scrollbar {
+  display: none;
 }
 
 .class-dropdown .dropdown-item {
@@ -225,6 +234,15 @@
   gap: 12px;
   max-height: 600px;
   scroll-behavior: smooth;
+  
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.column-content::-webkit-scrollbar {
+  display: none;
 }
 
 .column-empty {

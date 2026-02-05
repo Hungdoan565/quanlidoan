@@ -15,7 +15,8 @@ import {
     Moon,
     Sun,
     Shield,
-    Award
+    Award,
+    Activity
 } from 'lucide-react';
 import {
     Avatar,
@@ -44,6 +45,7 @@ const navItems = {
     teacher: [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/teacher/dashboard' },
         { icon: Users, label: 'Sinh viên', path: '/teacher/mentees' },
+        { icon: Activity, label: 'Theo dõi tiến độ', path: '/teacher/mentees/health' },
         { icon: BookOpen, label: 'Đề tài mẫu', path: '/teacher/topics' },
         { icon: FileText, label: 'Duyệt đề tài', path: '/teacher/reviews' },
         { icon: BookOpen, label: 'Nhật ký SV', path: '/teacher/logbook' },
@@ -109,6 +111,7 @@ export function DashboardLayout({ role }) {
                         <NavLink
                             key={item.path}
                             to={item.path}
+                            end
                             className={({ isActive }) =>
                                 `nav-item ${isActive ? 'active' : ''}`
                             }

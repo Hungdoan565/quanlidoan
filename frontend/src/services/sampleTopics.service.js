@@ -21,7 +21,27 @@ export const sampleTopicsService = {
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        return data;
+        if (!data || data.length === 0) return data || [];
+
+        const topicIds = data.map((topic) => topic.id);
+        const { data: topicUsage, error: usageError } = await supabase
+            .from('topics')
+            .select('sample_topic_id, status')
+            .in('sample_topic_id', topicIds)
+            .neq('status', 'rejected');
+
+        if (usageError) throw usageError;
+
+        const usageMap = (topicUsage || []).reduce((acc, row) => {
+            if (!row.sample_topic_id) return acc;
+            acc[row.sample_topic_id] = (acc[row.sample_topic_id] || 0) + 1;
+            return acc;
+        }, {});
+
+        return data.map((topic) => ({
+            ...topic,
+            current_students: usageMap[topic.id] ?? topic.current_students ?? 0,
+        }));
     },
 
     /**
