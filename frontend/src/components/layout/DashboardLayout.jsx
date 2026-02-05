@@ -27,7 +27,6 @@ import {
     DropdownSeparator,
     DropdownLabel,
 } from '../ui';
-import { Logo } from './Logo';
 import { NotificationDropdown } from './NotificationDropdown';
 import './DashboardLayout.css';
 
@@ -94,9 +93,11 @@ export function DashboardLayout({ role }) {
             <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
                     <div className="logo">
-                        <Logo size={32} />
-                        <span className="logo-text">QL Đồ án</span>
-                    </div>
+                                                <img
+                            src="/logo_truong.png"
+                            alt="Logo tru?ng"
+                            className="sidebar-logo-image"
+                        />                    </div>
                     <button
                         className="close-btn"
                         onClick={toggleSidebar}
@@ -214,3 +215,4 @@ export function DashboardLayout({ role }) {
         </div>
     );
 }
+

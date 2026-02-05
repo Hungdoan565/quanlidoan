@@ -3,7 +3,6 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { Logo } from '../../components/layout/Logo';
 import './auth.css';
 
 export function LoginPage() {
@@ -53,7 +52,11 @@ export function LoginPage() {
             <div className="auth-card">
                 <div className="auth-header">
                     <div className="auth-logo">
-                        <Logo size={64} aria-hidden="true" />
+                        <img
+                            src="/logo_truong.png"
+                            alt="Logo trường"
+                            className="auth-logo-image"
+                        />
                     </div>
                     <h1>Hệ thống Quản lý Đồ án</h1>
                     <p>Đăng nhập để tiếp tục</p>

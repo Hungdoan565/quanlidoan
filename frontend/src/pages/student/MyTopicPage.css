@@ -238,8 +238,8 @@
    =========================================== */
 .topic-content-grid {
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: var(--space-8);
+    grid-template-columns: 1fr 340px;
+    gap: var(--space-6);
     align-items: start;
 }
 
@@ -250,7 +250,11 @@
 .topic-sidebar {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-6);
+}
+
+.topic-sidebar .sidebar-card {
+    margin: 0;
 }
 
 /* ===========================================
@@ -427,10 +431,27 @@
     background: linear-gradient(90deg, var(--success-500) 0%, var(--success-400) 100%);
 }
 
+.class-card {
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
 .sidebar-card .card-header {
     background: transparent;
     padding: var(--space-4);
     border-bottom: 1px solid var(--border-default);
+    position: relative;
+    z-index: 1;
+}
+
+.teacher-card .card-header {
+    border-bottom: none;
+    padding-bottom: var(--space-2);
+}
+
+.class-card .card-header {
+    border-bottom: none;
+    padding-bottom: var(--space-3);
 }
 
 .sidebar-card .card-header h3 {
@@ -454,11 +475,24 @@
 
 .sidebar-card .card-body {
     padding: var(--space-4);
+    overflow: visible;
+}
+
+.class-card .card-body {
+    padding-top: var(--space-8);
+}
+
+.class-info-list {
+    margin-top: var(--space-3);
+}
+
+.class-info-list .info-row:first-child {
+    margin-top: var(--space-5);
 }
 
 /* Teacher Info - Enhanced Card Layout */
 .teacher-card .card-body {
-    padding: var(--space-5) !important;
+    padding: var(--space-6) !important;
 }
 
 .teacher-info {
@@ -466,7 +500,7 @@
     flex-direction: row;
     align-items: center;
     text-align: left;
-    gap: var(--space-4);
+    gap: var(--space-5);
 }
 
 .teacher-avatar-wrapper {
@@ -497,7 +531,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--space-2);
+    gap: var(--space-3);
     width: 100%;
 }
 
@@ -568,6 +602,7 @@
     border: 1px solid var(--border-default);
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
     width: fit-content;
+    margin-top: 2px;
 }
 
 .teacher-email:hover {
@@ -614,31 +649,34 @@
 }
 
 .class-info-list {
-    display: grid;
-    gap: var(--space-2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
 }
 
 .class-info-list .info-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--border-default);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-light);
     border-radius: var(--radius-lg);
-    gap: var(--space-3);
+    gap: var(--space-4);
     background: var(--bg-secondary);
+    min-height: 44px;
 }
 
 .class-info-list .info-row:hover {
-    background: var(--neutral-50);
-    border-color: var(--primary-200);
+    background: var(--bg-tertiary);
+    border-color: var(--border-default);
 }
 
 .class-info-list .info-row .info-label {
     font-size: var(--text-sm);
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-weight: 500;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .class-info-list .info-row .info-value {
@@ -646,6 +684,8 @@
     font-weight: 600;
     color: var(--text-primary);
     text-align: right;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .class-info-list .info-row .info-value.highlight {
@@ -771,7 +811,7 @@
 
     .sidebar-card {
         flex: 1;
-        min-width: 280px;
+        min-width: 300px;
     }
 }
 

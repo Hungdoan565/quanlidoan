@@ -35,6 +35,14 @@
     gap: var(--space-3);
 }
 
+.sidebar-logo-image {
+    width: 120px;
+    height: 48px;
+    margin-left: var(--space-6);
+    object-fit: contain;
+    display: block;
+}
+
 .logo-text {
     font-size: var(--text-lg);
     font-weight: var(--font-bold);

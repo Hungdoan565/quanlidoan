@@ -212,16 +212,20 @@
 .activities-list {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: var(--space-2) 0;
 }
 
 .activity-item {
     display: flex;
     align-items: flex-start;
     gap: var(--space-3);
-    padding: var(--space-3) var(--space-5);
+    padding: var(--space-4) var(--space-5);
     border-bottom: 1px solid var(--border-default);
     transition: background 0.15s ease;
+}
+
+.activity-item:first-child {
+    padding-top: var(--space-6);
 }
 
 .activity-item:last-child {
@@ -248,7 +252,7 @@
     flex: 1;
     min-width: 0;
     font-size: var(--text-sm);
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 .activity-actor {

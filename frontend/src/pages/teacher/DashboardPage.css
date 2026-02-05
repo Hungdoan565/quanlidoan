@@ -186,7 +186,7 @@
 .students-list {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: var(--space-5) 0;
 }
 
 .student-item {
@@ -197,6 +197,10 @@
     border-bottom: 1px solid var(--border-default);
     cursor: pointer;
     transition: all 0.15s ease;
+}
+
+.student-item:first-child {
+    padding-top: var(--space-4);
 }
 
 .student-item:last-child {

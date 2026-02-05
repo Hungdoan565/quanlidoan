@@ -344,6 +344,14 @@
     margin-bottom: var(--space-4);
 }
 
+.auth-logo-image {
+    width: 140px;
+    height: 90px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
 .auth-logo.success-icon {
     font-size: 4rem;
 }
