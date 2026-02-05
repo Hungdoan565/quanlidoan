@@ -334,8 +334,8 @@ export function MenteesKanbanPage() {
                             variant="ghost" 
                             size="sm"
                             onClick={(e) => handleViewLogbook(e, mentee.topic.id)}
+                            leftIcon={<BookOpen size={14} aria-hidden="true" />}
                         >
-                            <BookOpen size={14} aria-hidden="true" />
                             Nhật ký
                         </Button>
                     )}

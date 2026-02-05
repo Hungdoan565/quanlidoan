@@ -146,7 +146,7 @@ export default function MyClassesPage() {
                 <div className="page-actions">
                     <Button onClick={() => navigate('/teacher/mentees/health')}>
                         <Activity size={18} /> 
-                        Theo dõi sức khỏe
+                        Theo dõi tiến độ
                     </Button>
                 </div>
             </div>

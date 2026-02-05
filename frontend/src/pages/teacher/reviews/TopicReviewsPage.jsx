@@ -348,7 +348,7 @@ export function TopicReviewsPage() {
                                             </td>
 <td>
 <Button
-                                                    variant="outline"
+                                                    variant="ghost"
                                                     size="small"
                                                     onClick={() => handleViewTopic(topic)}
                                                     leftIcon={<Eye size={14} aria-hidden="true" />}

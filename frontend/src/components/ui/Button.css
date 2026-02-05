@@ -154,6 +154,14 @@
     flex-shrink: 0;
 }
 
+.btn-icon-left {
+    margin-right: var(--space-1);
+}
+
+.btn-icon-right {
+    margin-left: var(--space-1);
+}
+
 .btn-text {
     display: inline-block;
 }
