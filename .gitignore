@@ -1,11 +1,7 @@
 node_modules/
-.agent/
-skill/
 excel
 docs
-.sisyphus/
 nul
-openspec
-# Backup config - DO NOT COMMIT
+# Backup config 
 .backup.config.ps1
 backups/
